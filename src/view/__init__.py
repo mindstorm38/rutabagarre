@@ -1,26 +1,45 @@
+from typing import Dict, List, Callable
 from abc import ABC, abstractmethod
-from typing import Optional, Dict
 
+from pygame.event import Event
 from pygame.font import Font
 from pygame import Surface
-import pygame
 
+import game
 import res
 
 
 class View(ABC):
 
+    BACKGROUND_COLOR = (54, 16, 12)
+
     """
     Une classe abstraite pour toutes les vues enregistrées dans le jeu.
     """
+
+    def __init__(self):
+        self._children: List['ViewObject'] = []
+
+    def add_child(self, child: 'ViewObject'):
+        self._children.append(child)
 
     @abstractmethod
     def init(self, data: 'SharedViewData'):
         """ Appelée à l'initialisation du jeu avec les données communes des vues. """
 
-    @abstractmethod
     def draw(self, surface: Surface):
-        """ Appelée à chaque image, doit dessiner la vue. """
+
+        """ Appelée à chaque image, doit dessiner la vue sur la `surface` donnée. """
+
+        surface.fill(self.BACKGROUND_COLOR)
+
+        for child in self._children:
+            child.draw(surface)
+
+    def event(self, event: Event):
+        """ Appelée pour chaque évènement PyGame. """
+        for child in self._children:
+            child.event(event)
 
 
 class SharedViewData:
@@ -30,7 +49,8 @@ class SharedViewData:
     les fontes pour éviter de les recharger.
     """
 
-    def __init__(self):
+    def __init__(self, the_game: 'game.Game'):
+        self._game = the_game
         self._fonts: Dict[int, Font] = {}
 
     def init(self):
@@ -39,6 +59,10 @@ class SharedViewData:
     def cleanup(self):
         """ Appelée à la fermeture du jeu afin de supprimer les données désormais invalide. """
         self._fonts = {}
+
+    def get_game(self) -> 'game.Game':
+        """ Retourne l'instance actuelle du controlleur de jeu. """
+        return self._game
 
     def get_font(self, size: int) -> Font:
 
@@ -52,53 +76,19 @@ class SharedViewData:
             self._fonts[size] = font
         return font
 
+    def get_show_view_callback(self, view_name: str) -> callable:
+        """ Retourne une fonction de type `callback` qui change la vue active quand elle est appelée. """
+        def _cb(*_args, **_kwargs):
+            self._game.show_view(view_name)
+        return _cb
 
-class Button:
 
-    """
-    Bouton pouvant être utilisé par les vues, doit être créé dans `View.init` au plus tôt en
-    fournissant la fonte et le texte. Il faut également définir sa position et sa taille.
-    """
+class ViewObject(ABC):
 
-    BUTTON_FONT_COLOR = (255, 255, 255)
-    BUTTON_BACKGROUND_COLOR = (133, 43, 24)
-
-    def __init__(self, font: Font, text: str):
-
-        if font is None or text is None:
-            raise ValueError("Font and text can't be None.")
-
-        self._font = font
-        self._text = text
-        self._pos = (0, 0)
-        self._size = (300, 50)
-
-        self._text_surface: Optional[Surface] = None
-        self._text_pos = (0, 0)
-        self._redraw()
-
-    def _redraw(self):
-        self._text_surface = self._font.render(self._text, True, self.BUTTON_FONT_COLOR, self.BUTTON_BACKGROUND_COLOR)
-        self._refresh_text_pos()
-
-    def _refresh_text_pos(self):
-        rect = self._text_surface.get_rect()
-        self._text_pos = (
-            self._pos[0] + (self._size[0] - rect.width) / 2,
-            self._pos[1] + (self._size[1] - rect.height) / 2
-        )
-
-    def set_position(self, x: float, y: float):
-        self._pos = (x, y)
-        self._refresh_text_pos()
-
-    def set_size(self, width: float, height: float):
-        self._size = (width, height)
-        self._refresh_text_pos()
-
-    def set_position_centered(self, x: float, y: float):
-        self.set_position(x - self._size[0] / 2, y - self._size[1] / 2)
-
+    @abstractmethod
     def draw(self, surface: Surface):
-        pygame.draw.rect(surface, self.BUTTON_BACKGROUND_COLOR, self._pos + self._size, 0, 5)
-        surface.blit(self._text_surface, self._text_pos)
+        """ Appelée à chaque frame pour afficher cet objet. """
+
+    @abstractmethod
+    def event(self, event: Event):
+        """ Appelée pour chaque évènement PyGame. """
