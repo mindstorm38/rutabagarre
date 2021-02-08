@@ -71,6 +71,8 @@ class Game:
 
         self._view_data.cleanup()
         self._surface = None
+        self._stage = None
+        self._view = None
         pygame.quit()
 
         print("=> Game stopped.")
