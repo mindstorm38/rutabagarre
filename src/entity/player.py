@@ -1,6 +1,19 @@
 from . import Entity
-from src.entity.player_color import PlayerColor
+from enum import Enum, auto
 import stage
+
+
+class PlayerColor(Enum):
+    """
+    Enumeration of the colors available for the players
+    """
+    VIOLET = auto()
+    BLUE = auto()
+    GREEN = auto()
+    ORANGE = auto()
+    YELLOW = auto()
+    RED = auto()
+    BLACK = auto()
 
 
 class Player(Entity):
