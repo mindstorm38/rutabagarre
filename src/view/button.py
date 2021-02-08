@@ -27,10 +27,10 @@ class ViewButton(ViewObject):
         if font is None or text is None:
             raise ValueError("Font and text can't be None.")
 
+        super().__init__(300, 50)
+
         self._font = font
         self._text = text
-        self._pos = (0, 0)
-        self._size = (300, 50)
 
         self._text_surface: Optional[Surface] = None
         self._text_pos = (0, 0)
@@ -51,15 +51,12 @@ class ViewButton(ViewObject):
         )
 
     def set_position(self, x: float, y: float):
-        self._pos = (x, y)
+        super().set_position(x, y)
         self._refresh_text_pos()
 
     def set_size(self, width: float, height: float):
-        self._size = (width, height)
+        super().set_size(width, height)
         self._refresh_text_pos()
-
-    def set_position_centered(self, x: float, y: float):
-        self.set_position(x - self._size[0] / 2, y - self._size[1] / 2)
 
     def set_action_callback(self, callback: ActionCallback):
         self._action_cb = callback
@@ -73,10 +70,7 @@ class ViewButton(ViewObject):
 
     def event(self, event: Event):
         if event.type == pygame.MOUSEMOTION:
-            mx, my = event.pos
-            x, y = self._pos
-            width, height = self._size
-            self._over = x <= mx <= x + width and y <= my <= y + height
+            self._over = self.is_cursor_over(*event.pos)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self._over and self._action_cb is not None:
                 self._action_cb(self)

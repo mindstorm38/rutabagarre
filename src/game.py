@@ -114,4 +114,6 @@ class Game:
         view = self._views.get(view_name)
         if view is None:
             raise ValueError("Invalid view name '{}'.".format(view_name))
+
+        print("=> Show view: ", view_name)
         self._active_view = view

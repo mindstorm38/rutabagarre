@@ -1,5 +1,5 @@
-from typing import Dict, List, Callable
 from abc import ABC, abstractmethod
+from typing import Dict, List
 
 from pygame.event import Event
 from pygame.font import Font
@@ -11,11 +11,11 @@ import res
 
 class View(ABC):
 
-    BACKGROUND_COLOR = (54, 16, 12)
-
     """
     Une classe abstraite pour toutes les vues enregistrées dans le jeu.
     """
+
+    BACKGROUND_COLOR = (54, 16, 12)
 
     def __init__(self):
         self._children: List['ViewObject'] = []
@@ -65,11 +65,7 @@ class SharedViewData:
         return self._game
 
     def get_font(self, size: int) -> Font:
-
-        """
-        Récupère une fonte suivant la taille donnée, la fonte n'est pas recréée si elle a déjà été chargée.
-        """
-
+        """ Récupère une fonte suivant la taille donnée, la fonte n'est pas recréée si elle a déjà été chargée. """
         font = self._fonts.get(size)
         if font is None:
             font = Font(res.get_res("5x7-practical-regular.ttf"), size)
@@ -85,6 +81,10 @@ class SharedViewData:
 
 class ViewObject(ABC):
 
+    def __init__(self, width: float, height: float):
+        self._pos = (0, 0)
+        self._size = (0, 0)
+
     @abstractmethod
     def draw(self, surface: Surface):
         """ Appelée à chaque frame pour afficher cet objet. """
@@ -92,3 +92,17 @@ class ViewObject(ABC):
     @abstractmethod
     def event(self, event: Event):
         """ Appelée pour chaque évènement PyGame. """
+
+    def set_position(self, x: float, y: float):
+        self._pos = (x, y)
+
+    def set_size(self, width: float, height: float):
+        self._size = (width, height)
+
+    def set_position_centered(self, x: float, y: float):
+        self.set_position(x - self._size[0] / 2, y - self._size[1] / 2)
+
+    def is_cursor_over(self, mx: float, my: float):
+        x, y = self._pos
+        width, height = self._size
+        return x <= mx <= x + width and y <= my <= y + height
