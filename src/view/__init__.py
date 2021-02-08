@@ -15,7 +15,7 @@ class View(ABC):
     """
 
     @abstractmethod
-    def init(self, data: 'CommonViewData'):
+    def init(self, data: 'SharedViewData'):
         """ Appelée à l'initialisation du jeu avec les données communes des vues. """
 
     @abstractmethod
@@ -23,7 +23,7 @@ class View(ABC):
         """ Appelée à chaque image, doit dessiner la vue. """
 
 
-class CommonViewData:
+class SharedViewData:
 
     """
     Données commune à toutes les vues, permettant pour l'instant de cacher

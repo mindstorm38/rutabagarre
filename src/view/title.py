@@ -2,7 +2,7 @@ from typing import Optional
 
 from pygame import Surface
 
-from . import View, CommonViewData, Button
+from . import View, SharedViewData, Button
 
 
 class TitleView(View):
@@ -13,7 +13,7 @@ class TitleView(View):
         self._start_button: Optional[Button] = None
         self._settings_button: Optional[Button] = None
 
-    def init(self, data: CommonViewData):
+    def init(self, data: SharedViewData):
 
         self._start_button = Button(data.get_font(45), "Play Now !")
         self._start_button.set_size(200, 80)

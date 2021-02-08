@@ -3,7 +3,7 @@ from pygame import Surface
 import pygame
 
 from stage import Stage
-from view import View, CommonViewData
+from view import View, SharedViewData
 from view.title import TitleView
 
 
@@ -20,8 +20,8 @@ class Game:
         self._running: bool = False
 
         self._views: Dict[str, View] = {}
-        self._view: Optional[View] = None
-        self._view_data = CommonViewData()
+        self._active_view: Optional[View] = None
+        self._view_data = SharedViewData()
 
         self._stage: Optional[Stage] = None
 
@@ -72,7 +72,7 @@ class Game:
         self._view_data.cleanup()
         self._surface = None
         self._stage = None
-        self._view = None
+        self._active_view = None
         pygame.quit()
 
         print("=> Game stopped.")
@@ -86,8 +86,8 @@ class Game:
         if self._stage is not None:
             self._stage.update()
 
-        if self._view is not None:
-            self._view.draw(self._surface)
+        if self._active_view is not None:
+            self._active_view.draw(self._surface)
 
     def _add_view(self, name: str, view: View):
 
@@ -111,4 +111,4 @@ class Game:
         view = self._views.get(view_name)
         if view is None:
             raise ValueError("Invalid view name '{}'.".format(view_name))
-        self._view = view
+        self._active_view = view
