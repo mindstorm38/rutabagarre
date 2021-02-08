@@ -5,8 +5,7 @@ from pygame.font import Font
 from pygame import Surface
 import pygame
 
-from . import ViewObject
-
+from . import ViewObject, View
 
 ActionCallback = Optional[Callable[[ViewObject], None]]
 
@@ -18,10 +17,6 @@ class ViewButton(ViewObject):
     fournissant la fonte et le texte. Il faut également définir sa position et sa taille.
     """
 
-    BUTTON_FONT_COLOR = (255, 255, 255)
-    BUTTON_NORMAL_COLOR = (133, 43, 24)
-    BUTTON_OVER_COLOR = (117, 37, 20)
-
     def __init__(self, font: Font, text: str):
 
         if font is None or text is None:
@@ -31,6 +26,7 @@ class ViewButton(ViewObject):
 
         self._font = font
         self._text = text
+        self._disabled = False
 
         self._text_surface: Optional[Surface] = None
         self._text_pos = (0, 0)
@@ -40,7 +36,8 @@ class ViewButton(ViewObject):
         self._action_cb: ActionCallback = None
 
     def _redraw(self):
-        self._text_surface = self._font.render(self._text, True, self.BUTTON_FONT_COLOR)
+        text_color = (255, 255, 255) if self._view is None else self._view.TEXT_COLOR
+        self._text_surface = self._font.render(self._text, True, text_color)
         self._refresh_text_pos()
 
     def _refresh_text_pos(self):
@@ -58,13 +55,20 @@ class ViewButton(ViewObject):
         super().set_size(width, height)
         self._refresh_text_pos()
 
+    def set_disabled(self, disabled: bool):
+        self._disabled = disabled
+
     def set_action_callback(self, callback: ActionCallback):
         self._action_cb = callback
 
     # Méthodes override #
 
+    def set_view(self, view: View):
+        super().set_view(view)
+        self._redraw()
+
     def draw(self, surface: Surface):
-        color = self.BUTTON_OVER_COLOR if self._over else self.BUTTON_NORMAL_COLOR
+        color = self._view.BUTTON_OVER_COLOR if self._over and not self._disabled else self._view.BUTTON_NORMAL_COLOR
         pygame.draw.rect(surface, color, self._pos + self._size, 0, 5)
         surface.blit(self._text_surface, self._text_pos)
 

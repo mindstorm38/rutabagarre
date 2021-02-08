@@ -34,7 +34,7 @@ class Game:
         """
 
         self._add_view("title", TitleView())
-        self._add_view("colorselect", ColorSelectView())
+        self._add_view("color_select", ColorSelectView())
 
     def start(self):
 
@@ -115,5 +115,5 @@ class Game:
         if view is None:
             raise ValueError("Invalid view name '{}'.".format(view_name))
 
-        print("=> Show view: ", view_name)
+        print("=> Show view: {}".format(view_name))
         self._active_view = view

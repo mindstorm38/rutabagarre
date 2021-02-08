@@ -7,7 +7,9 @@ from pygame import Surface
 
 class TitleView(View):
 
-    BACKGROUND_COLOR = (54, 16, 12)
+    BACKGROUND_COLOR    = 54, 16, 12
+    BUTTON_NORMAL_COLOR = 133, 43, 24
+    BUTTON_OVER_COLOR   = 117, 37, 20
 
     def __init__(self):
         super().__init__()
@@ -17,12 +19,12 @@ class TitleView(View):
     def init(self, data: SharedViewData):
 
         self._start_button = ViewButton(data.get_font(45), "Play Now !")
-        self._start_button.set_size(200, 80)
-        self._start_button.set_action_callback(data.get_show_view_callback("colorselect"))
+        self._start_button.set_size(250, 80)
+        self._start_button.set_action_callback(data.get_show_view_callback("color_select"))
         self.add_child(self._start_button)
 
         self._settings_button = ViewButton(data.get_font(35), "Settings")
-        self._settings_button.set_size(200, 45)
+        self._settings_button.set_size(250, 45)
         self.add_child(self._settings_button)
 
     def draw(self, surface: Surface):

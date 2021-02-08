@@ -1,5 +1,5 @@
+from typing import Dict, List, Optional
 from abc import ABC, abstractmethod
-from typing import Dict, List
 
 from pygame.event import Event
 from pygame.font import Font
@@ -15,13 +15,17 @@ class View(ABC):
     Une classe abstraite pour toutes les vues enregistrées dans le jeu.
     """
 
-    BACKGROUND_COLOR = (54, 16, 12)
+    BACKGROUND_COLOR    = 133, 43, 24
+    BUTTON_NORMAL_COLOR = 54, 16, 12
+    BUTTON_OVER_COLOR   = 69, 20, 15
+    TEXT_COLOR          = 255, 255, 255
 
     def __init__(self):
         self._children: List['ViewObject'] = []
 
     def add_child(self, child: 'ViewObject'):
         self._children.append(child)
+        child.set_view(self)
 
     @abstractmethod
     def init(self, data: 'SharedViewData'):
@@ -82,8 +86,9 @@ class SharedViewData:
 class ViewObject(ABC):
 
     def __init__(self, width: float, height: float):
+        self._view: Optional[View] = None
         self._pos = (0, 0)
-        self._size = (0, 0)
+        self._size = (width, height)
 
     @abstractmethod
     def draw(self, surface: Surface):
@@ -92,6 +97,10 @@ class ViewObject(ABC):
     @abstractmethod
     def event(self, event: Event):
         """ Appelée pour chaque évènement PyGame. """
+
+    def set_view(self, view: View):
+        """ Appelée quand l'élément est ajouté à une vue. Permet notament de prendre en compte le thème. """
+        self._view = view
 
     def set_position(self, x: float, y: float):
         self._pos = (x, y)
