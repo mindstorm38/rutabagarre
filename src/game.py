@@ -4,7 +4,7 @@ import pygame
 
 from stage import Stage
 from view import View, SharedViewData
-from view.title import TitleView
+from view.kind import *
 
 
 class Game:
@@ -21,7 +21,7 @@ class Game:
 
         self._views: Dict[str, View] = {}
         self._active_view: Optional[View] = None
-        self._view_data = SharedViewData()
+        self._view_data = SharedViewData(self)
 
         self._stage: Optional[Stage] = None
 
@@ -34,6 +34,7 @@ class Game:
         """
 
         self._add_view("title", TitleView())
+        self._add_view("colorselect", ColorSelectView())
 
     def start(self):
 
@@ -62,6 +63,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self._running = False
+                elif self._active_view is not None:
+                    self._active_view.event(event)
 
             self._update()
 
