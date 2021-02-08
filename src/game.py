@@ -2,18 +2,24 @@ from typing import Optional
 from pygame import Surface
 import pygame
 
+from stage import Stage
+
+
+__all__ = ["Game"]
+
 
 class Game:
 
     def __init__(self):
-        self._screen: Optional[Surface] = None
+        self._surface: Optional[Surface] = None
         self._running: bool = False
+        self._stage: Optional[Stage] = None
 
     def start(self):
 
         # Init
         pygame.init()
-        self._screen = pygame.display.set_mode((1024, 768))
+        self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 
         # Loop
@@ -25,8 +31,11 @@ class Game:
 
             self._update()
 
+            pygame.display.flip()
+
         # Cleanup
-        pass
+        pygame.quit()
 
     def _update(self):
-        pass
+        if self._stage is not None:
+            self._stage.update()
