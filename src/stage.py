@@ -2,9 +2,6 @@ from entity import Entity
 from typing import List
 
 
-__all__ = ["Stage"]
-
-
 class Stage:
 
     def __init__(self):
