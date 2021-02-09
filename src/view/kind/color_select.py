@@ -9,6 +9,7 @@ from pygame import Surface
 import pygame
 
 from entity.motion_entity.player import PlayerColor
+from stage import Stage
 import time
 
 
@@ -59,6 +60,7 @@ class ColorSelectView(View):
         self._return_button.set_action_callback(self._shared_data.get_show_view_callback("title"))
         self._how_to_play_button = ViewButton(35, "How To Play")
         self._start_button = ViewButton(35, "Start")
+        self._start_button.set_action_callback(self._on_start_action)
 
         self.add_child(self._return_button)
         self.add_child(self._start_button)
@@ -81,6 +83,10 @@ class ColorSelectView(View):
 
     def _grid_player_changed(self, player_idx: int, player_color: Optional[PlayerColor]):
         self._players_slots[player_idx][0].set_player_color(player_color)
+
+    def _on_start_action(self, _button):
+        self._shared_data.get_game().set_stage(Stage.new_example_stage())
+        self._shared_data.get_game().show_view("in_game")
 
 
 class GridSelection:

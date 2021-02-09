@@ -35,6 +35,7 @@ class Game:
 
         self._add_view("title", TitleView())
         self._add_view("color_select", ColorSelectView())
+        self._add_view("in_game", InGameView())
 
     def start(self):
 
@@ -42,13 +43,13 @@ class Game:
         Point d'entrée pour le jeu.
         """
 
-        print("=> Starting PyGame...")
+        print("Starting PyGame...")
 
         pygame.init()
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 
-        print("=> Initializing views...")
+        print("Initializing views...")
 
         self._view_data.init()
         for view in self._views.values():
@@ -56,7 +57,7 @@ class Game:
 
         self.show_view("title")
 
-        print("=> Start loop...")
+        print("Start loop...")
 
         while self._running:
 
@@ -70,7 +71,7 @@ class Game:
 
             pygame.display.flip()
 
-        print("=> Cleanup...")
+        print("Cleanup...")
 
         self._view_data.cleanup()
         self._surface = None
@@ -78,7 +79,7 @@ class Game:
         self._active_view = None
         pygame.quit()
 
-        print("=> Game stopped.")
+        print("Game stopped.")
 
     def _update(self):
 
@@ -115,5 +116,21 @@ class Game:
         if view is None:
             raise ValueError("Invalid view name '{}'.".format(view_name))
 
-        print("=> Show view: {}".format(view_name))
+        if self._active_view is not None:
+            self._active_view.on_quit()
+
+        print("Show view: {}".format(view_name))
         self._active_view = view
+        view.on_enter()
+
+    def get_surface(self) -> Optional[Surface]:
+        return self._surface
+
+    def get_stage(self) -> Stage:
+        return self._stage
+
+    def set_stage(self, stage: Stage):
+        self._stage = stage
+
+    def remove_stage(self):
+        self._stage = None

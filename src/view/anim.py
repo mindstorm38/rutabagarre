@@ -1,22 +1,18 @@
 from typing import Dict, Tuple, List, Optional, Any
 import time
 
-import pygame
 from pygame import Surface
+import pygame
+
+from .tilemap import GridDefinition
 
 
-class AnimDefinition:
+class AnimDefinition(GridDefinition):
 
-    __slots__ = "x_pad", "y_pad", "x_gap", "y_gap", "tile_width", "tile_height", "animations"
+    __slots__ = "animations",
 
     def __init__(self, x_pad: int, y_pad: int, x_gap: int, y_gap: int, tile_width: int, tile_height: int):
-
-        self.x_pad = x_pad
-        self.y_pad = y_pad
-        self.x_gap = x_gap
-        self.y_gap = y_gap
-        self.tile_width = tile_width
-        self.tile_height = tile_height
+        super().__init__(x_pad, y_pad, x_gap, y_gap, tile_width, tile_height)
         self.animations: Dict[str, Tuple[Tuple[int, int, int], ...]] = {}
 
     def animation(self, name: str, *ranges: Tuple[int, int, int]) -> 'AnimDefinition':
@@ -50,8 +46,7 @@ class Anim:
                 self.sub_surfaces[name] = sub_surfaces = []
                 for x, y, count in ranges:
                     for _ in range(count):
-                        px = definition.x_pad + x * (definition.x_gap + definition.tile_width)
-                        py = definition.y_pad + y * (definition.y_gap + definition.tile_width)
+                        px, py = definition.get_tile_pos(x, y)
                         sub_surfaces.append(surface.subsurface(px, py, definition.tile_width, definition.tile_height))
                         x += 1
 
