@@ -8,6 +8,7 @@ class MotionEntity(Entity, ABC):
     Abstract subclass of Entity that can move
     """
     NATURAL_FRICTION = 0.4
+    NATURAL_GRAVITY = 0.05
 
     def __init__(self, entity_stage: 'stage.Stage') -> None:
         Entity.__init__(self, entity_stage)
@@ -38,7 +39,7 @@ class MotionEntity(Entity, ABC):
 
     def update_natural_velocity(self) -> None:
         self._vel_x *= MotionEntity.NATURAL_FRICTION
-        self._vel_y *= MotionEntity.NATURAL_FRICTION
+        self._vel_y = self._vel_y * MotionEntity.NATURAL_FRICTION - MotionEntity.NATURAL_GRAVITY
 
     def move_position(self) -> None:
         """
