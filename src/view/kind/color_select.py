@@ -261,11 +261,16 @@ class ViewPlayerSlot(ViewObject):
         self._player_anim_tracker = player_anim_tracker
         self._player_anim_pos = (0, 0)
 
+        self._subtitle_surface: Optional[Surface] = None
+        self._subtitle_pos = (0, 0)
+        self._subtitle_bg_rect = (0, 0, 0, 0)
+
         self._last_blink = 0
         self._blinking = False
 
     def set_player_color(self, player_color: Optional[PlayerColor]):
         self._player_color = None if player_color is None else get_player_color(player_color)
+        self._redraw_subtitle()
 
     # Private #
 
@@ -279,15 +284,37 @@ class ViewPlayerSlot(ViewObject):
 
         for action, button in self._key_buttons.items():
             dx, dy = self._KEY_BUTTONS_OFFSETS[action]
-            button.set_position_centered(x_mid + dx, y_bottom + dy - 100)
+            button.set_position_centered(x_mid + dx, y_bottom + dy - 70)
 
         self._player_anim_pos = (x_mid - self._player_anim_surface.get_width() / 2, self._pos[1] + 10)
+
+        if self._subtitle_surface is not None:
+
+            self._subtitle_pos = (
+                x_mid - self._subtitle_surface.get_width() / 2,
+                y_bottom - self._subtitle_surface.get_height() - 20
+            )
+
+            bg_width = max(100, self._subtitle_surface.get_width() + 20)
+
+            self._subtitle_bg_rect = (
+                x_mid - bg_width / 2,
+                self._subtitle_pos[1] - 5,
+                bg_width,
+                self._subtitle_surface.get_height() + 10
+            )
+
+    def _redraw_subtitle(self):
+        if self.in_view():
+            subtitle = "Press to join" if self._player_color is None else "P{}".format(self._player_idx)
+            self._subtitle_surface = self._get_font(25).render(subtitle, True, self._view.TEXT_COLOR)
 
     # Méthodes override #
 
     def draw(self, surface: Surface):
 
-        pygame.draw.rect(surface, (0, 0, 0), self._pos + self._size)
+        # Debug background color
+        # pygame.draw.rect(surface, (0, 0, 0), self._pos + self._size)
 
         now = time.monotonic()
         if now - self._last_blink > self._BLINK_DELAY:
@@ -301,6 +328,11 @@ class ViewPlayerSlot(ViewObject):
         else:
             self._player_anim_surface.blit_color_on(surface, self._player_anim_pos, self._player_anim_tracker, self._player_color)
 
+        if self._subtitle_surface is not None:
+            color = self._view.BUTTON_NORMAL_COLOR if self._player_color is None else self._player_color
+            pygame.draw.rect(surface, color, self._subtitle_bg_rect, 0, 5)
+            surface.blit(self._subtitle_surface, self._subtitle_pos)
+
     def event(self, event: Event):
         pass
 
@@ -311,4 +343,5 @@ class ViewPlayerSlot(ViewObject):
         for button in self._key_buttons.values():
             button.set_view(view)
 
+        self._redraw_subtitle()
         self._redraw()
