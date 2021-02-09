@@ -32,6 +32,10 @@ class ColorSelectView(View):
         self._players_slots: List[Tuple[ViewPlayerSlot, int]] = []
         self._players_slots_width = 0
 
+        self._return_button: Optional[ViewButton] = None
+        self._how_to_play_button: Optional[ViewButton] = None
+        self._start_button: Optional[ViewButton] = None
+
     def _inner_init(self):
 
         self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, 210, 210)
@@ -51,13 +55,29 @@ class ColorSelectView(View):
             self._players_slots.append((slot, self._players_slots_width))
             self._players_slots_width += slot.get_width()
 
+        self._return_button = ViewButton(35, "Return")
+        self._return_button.set_action_callback(self._shared_data.get_show_view_callback("title"))
+        self._how_to_play_button = ViewButton(35, "How To Play")
+        self._start_button = ViewButton(35, "Start")
+
+        self.add_child(self._return_button)
+        self.add_child(self._start_button)
+
     def _inner_pre_draw(self, surface: Surface):
-        x_mid = surface.get_width() / 2
-        players_slots_x = x_mid - self._players_slots_width / 2
+
+        height = surface.get_height()
+        width = surface.get_width()
+        x_mid = width / 2
+
         self._color_grid.set_position_centered(x_mid, 225)
         self._title_button.set_position_centered(x_mid, 55)
+
+        players_slots_x = x_mid - self._players_slots_width / 2
         for slot, offset in self._players_slots:
             slot.set_position(players_slots_x + offset, 360)
+
+        self._return_button.set_position(20, height - 70)
+        self._start_button.set_position(width - self._start_button.get_width() - 20, height - 70)
 
     def _grid_player_changed(self, player_idx: int, player_color: Optional[PlayerColor]):
         self._players_slots[player_idx][0].set_player_color(player_color)
@@ -306,8 +326,9 @@ class ViewPlayerSlot(ViewObject):
 
     def _redraw_subtitle(self):
         if self.in_view():
-            subtitle = "Press to join" if self._player_color is None else "P{}".format(self._player_idx)
-            self._subtitle_surface = self._get_font(25).render(subtitle, True, self._view.TEXT_COLOR)
+            subtitle = "Press to join" if self._player_color is None else "P{}".format(self._player_idx + 1)
+            text_color = self._view.TEXT_COLOR if self._player_color is None else (0, 0, 0)
+            self._subtitle_surface = self._get_font(25).render(subtitle, True, text_color)
 
     # Méthodes override #
 
