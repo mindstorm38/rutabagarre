@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from entity.player import Player
+from entity import player
 
 
 class Incarnation(ABC):
@@ -36,8 +36,8 @@ class Incarnation(ABC):
         self._duration += number
 
     # OTHER METHODS
-    def attack_light(self, target: Player) -> None:
+    def attack_light(self, target: 'player.Player') -> None:
         target.add_to_hp(- (self.get_attack() - target.get_incarnation().get_defense()))
 
-    def attack_heavy(self, target: Player) -> None:
+    def attack_heavy(self, target: 'player.Player') -> None:
         target.add_to_hp(- (self.get_attack() - target.get_incarnation().get_defense() / 2))

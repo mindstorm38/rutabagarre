@@ -16,23 +16,21 @@ class TitleView(View):
         self._start_button: Optional[ViewButton] = None
         self._settings_button: Optional[ViewButton] = None
 
-    def init(self, data: SharedViewData):
+    def _inner_init(self):
 
-        self._start_button = ViewButton(data.get_font(45), "Play Now !")
+        self._start_button = ViewButton(45, "Play Now !")
         self._start_button.set_size(250, 80)
-        self._start_button.set_action_callback(data.get_show_view_callback("color_select"))
+        self._start_button.set_action_callback(self._shared_data.get_show_view_callback("color_select"))
         self.add_child(self._start_button)
 
-        self._settings_button = ViewButton(data.get_font(35), "Settings")
+        self._settings_button = ViewButton(35, "Settings")
         self._settings_button.set_size(250, 45)
         self.add_child(self._settings_button)
 
-    def draw(self, surface: Surface):
+    def _inner_pre_draw(self, surface: Surface):
 
         x_mid = surface.get_width() / 2
         y_mid = surface.get_height() / 2
 
         self._start_button.set_position_centered(x_mid, y_mid)
         self._settings_button.set_position_centered(x_mid, y_mid + 100)
-
-        super().draw(surface)
