@@ -9,10 +9,11 @@ from pygame import Surface
 import pygame
 
 from entity.player import PlayerColor
+from stage import Stage
 import time
 
 
-PlayerChangeCallback = Optional[Callable[[ViewObject, int, PlayerColor], None]]
+PlayerChangeCallback = Optional[Callable[[int, Optional[PlayerColor]], None]]
 
 
 class ColorSelectView(View):
@@ -31,6 +32,10 @@ class ColorSelectView(View):
         self._color_grid: Optional['ViewColorGrid'] = None
         self._players_slots: List[Tuple[ViewPlayerSlot, int]] = []
         self._players_slots_width = 0
+
+        self._return_button: Optional[ViewButton] = None
+        self._how_to_play_button: Optional[ViewButton] = None
+        self._start_button: Optional[ViewButton] = None
 
     def _inner_init(self):
 
@@ -51,16 +56,40 @@ class ColorSelectView(View):
             self._players_slots.append((slot, self._players_slots_width))
             self._players_slots_width += slot.get_width()
 
+        self._return_button = ViewButton(35, "Return")
+        self._return_button.set_action_callback(self._shared_data.get_show_view_callback("title"))
+        self._how_to_play_button = ViewButton(35, "How To Play")
+        self._start_button = ViewButton(35, "Start")
+        self._start_button.set_action_callback(self._on_start_action)
+
+        self.add_child(self._return_button)
+        self.add_child(self._start_button)
+
     def _inner_pre_draw(self, surface: Surface):
-        x_mid = surface.get_width() / 2
-        players_slots_x = x_mid - self._players_slots_width / 2
+
+        height = surface.get_height()
+        width = surface.get_width()
+        x_mid = width / 2
+
         self._color_grid.set_position_centered(x_mid, 225)
         self._title_button.set_position_centered(x_mid, 55)
+
+        players_slots_x = x_mid - self._players_slots_width / 2
         for slot, offset in self._players_slots:
             slot.set_position(players_slots_x + offset, 360)
 
-    def _grid_player_changed(self, _obj, player_idx: int, player_color: PlayerColor):
+        self._return_button.set_position(20, height - 70)
+        self._start_button.set_position(width - self._start_button.get_width() - 20, height - 70)
+
+    def _grid_player_changed(self, player_idx: int, player_color: Optional[PlayerColor]):
         self._players_slots[player_idx][0].set_player_color(player_color)
+
+    def _on_start_action(self, _button):
+        stage = Stage.new_example_stage()
+        for player_idx, player_color in self._color_grid.get_selections().items():
+            stage.add_player(player_idx, player_color)
+        self._shared_data.get_game().set_stage(stage)
+        self._shared_data.get_game().show_view("in_game")
 
 
 class GridSelection:
@@ -103,6 +132,12 @@ class ViewColorGrid(ViewObject):
         self._update_player(player_idx)
         return True
 
+    def remove_player(self, player_idx: int):
+        if player_idx in self._players_selections:
+            del self._players_selections[player_idx]
+            if self._change_cb is not None:
+                self._change_cb(player_idx, None)
+
     def change_player_color(self, player_idx: int, backward: bool) -> bool:
 
         """ Change la couleur selectionné par un joueur suivant une direction par rapport à la selection actuelle. """
@@ -121,6 +156,8 @@ class ViewColorGrid(ViewObject):
         else:
             return False
 
+    def get_selections(self) -> Dict[int, PlayerColor]:
+        return {idx: ORDERED_PLAYER_COLORS[selection.color_index] for idx, selection in self._players_selections.items()}
 
     def set_size(self, width: float, height: float):
         raise ValueError("Cannot set size for this.")
@@ -178,7 +215,10 @@ class ViewColorGrid(ViewObject):
         if self.in_view():
             if player_idx not in self._players_selections:
                 raise ValueError("The player index {} is not valid.".format(player_idx))
-            self._update_player_raw(player_idx, self._players_selections[player_idx])
+            selection = self._players_selections[player_idx]
+            self._update_player_raw(player_idx, selection)
+            if self._change_cb is not None:
+                self._change_cb(player_idx, ORDERED_PLAYER_COLORS[selection.color_index][0])
 
     def _update_player_raw(self, player_idx: int, selection: GridSelection):
         selection.pos = self._get_color_offset(selection.color_index)
@@ -187,8 +227,6 @@ class ViewColorGrid(ViewObject):
             selection.pos[0] + (self._cell_size - selection.text_surface.get_width()) / 2,
             selection.pos[1] + (self._cell_size - selection.text_surface.get_height()) / 2
         )
-        if self._change_cb is not None:
-            self._change_cb(self, player_idx, ORDERED_PLAYER_COLORS[selection.color_index][0])
 
     def _get_player_at(self, col: int, row: int) -> Optional[int]:
         color_index = self._get_color_index(col, row)
@@ -217,8 +255,7 @@ class ViewColorGrid(ViewObject):
                     if not self.insert_player(player_idx):
                         self.change_player_color(player_idx, action == "left")
                 elif action == "down":
-                    # TODO: Remove plus
-                    pass
+                    self.remove_player(player_idx)
 
     def set_view(self, view: View):
         super().set_view(view)
@@ -255,11 +292,16 @@ class ViewPlayerSlot(ViewObject):
         self._player_anim_tracker = player_anim_tracker
         self._player_anim_pos = (0, 0)
 
+        self._subtitle_surface: Optional[Surface] = None
+        self._subtitle_pos = (0, 0)
+        self._subtitle_bg_rect = (0, 0, 0, 0)
+
         self._last_blink = 0
         self._blinking = False
 
     def set_player_color(self, player_color: Optional[PlayerColor]):
         self._player_color = None if player_color is None else get_player_color(player_color)
+        self._redraw_subtitle()
 
     # Private #
 
@@ -273,15 +315,38 @@ class ViewPlayerSlot(ViewObject):
 
         for action, button in self._key_buttons.items():
             dx, dy = self._KEY_BUTTONS_OFFSETS[action]
-            button.set_position_centered(x_mid + dx, y_bottom + dy - 100)
+            button.set_position_centered(x_mid + dx, y_bottom + dy - 70)
 
         self._player_anim_pos = (x_mid - self._player_anim_surface.get_width() / 2, self._pos[1] + 10)
+
+        if self._subtitle_surface is not None:
+
+            self._subtitle_pos = (
+                x_mid - self._subtitle_surface.get_width() / 2,
+                y_bottom - self._subtitle_surface.get_height() - 20
+            )
+
+            bg_width = max(100, self._subtitle_surface.get_width() + 20)
+
+            self._subtitle_bg_rect = (
+                x_mid - bg_width / 2,
+                self._subtitle_pos[1] - 5,
+                bg_width,
+                self._subtitle_surface.get_height() + 10
+            )
+
+    def _redraw_subtitle(self):
+        if self.in_view():
+            subtitle = "Press to join" if self._player_color is None else "P{}".format(self._player_idx + 1)
+            text_color = self._view.TEXT_COLOR if self._player_color is None else (0, 0, 0)
+            self._subtitle_surface = self._get_font(25).render(subtitle, True, text_color)
 
     # Méthodes override #
 
     def draw(self, surface: Surface):
 
-        pygame.draw.rect(surface, (0, 0, 0), self._pos + self._size)
+        # Debug background color
+        # pygame.draw.rect(surface, (0, 0, 0), self._pos + self._size)
 
         now = time.monotonic()
         if now - self._last_blink > self._BLINK_DELAY:
@@ -295,6 +360,11 @@ class ViewPlayerSlot(ViewObject):
         else:
             self._player_anim_surface.blit_color_on(surface, self._player_anim_pos, self._player_anim_tracker, self._player_color)
 
+        if self._subtitle_surface is not None:
+            color = self._view.BUTTON_NORMAL_COLOR if self._player_color is None else self._player_color
+            pygame.draw.rect(surface, color, self._subtitle_bg_rect, 0, 5)
+            surface.blit(self._subtitle_surface, self._subtitle_pos)
+
     def event(self, event: Event):
         pass
 
@@ -305,4 +375,5 @@ class ViewPlayerSlot(ViewObject):
         for button in self._key_buttons.values():
             button.set_view(view)
 
+        self._redraw_subtitle()
         self._redraw()

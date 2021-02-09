@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from abc import ABC, abstractmethod
 
 from pygame.event import Event
@@ -7,6 +7,7 @@ from pygame import Surface
 import pygame
 
 from view.anim import AnimDefinition, Anim, AnimSurfaceColored
+from view.tilemap import TileMap, TileMapDefinition
 import game
 import res
 
@@ -40,10 +41,14 @@ class View(ABC):
 
     def draw(self, surface: Surface):
         """ Appelée à chaque image, doit dessiner la vue sur la `surface` donnée. """
-        surface.fill(self.BACKGROUND_COLOR)
+        if self.BACKGROUND_COLOR is not None:
+            surface.fill(self.BACKGROUND_COLOR)
         self._inner_pre_draw(surface)
         for child in self._children:
             child.draw(surface)
+
+    def on_enter(self): ...
+    def on_quit(self): ...
 
     @abstractmethod
     def _inner_init(self): ...
@@ -69,6 +74,7 @@ class SharedViewData:
         self._fonts: Dict[int, Font] = {}
         self._images: Dict[str, Surface] = {}
         self._animations: Dict[str, Anim] = {}
+        self._tilemaps: Dict[str, TileMap] = {}
 
     def init(self):
         """ Appelée lors de l'initialisation du jeu, après la création de la fenêtre. """
@@ -77,6 +83,8 @@ class SharedViewData:
         """ Appelée à la fermeture du jeu afin de supprimer les données désormais invalide. """
         self._fonts.clear()
         self._images.clear()
+        self._animations.clear()
+        self._tilemaps.clear()
 
     def get_game(self) -> 'game.Game':
         """ Retourne l'instance actuelle du controlleur de jeu. """
@@ -105,6 +113,15 @@ class SharedViewData:
         elif animation.definition != anim_def:
             raise ValueError("The animation for '{}' is already set but not of this type.".format(res_path))
         return animation
+
+    def get_tilemap(self, res_path: str, map_def: TileMapDefinition) -> TileMap:
+        tm = self._tilemaps.get(res_path)
+        if tm is None:
+            tm = TileMap(self.get_image(res_path), map_def)
+            self._tilemaps[res_path] = tm
+        elif tm.definition != map_def:
+            raise ValueError("The tile map for '{}' is already set but not of this type.".format(res_path))
+        return tm
 
     def new_anim_colored(self, anim_name, anim_def: AnimDefinition, width: int, height: int) -> AnimSurfaceColored:
         main_anim = self.get_anim("animations/{}.png".format(anim_name), anim_def)

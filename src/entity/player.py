@@ -15,7 +15,14 @@ class PlayerColor(Enum):
     ORANGE = auto()
     YELLOW = auto()
     RED = auto()
-    BLACK = auto()
+    BROWN = auto()
+    LIGHT_BLUE = auto()
+    PINK = auto()
+    LIGHT_BROWN = auto()
+    LIGHT_ORANGE = auto()
+    CHARTREUSE = auto()
+    PALE_GREEN = auto()
+    CYAN = auto()
 
 
 class Player(MotionEntity):

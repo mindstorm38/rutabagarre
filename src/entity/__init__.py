@@ -5,13 +5,23 @@ import stage
 
 class Entity(ABC):
 
+    UID_COUNTER = 1
+
     def __init__(self, entity_stage: 'stage.Stage'):
+
+        self._uid = self.UID_COUNTER
+        self.UID_COUNTER += 1
+
         self._stage: 'stage.Stage' = entity_stage
         self._x: float = 0.0
         self._y: float = 0.0
         self._hitbox = Hitbox(0, 0, 0, 0)
 
     # GETTERS
+
+    def get_uid(self) -> int:
+        return self._uid
+    
     def get_x(self) -> float:
         return self._x
 

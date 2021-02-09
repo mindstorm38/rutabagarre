@@ -1,22 +1,18 @@
 from typing import Dict, Tuple, List, Optional, Any
 import time
 
-import pygame
 from pygame import Surface
+import pygame
+
+from .tilemap import GridDefinition
 
 
-class AnimDefinition:
+class AnimDefinition(GridDefinition):
 
-    __slots__ = "x_pad", "y_pad", "x_gap", "y_gap", "tile_width", "tile_height", "animations"
+    __slots__ = "animations",
 
     def __init__(self, x_pad: int, y_pad: int, x_gap: int, y_gap: int, tile_width: int, tile_height: int):
-
-        self.x_pad = x_pad
-        self.y_pad = y_pad
-        self.x_gap = x_gap
-        self.y_gap = y_gap
-        self.tile_width = tile_width
-        self.tile_height = tile_height
+        super().__init__(x_pad, y_pad, x_gap, y_gap, tile_width, tile_height)
         self.animations: Dict[str, Tuple[Tuple[int, int, int], ...]] = {}
 
     def animation(self, name: str, *ranges: Tuple[int, int, int]) -> 'AnimDefinition':
@@ -47,13 +43,18 @@ class Anim:
 
         if not no_init:
             for name, ranges in definition.animations.items():
-                self.sub_surfaces[name] = sub_surfaces = []
-                for x, y, count in ranges:
-                    for _ in range(count):
-                        px = definition.x_pad + x * (definition.x_gap + definition.tile_width)
-                        py = definition.y_pad + y * (definition.y_gap + definition.tile_width)
-                        sub_surfaces.append(surface.subsurface(px, py, definition.tile_width, definition.tile_height))
-                        x += 1
+                for rev in (False, True):
+                    if rev:
+                        name = "{}_rev".format(name)
+                    self.sub_surfaces[name] = sub_surfaces = []
+                    for x, y, count in ranges:
+                        for _ in range(count):
+                            px, py = definition.get_tile_pos(x, y)
+                            sub_surface = surface.subsurface(px, py, definition.tile_width, definition.tile_height)
+                            if rev:
+                                sub_surface = pygame.transform.flip(sub_surface, True, False)
+                            sub_surfaces.append(sub_surface)
+                            x += 1
 
     def copy_scaled(self, width: int, height: int) -> 'Anim':
         new_anim = Anim(self.surface, self.definition, no_init=True)
@@ -119,17 +120,12 @@ class _AnimLayer:
 
 class AnimSurface:
 
-    __slots__ = "_width", "_height", "_layers" # , "_delay", "_last_time", "_frame"
+    __slots__ = "_width", "_height", "_layers"
 
     def __init__(self, width: int, height: int, layers: List[Anim]):
-
         self._width = width
         self._height = height
-
         self._layers: List[_AnimLayer] = [_AnimLayer(anim) for anim in layers]
-        # self._delay = 0.1
-        # self._last_time = 0
-        # self._frame = 0
 
     def add_layer(self, anim: Anim):
         self._layers.append(_AnimLayer(anim))
@@ -155,12 +151,6 @@ class AnimSurface:
     # Méthodes override #
 
     def blit_on(self, surface: Surface, pos: Tuple[int, int], tracker: AnimTracker, *, layers: Optional[tuple] = None):
-
-        """now = time.monotonic()
-        if now - self._last_time >= self._delay:
-            self._last_time = now
-            self._frame += 1"""
-
         for layer in (self._layers if layers is None else map(self._get_layer, layers)):
             layer.rescale_lazy(self._width, self._height)
             anim = tracker.get_anim()
