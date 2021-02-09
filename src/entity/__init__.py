@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import stage
+import stage as stage
 
 
 class Entity(ABC):
@@ -26,8 +26,8 @@ class Entity(ABC):
     def set_y(self, y: float) -> None:
         self._y = y
 
-    def set_stage(self, stage: 'stage.Stage') -> None:
-        self._stage = stage
+    def set_stage(self, stage_to_set: 'stage.Stage') -> None:
+        self._stage = stage_to_set
 
     # ADDERS
     def add_to_x(self, number: float) -> None:
@@ -35,7 +35,6 @@ class Entity(ABC):
 
     def add_to_y(self, number: float) -> None:
         self._y += number
-
 
     @abstractmethod
     def update(self): ...
