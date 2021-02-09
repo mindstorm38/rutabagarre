@@ -25,7 +25,7 @@ class ColorSelectView(View):
 
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
         self._player_anim_tracker = AnimTracker()
-        self._player_anim_tracker.push_infinite_anim("grab", 10)
+        self._player_anim_tracker.push_infinite_anim("idle", 4)
 
         self._title_button: Optional[ViewButton] = None
         self._color_grid: Optional['ViewColorGrid'] = None
@@ -34,7 +34,7 @@ class ColorSelectView(View):
 
     def _inner_init(self):
 
-        self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, 150, 150)
+        self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, 210, 210)
 
         self._title_button = ViewButton(35, "Select your color")
         self._title_button.set_disabled(True)
@@ -57,7 +57,7 @@ class ColorSelectView(View):
         self._color_grid.set_position_centered(x_mid, 225)
         self._title_button.set_position_centered(x_mid, 55)
         for slot, offset in self._players_slots:
-            slot.set_position(players_slots_x + offset, 300)
+            slot.set_position(players_slots_x + offset, 360)
 
     def _grid_player_changed(self, _obj, player_idx: int, player_color: PlayerColor):
         self._players_slots[player_idx][0].set_player_color(player_color)
@@ -216,6 +216,9 @@ class ViewColorGrid(ViewObject):
                 if action in ("left", "right"):
                     if not self.insert_player(player_idx):
                         self.change_player_color(player_idx, action == "left")
+                elif action == "down":
+                    # TODO: Remove plus
+                    pass
 
     def set_view(self, view: View):
         super().set_view(view)
@@ -236,7 +239,7 @@ class ViewPlayerSlot(ViewObject):
 
     def __init__(self, player_idx: int, player_anim_surface: AnimSurfaceColored, player_anim_tracker: AnimTracker):
 
-        super().__init__(170, 300)
+        super().__init__(240, 280)
 
         self._player_idx = player_idx
         self._player_color: Optional[Tuple[int, int, int]] = None
@@ -250,18 +253,18 @@ class ViewPlayerSlot(ViewObject):
 
         self._player_anim_surface = player_anim_surface
         self._player_anim_tracker = player_anim_tracker
+        self._player_anim_pos = (0, 0)
 
         self._last_blink = 0
         self._blinking = False
-
-    def set_position(self, x: float, y: float):
-        super().set_position(x, y)
-        self._redraw()
 
     def set_player_color(self, player_color: Optional[PlayerColor]):
         self._player_color = None if player_color is None else get_player_color(player_color)
 
     # Private #
+
+    def _on_shape_changed(self):
+        self._redraw()
 
     def _redraw(self):
 
@@ -270,11 +273,15 @@ class ViewPlayerSlot(ViewObject):
 
         for action, button in self._key_buttons.items():
             dx, dy = self._KEY_BUTTONS_OFFSETS[action]
-            button.set_position_centered(x_mid + dx, y_bottom + dy)
+            button.set_position_centered(x_mid + dx, y_bottom + dy - 100)
+
+        self._player_anim_pos = (x_mid - self._player_anim_surface.get_width() / 2, self._pos[1] + 10)
 
     # Méthodes override #
 
     def draw(self, surface: Surface):
+
+        pygame.draw.rect(surface, (0, 0, 0), self._pos + self._size)
 
         now = time.monotonic()
         if now - self._last_blink > self._BLINK_DELAY:
@@ -286,7 +293,7 @@ class ViewPlayerSlot(ViewObject):
                 if action not in ("left", "right") or not self._blinking:
                     button.draw(surface)
         else:
-            self._player_anim_surface.blit_color_on(surface, self._pos, self._player_anim_tracker, self._player_color)
+            self._player_anim_surface.blit_color_on(surface, self._player_anim_pos, self._player_anim_tracker, self._player_color)
 
     def event(self, event: Event):
         pass

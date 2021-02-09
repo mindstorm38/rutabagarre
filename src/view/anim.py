@@ -134,6 +134,15 @@ class AnimSurface:
     def add_layer(self, anim: Anim):
         self._layers.append(_AnimLayer(anim))
 
+    def get_width(self) -> int:
+        return self._width
+
+    def get_height(self) -> int:
+        return self._height
+
+    def get_size(self) -> Tuple[int, int]:
+        return self._width, self._height
+
     # Private #
 
     def _rescale_lazy_layers(self):

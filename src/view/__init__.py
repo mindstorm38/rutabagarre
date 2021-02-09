@@ -139,9 +139,11 @@ class ViewObject(ABC):
 
     def set_position(self, x: float, y: float):
         self._pos = (x, y)
+        self._on_shape_changed()
 
     def set_size(self, width: float, height: float):
         self._size = (width, height)
+        self._on_shape_changed()
 
     def set_position_centered(self, x: float, y: float):
         self.set_position(x - self._size[0] / 2, y - self._size[1] / 2)
@@ -160,5 +162,10 @@ class ViewObject(ABC):
     def get_height(self) -> float:
         return self._size[1]
 
+    # Private / Protected #
+
     def _get_font(self, size: int) -> Optional[Font]:
         return None if self._view is None else self._view.get_shared_data().get_font(size)
+
+    def _on_shape_changed(self):
+        pass
