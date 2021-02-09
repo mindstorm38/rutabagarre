@@ -1,11 +1,23 @@
-from view import View, ViewObject, controls
+from view.anim import AnimSurfaceColored, AnimTracker
 from view.tilemap import TileMap, TERRAIN_TILEMAP
-from view.anim import AnimSurfaceColored
-from stage import Tile
+from view import View, ViewObject, controls
+from stage import Stage, Tile
+from entity import Entity
 
-from typing import Optional
+from typing import Optional, Dict
+from abc import ABC, abstractmethod
 from pygame import Surface
 import pygame
+
+
+class _EntityDrawer(ABC):
+
+    def __init__(self, entity: Entity, view: 'InGameView'):
+        self.entity = entity
+        self.view = view
+
+    @abstractmethod
+    def draw(self, surface: Surface): ...
 
 
 class InGameView(View):
@@ -28,6 +40,8 @@ class InGameView(View):
         self._terrain_tilemap: Optional[TileMap] = None
         self._terrain_surface: Optional[Surface] = None
 
+        self._stage: Optional[Stage] = None
+
         self._stage_size = (0, 0)
         self._stage_ratio = 0
         self._camera_dirty = False
@@ -38,12 +52,34 @@ class InGameView(View):
         self._scaled_terrain_pos = (0, 0)
 
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
+        self._player_anim_trackers: Dict[int, AnimTracker] = {}
+
+        self._entities = {}
 
     def on_enter(self):
-        self._redraw_terrain()
+
+        print("Loading stage...")
+
+        game = self._shared_data.get_game()
+        self._stage = game.get_stage()
+
+        if self._stage is None:
+            print("=> No stage ready in the game.")
+        else:
+
+            self._stage.set_new_entity_callback(self._on_entity_added)
+
+            for entity in self._stage.get_entities():
+                self._on_entity_added(entity)
+
+            self._redraw_terrain()
+
+            print("=> Stage loaded.")
 
     def on_quit(self):
-        pass
+        if self._stage is not None:
+            self._stage.set_new_entity_callback(None)
+            self._stage = None
 
     # Private #
 
@@ -51,19 +87,12 @@ class InGameView(View):
 
         print("Drawing stage terrain...")
 
-        game = self._shared_data.get_game()
-        stage = game.get_stage()
-
-        if stage is None:
-            print("=> No stage ready in the game.")
-            return
-
-        width, height = stage.get_size()
+        width, height = self._stage.get_size()
         px_width, px_height = width * self.TILE_RENDER_SIZE, height * self.TILE_RENDER_SIZE
 
         self._terrain_surface = Surface((px_width, px_height), 0, self._shared_data.get_game().get_surface())
 
-        for x, y, tile_id in stage.for_each_tile():
+        for x, y, tile_id in self._stage.for_each_tile():
             tile_name = self.TILES_NAMES.get(tile_id)
             if tile_name is not None:
                 tile_surface = self._terrain_tilemap.get_tile(tile_name)
@@ -98,6 +127,9 @@ class InGameView(View):
             self._scaled_terrain_surface = pygame.transform.scale(self._terrain_surface, new_size)
 
         self._camera_dirty = False
+
+    def _on_entity_added(self, entity: Entity):
+        print("Entity added: {}".format(entity))
 
     def _inner_init(self):
         self._terrain_tilemap = self._shared_data.get_tilemap("terrain.png", TERRAIN_TILEMAP)\

@@ -1,6 +1,11 @@
-from builtins import reversed
-from typing import List, Union, Tuple, Iterable
+from typing import List, Union, Tuple, Iterable, Dict, TypeVar, Callable, Any, Optional
+
+from entity.player import Player, PlayerColor
 from entity import Entity
+
+
+E = TypeVar("E", bound=Entity)
+NewEntityCallback = Optional[Callable[[Entity], None]]
 
 
 class Tile:
@@ -26,17 +31,49 @@ class Tile:
 
 class Stage:
 
-    __slots__ = "entities", "_size", "_terrain"
+    __slots__ = "entities", "_size", "_terrain", "_spawn_points", "_players", \
+                "_new_entity_cb"
 
     def __init__(self, width: int, height: int):
+
         self.entities: List[Entity] = []
 
         self._size = (width, height)
         self._terrain = bytearray(width * height)
 
+        self._spawn_points: List[List[int, int, bool]] = []
+        self._players: Dict[int, Tuple[Player, int]] = {}
+
+        self._new_entity_cb: NewEntityCallback = None
+
     def update(self):
         for entity in self.entities:
             entity.update()
+
+    def add_entity(self, constructor: Callable[['Stage', Any], E], *args, **kwargs) -> E:
+        entity = constructor(self, *args, **kwargs)
+        self.entities.append(entity)
+        if self._new_entity_cb is not None:
+            self._new_entity_cb(entity)
+        return entity
+
+    def add_player(self, player_idx: int, color: PlayerColor):
+
+        try:
+            index, x, y = next((i, x, y) for i, (x, y, used) in enumerate(self._spawn_points) if not used)
+        except StopIteration:
+            raise ValueError("No more player spawn point available in this world.")
+
+        self._spawn_points[index][2] = True
+        player = self.add_entity(Player, player_idx, color)
+        player.set_x(x)
+        player.set_y(y)
+        self._players[player_idx] = (player, index)
+
+    def get_entities(self) -> List[Entity]:
+        return self.entities
+
+    # Terrain
 
     def set_terrain(self, left: int, bottom: int, *terrain: Union[bytes, bytearray]):
         for row in reversed(terrain):
@@ -48,6 +85,11 @@ class Stage:
 
     def get_terrain(self) -> bytearray:
         return self._terrain
+
+    def add_spawn_point(self, x: int, y: int):
+        self._spawn_points.append([x, y, False])
+
+    # Tiles
 
     def get_tile_index(self, x: int, y: int) -> int:
         return x + y * self._size[0]
@@ -77,15 +119,23 @@ class Stage:
                 yield x, y, self._terrain[i]
                 i += 1
 
+    # Callbacks
+
+    def set_new_entity_callback(self, callback: NewEntityCallback):
+        self._new_entity_cb = callback
+
     @classmethod
     def new_example_stage(cls) -> 'Stage':
 
         stage = cls(30, 10)
 
-        stage.set_terrain(6, 7,
+        stage.set_terrain(6, 2,
             b"GGGGGGGGGGGGGGGGGG",
             b"DDDDDDDDDDDDDDDDDD",
             b" DDDDDDDDDDDDDDDD "
         )
+
+        stage.add_spawn_point(7, 5)
+        stage.add_spawn_point(23, 5)
 
         return stage

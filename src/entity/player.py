@@ -1,6 +1,6 @@
-from entity.motion_entity import MotionEntity
-from entity.motion_entity.incarnation import Incarnation
-from entity.motion_entity.incarnation.farmer import Farmer
+from entity import MotionEntity
+from entity.incarnation import Incarnation
+from entity.incarnation.farmer import Farmer
 from enum import Enum, auto
 import stage
 

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import entity.motion_entity.player
+import entity.player
 
 
 class Incarnation(ABC):

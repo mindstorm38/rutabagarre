@@ -8,7 +8,7 @@ from pygame.event import Event
 from pygame import Surface
 import pygame
 
-from entity.motion_entity.player import PlayerColor
+from entity.player import PlayerColor
 from stage import Stage
 import time
 
@@ -85,7 +85,10 @@ class ColorSelectView(View):
         self._players_slots[player_idx][0].set_player_color(player_color)
 
     def _on_start_action(self, _button):
-        self._shared_data.get_game().set_stage(Stage.new_example_stage())
+        stage = Stage.new_example_stage()
+        for player_idx, player_color in self._color_grid.get_selections().items():
+            stage.add_player(player_idx, player_color)
+        self._shared_data.get_game().set_stage(stage)
         self._shared_data.get_game().show_view("in_game")
 
 
@@ -153,6 +156,8 @@ class ViewColorGrid(ViewObject):
         else:
             return False
 
+    def get_selections(self) -> Dict[int, PlayerColor]:
+        return {idx: ORDERED_PLAYER_COLORS[selection.color_index] for idx, selection in self._players_selections.items()}
 
     def set_size(self, width: float, height: float):
         raise ValueError("Cannot set size for this.")

@@ -1,4 +1,4 @@
-from entity.motion_entity.incarnation import Incarnation
+from entity.incarnation import Incarnation
 
 
 class Farmer(Incarnation):
