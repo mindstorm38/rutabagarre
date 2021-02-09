@@ -43,12 +43,18 @@ class Anim:
 
         if not no_init:
             for name, ranges in definition.animations.items():
-                self.sub_surfaces[name] = sub_surfaces = []
-                for x, y, count in ranges:
-                    for _ in range(count):
-                        px, py = definition.get_tile_pos(x, y)
-                        sub_surfaces.append(surface.subsurface(px, py, definition.tile_width, definition.tile_height))
-                        x += 1
+                for rev in (False, True):
+                    if rev:
+                        name = "{}_rev".format(name)
+                    self.sub_surfaces[name] = sub_surfaces = []
+                    for x, y, count in ranges:
+                        for _ in range(count):
+                            px, py = definition.get_tile_pos(x, y)
+                            sub_surface = surface.subsurface(px, py, definition.tile_width, definition.tile_height)
+                            if rev:
+                                sub_surface = pygame.transform.flip(sub_surface, True, False)
+                            sub_surfaces.append(sub_surface)
+                            x += 1
 
     def copy_scaled(self, width: int, height: int) -> 'Anim':
         new_anim = Anim(self.surface, self.definition, no_init=True)

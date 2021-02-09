@@ -1,5 +1,6 @@
 from view import View, ViewObject, controls
 from view.tilemap import TileMap, TERRAIN_TILEMAP
+from view.anim import AnimSurfaceColored
 from stage import Tile
 
 from typing import Optional
@@ -26,12 +27,17 @@ class InGameView(View):
 
         self._terrain_tilemap: Optional[TileMap] = None
         self._terrain_surface: Optional[Surface] = None
-        self._resized_terrain_surface: Optional[Surface] = None
 
-        self._stage_width = 0
+        self._stage_size = (0, 0)
         self._stage_ratio = 0
+        self._camera_dirty = False
         self._camera_range = (0, 0)
-        self._camera_scale_rect = (0, 0, 0, 0)
+        self._camera_y = 10
+
+        self._scaled_terrain_surface: Optional[Surface] = None
+        self._scaled_terrain_pos = (0, 0)
+
+        self._player_anim_surface: Optional[AnimSurfaceColored] = None
 
     def on_enter(self):
         self._redraw_terrain()
@@ -64,15 +70,34 @@ class InGameView(View):
                 if tile_surface is not None:
                     self._terrain_surface.blit(tile_surface, (x * self.TILE_RENDER_SIZE, px_height - (y + 1) * self.TILE_RENDER_SIZE))
 
-        self._stage_width = width
+        self._stage_size = (width, height)
         self._stage_ratio = height / width
-        self._camera_range = (6, 24)
+        self._camera_range = (0, width)
+        self._scaled_terrain_surface = None
+        self._camera_dirty = True
 
         print("=> Stage terrain drawn!")
 
-    def _recompute_camera_scale(self):
-        # TODO
-        pass
+    def _recompute_camera_scale(self, surface: Surface):
+
+        shown_width = min(self._stage_size[0], self._camera_range[1] - self._camera_range[0])
+        invert_ratio = self._stage_size[0] / shown_width
+        range_start_ratio = self._camera_range[0] / self._stage_size[0]
+
+        surface_width, surface_height = surface.get_size()
+        terrain_width = surface_width * invert_ratio
+        terrain_height = terrain_width * self._stage_ratio
+
+        self._scaled_terrain_pos = (
+            terrain_width * -range_start_ratio,
+            (surface_height - terrain_height) / 2
+        )
+
+        new_size = (int(terrain_width), int(terrain_height))
+        if self._scaled_terrain_surface is None or self._scaled_terrain_surface.get_size() != new_size:
+            self._scaled_terrain_surface = pygame.transform.scale(self._terrain_surface, new_size)
+
+        self._camera_dirty = False
 
     def _inner_init(self):
         self._terrain_tilemap = self._shared_data.get_tilemap("terrain.png", TERRAIN_TILEMAP)\
@@ -82,15 +107,7 @@ class InGameView(View):
 
         surface.fill((0, 0, 0))
 
-        shown_width = min(self._stage_width, self._camera_range[1] - self._camera_range[0])
-        invert_ratio = self._stage_width / shown_width
-        range_start_ratio = self._camera_range[0] / self._stage_width
+        if self._camera_dirty:
+            self._recompute_camera_scale(surface)
 
-        surface_width, surface_height = surface.get_size()
-        terrain_width = surface_width * invert_ratio
-        terrain_height = terrain_width * self._stage_ratio
-
-        terrain_x = terrain_width * -range_start_ratio
-
-        scaled_terrain = pygame.transform.scale(self._terrain_surface, (int(terrain_width), int(terrain_height)))
-        surface.blit(scaled_terrain, (terrain_x, 0))
+        surface.blit(self._scaled_terrain_surface, self._scaled_terrain_pos)
