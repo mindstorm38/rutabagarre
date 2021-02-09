@@ -8,7 +8,7 @@ from pygame.event import Event
 from pygame import Surface
 import pygame
 
-from entity.motion_entity.player import PlayerColor
+from entity.player import PlayerColor
 import time
 
 
