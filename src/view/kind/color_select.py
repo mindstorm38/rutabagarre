@@ -7,7 +7,7 @@ from pygame.font import Font
 from pygame import Surface
 import pygame
 
-from entity.player import PlayerColor
+from entity.motion_entity.player import PlayerColor
 from ..controls import KEYS_PLAYERS
 from .. import ViewObject
 
