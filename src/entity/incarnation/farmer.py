@@ -3,7 +3,7 @@ from src.entity.incarnation import Incarnation
 
 class Farmer(Incarnation):
     """
-    Implementation of the incarnation Farmer. Inherits from incarnation
+    Implementation of the incarnation Farmer, the classic incarnation. Inherits from incarnation
     """
 
     def __init__(self) -> None:

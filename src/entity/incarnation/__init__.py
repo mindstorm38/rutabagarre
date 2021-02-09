@@ -37,7 +37,7 @@ class Incarnation(ABC):
 
     # OTHER METHODS
     def attack_light(self, target: 'entity.player.Player') -> None:
-        target.add_to_hp(- (self.get_attack() - target.get_incarnation().get_defense()))
+        target.add_to_hp(- (self.get_attack() / target.get_incarnation().get_defense()))
 
     def attack_heavy(self, target: 'entity.player.Player') -> None:
-        target.add_to_hp(- (self.get_attack() - target.get_incarnation().get_defense() / 2))
+        target.add_to_hp(- (self.get_attack()*1.5 / target.get_incarnation().get_defense()))
