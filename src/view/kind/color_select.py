@@ -12,7 +12,7 @@ from entity.motion_entity.player import PlayerColor
 import time
 
 
-PlayerChangeCallback = Optional[Callable[[ViewObject, int, PlayerColor], None]]
+PlayerChangeCallback = Optional[Callable[[int, Optional[PlayerColor]], None]]
 
 
 class ColorSelectView(View):
@@ -59,7 +59,7 @@ class ColorSelectView(View):
         for slot, offset in self._players_slots:
             slot.set_position(players_slots_x + offset, 360)
 
-    def _grid_player_changed(self, _obj, player_idx: int, player_color: PlayerColor):
+    def _grid_player_changed(self, player_idx: int, player_color: Optional[PlayerColor]):
         self._players_slots[player_idx][0].set_player_color(player_color)
 
 
@@ -102,6 +102,12 @@ class ViewColorGrid(ViewObject):
         self._players_selections[player_idx] = GridSelection(color_idx)
         self._update_player(player_idx)
         return True
+
+    def remove_player(self, player_idx: int):
+        if player_idx in self._players_selections:
+            del self._players_selections[player_idx]
+            if self._change_cb is not None:
+                self._change_cb(player_idx, None)
 
     def change_player_color(self, player_idx: int, backward: bool) -> bool:
 
@@ -178,7 +184,10 @@ class ViewColorGrid(ViewObject):
         if self.in_view():
             if player_idx not in self._players_selections:
                 raise ValueError("The player index {} is not valid.".format(player_idx))
-            self._update_player_raw(player_idx, self._players_selections[player_idx])
+            selection = self._players_selections[player_idx]
+            self._update_player_raw(player_idx, selection)
+            if self._change_cb is not None:
+                self._change_cb(player_idx, ORDERED_PLAYER_COLORS[selection.color_index][0])
 
     def _update_player_raw(self, player_idx: int, selection: GridSelection):
         selection.pos = self._get_color_offset(selection.color_index)
@@ -187,8 +196,6 @@ class ViewColorGrid(ViewObject):
             selection.pos[0] + (self._cell_size - selection.text_surface.get_width()) / 2,
             selection.pos[1] + (self._cell_size - selection.text_surface.get_height()) / 2
         )
-        if self._change_cb is not None:
-            self._change_cb(self, player_idx, ORDERED_PLAYER_COLORS[selection.color_index][0])
 
     def _get_player_at(self, col: int, row: int) -> Optional[int]:
         color_index = self._get_color_index(col, row)
@@ -217,8 +224,7 @@ class ViewColorGrid(ViewObject):
                     if not self.insert_player(player_idx):
                         self.change_player_color(player_idx, action == "left")
                 elif action == "down":
-                    # TODO: Remove plus
-                    pass
+                    self.remove_player(player_idx)
 
     def set_view(self, view: View):
         super().set_view(view)
