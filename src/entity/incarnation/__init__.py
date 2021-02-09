@@ -36,8 +36,8 @@ class Incarnation(ABC):
         self._duration += number
 
     # OTHER METHODS
-    def attack_light(self, target: 'player.Player') -> None:
+    def attack_light(self, target: 'entity.player.Player') -> None:
         target.add_to_hp(- (self.get_attack() - target.get_incarnation().get_defense()))
 
-    def attack_heavy(self, target: 'player.Player') -> None:
+    def attack_heavy(self, target: 'entity.player.Player') -> None:
         target.add_to_hp(- (self.get_attack() - target.get_incarnation().get_defense() / 2))
