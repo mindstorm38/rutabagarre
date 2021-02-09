@@ -119,17 +119,12 @@ class _AnimLayer:
 
 class AnimSurface:
 
-    __slots__ = "_width", "_height", "_layers" # , "_delay", "_last_time", "_frame"
+    __slots__ = "_width", "_height", "_layers"
 
     def __init__(self, width: int, height: int, layers: List[Anim]):
-
         self._width = width
         self._height = height
-
         self._layers: List[_AnimLayer] = [_AnimLayer(anim) for anim in layers]
-        # self._delay = 0.1
-        # self._last_time = 0
-        # self._frame = 0
 
     def add_layer(self, anim: Anim):
         self._layers.append(_AnimLayer(anim))
@@ -155,12 +150,6 @@ class AnimSurface:
     # Méthodes override #
 
     def blit_on(self, surface: Surface, pos: Tuple[int, int], tracker: AnimTracker, *, layers: Optional[tuple] = None):
-
-        """now = time.monotonic()
-        if now - self._last_time >= self._delay:
-            self._last_time = now
-            self._frame += 1"""
-
         for layer in (self._layers if layers is None else map(self._get_layer, layers)):
             layer.rescale_lazy(self._width, self._height)
             anim = tracker.get_anim()
