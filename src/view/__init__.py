@@ -1,10 +1,12 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod
 
 from pygame.event import Event
 from pygame.font import Font
 from pygame import Surface
+import pygame
 
+from view.anim import AnimDefinition, Anim, AnimSurfaceColored
 import game
 import res
 
@@ -22,23 +24,32 @@ class View(ABC):
 
     def __init__(self):
         self._children: List['ViewObject'] = []
+        self._shared_data: Optional['SharedViewData'] = None
 
     def add_child(self, child: 'ViewObject'):
         self._children.append(child)
         child.set_view(self)
 
-    @abstractmethod
+    def get_shared_data(self) -> Optional['SharedViewData']:
+        return self._shared_data
+
     def init(self, data: 'SharedViewData'):
         """ Appelée à l'initialisation du jeu avec les données communes des vues. """
+        self._shared_data = data
+        self._inner_init()
 
     def draw(self, surface: Surface):
-
         """ Appelée à chaque image, doit dessiner la vue sur la `surface` donnée. """
-
         surface.fill(self.BACKGROUND_COLOR)
-
+        self._inner_pre_draw(surface)
         for child in self._children:
             child.draw(surface)
+
+    @abstractmethod
+    def _inner_init(self): ...
+
+    @abstractmethod
+    def _inner_pre_draw(self, surface: Surface): ...
 
     def event(self, event: Event):
         """ Appelée pour chaque évènement PyGame. """
@@ -56,13 +67,16 @@ class SharedViewData:
     def __init__(self, the_game: 'game.Game'):
         self._game = the_game
         self._fonts: Dict[int, Font] = {}
+        self._images: Dict[str, Surface] = {}
+        self._animations: Dict[str, Anim] = {}
 
     def init(self):
         """ Appelée lors de l'initialisation du jeu, après la création de la fenêtre. """
 
     def cleanup(self):
         """ Appelée à la fermeture du jeu afin de supprimer les données désormais invalide. """
-        self._fonts = {}
+        self._fonts.clear()
+        self._images.clear()
 
     def get_game(self) -> 'game.Game':
         """ Retourne l'instance actuelle du controlleur de jeu. """
@@ -75,6 +89,27 @@ class SharedViewData:
             font = Font(res.get_res("5x7-practical-regular.ttf"), size)
             self._fonts[size] = font
         return font
+
+    def get_image(self, res_path: str) -> Surface:
+        image = self._images.get(res_path)
+        if image is None:
+            image = pygame.image.load(res.get_res(res_path))
+            self._images[res_path] = image
+        return image
+
+    def get_anim(self, res_path: str, anim_def: AnimDefinition) -> Anim:
+        animation = self._animations.get(res_path)
+        if animation is None:
+            animation = Anim(self.get_image(res_path), anim_def)
+            self._animations[res_path] = animation
+        elif animation.definition != anim_def:
+            raise ValueError("The animation for '{}' is already set but not of this type.".format(res_path))
+        return animation
+
+    def new_anim_colored(self, anim_name, anim_def: AnimDefinition, width: int, height: int) -> AnimSurfaceColored:
+        main_anim = self.get_anim("animations/{}.png".format(anim_name), anim_def)
+        overlay_anim = self.get_anim("animations/{}_overlay.png".format(anim_name), anim_def)
+        return AnimSurfaceColored(width, height, main_anim, overlay_anim)
 
     def get_show_view_callback(self, view_name: str) -> callable:
         """ Retourne une fonction de type `callback` qui change la vue active quand elle est appelée. """
@@ -104,9 +139,11 @@ class ViewObject(ABC):
 
     def set_position(self, x: float, y: float):
         self._pos = (x, y)
+        self._on_shape_changed()
 
     def set_size(self, width: float, height: float):
         self._size = (width, height)
+        self._on_shape_changed()
 
     def set_position_centered(self, x: float, y: float):
         self.set_position(x - self._size[0] / 2, y - self._size[1] / 2)
@@ -115,3 +152,20 @@ class ViewObject(ABC):
         x, y = self._pos
         width, height = self._size
         return x <= mx <= x + width and y <= my <= y + height
+
+    def in_view(self) -> bool:
+        return self._view is not None
+
+    def get_width(self) -> float:
+        return self._size[0]
+
+    def get_height(self) -> float:
+        return self._size[1]
+
+    # Private / Protected #
+
+    def _get_font(self, size: int) -> Optional[Font]:
+        return None if self._view is None else self._view.get_shared_data().get_font(size)
+
+    def _on_shape_changed(self):
+        pass
