@@ -43,6 +43,10 @@ class Player(MotionEntity):
     def get_incarnation(self) -> Incarnation:
         return self._incarnation
 
+    @staticmethod
+    def get_hard_hitbox() -> bool:
+        return False
+
     # SETTERS
     def set_number(self, number: int) -> None:
         self._number = number
