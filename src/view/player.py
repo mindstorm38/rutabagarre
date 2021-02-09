@@ -1,4 +1,4 @@
-from entity.player import PlayerColor
+from entity.motion_entity.player import PlayerColor
 from typing import Tuple
 
 

@@ -2,7 +2,6 @@ from view import View, ViewObject, controls
 from view.anim import AnimSurfaceColored, AnimTracker, FARMER_ANIMATION
 from view.button import ViewButton
 from view.player import ORDERED_PLAYER_COLORS, get_player_color
-from entity.player import PlayerColor
 
 from typing import Optional, Dict, Tuple, List, Callable
 from pygame.event import Event
@@ -10,8 +9,6 @@ from pygame import Surface
 import pygame
 
 from entity.motion_entity.player import PlayerColor
-from ..controls import KEYS_PLAYERS
-from .. import ViewObject
 import time
 
 
