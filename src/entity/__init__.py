@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from entity.hitbox import HitBox
 import stage
 
 
@@ -8,6 +9,7 @@ class Entity(ABC):
         self._stage: 'stage.Stage' = entity_stage
         self._x: float = 0.0
         self._y: float = 0.0
+        self._hitbox = HitBox(0, 0, 0, 0)
 
     # GETTERS
     def get_x(self) -> float:
@@ -19,6 +21,9 @@ class Entity(ABC):
     def get_stage(self) -> 'stage.Stage':
         return self._stage
 
+    def get_hitbox(self) -> HitBox:
+        return self._hitbox
+
     # SETTERS
     def set_x(self, x: float) -> None:
         self._x = x
@@ -26,8 +31,11 @@ class Entity(ABC):
     def set_y(self, y: float) -> None:
         self._y = y
 
-    def set_stage(self, stage: 'stage.Stage') -> None:
-        self._stage = stage
+    def set_stage(self, stage_to_set: 'stage.Stage') -> None:
+        self._stage = stage_to_set
+
+    def set_hitbox(self, hitbox: HitBox) -> None:
+        self._hitbox = hitbox
 
     # ADDERS
     def add_to_x(self, number: float) -> None:
@@ -35,7 +43,6 @@ class Entity(ABC):
 
     def add_to_y(self, number: float) -> None:
         self._y += number
-
 
     @abstractmethod
     def update(self): ...

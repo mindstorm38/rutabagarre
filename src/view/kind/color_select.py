@@ -9,6 +9,9 @@ from pygame.event import Event
 from pygame import Surface
 import pygame
 
+from entity.motion_entity.player import PlayerColor
+from ..controls import KEYS_PLAYERS
+from .. import ViewObject
 import time
 
 

@@ -1,6 +1,6 @@
-from . import Entity
-from entity.incarnation import Incarnation
-from entity.incarnation.farmer import Farmer
+from entity.motion_entity import MotionEntity
+from entity.motion_entity.incarnation import Incarnation
+from entity.motion_entity.incarnation.farmer import Farmer
 from enum import Enum, auto
 import stage
 
@@ -18,7 +18,7 @@ class PlayerColor(Enum):
     BLACK = auto()
 
 
-class Player(Entity):
+class Player(MotionEntity):
     """
     Implementation of a player. Inherits from Entity
     """
