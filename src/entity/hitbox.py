@@ -116,3 +116,5 @@ class Hitbox:
         elif y < 0:
             # We go up
             return other_hitbox._y_ur - (self.get_y_tl() + y)
+        else:
+            raise ValueError("Error: it's abnormal to calculate the offset when y = 0: something goes wrong")
