@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import stage as stage
+import stage
 
 
 class Entity(ABC):
