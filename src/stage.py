@@ -150,6 +150,6 @@ class Stage:
         stage.add_spawn_point(23, 5)
 
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(0, 3, 20, 4)
+        floor.get_hitbox().set_positions(6, 2, 24, 4)
 
         return stage

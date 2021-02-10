@@ -1,4 +1,4 @@
-from entity import MotionEntity
+from entity import Entity, MotionEntity
 from entity.incarnation import Incarnation
 from entity.incarnation.farmer import Farmer
 from enum import Enum, auto
@@ -100,9 +100,30 @@ class Player(MotionEntity):
 
     def attack_light(self) -> None:
         # We search for entities that will be hit
-        hitbox_extended = self.get_hitbox().copy()
+        hitbox_extended = self._cached_hitbox
+        hitbox_extended.set_from(self.get_hitbox())
         hitbox_extended.expand(
             ((1, -1)[self.get_turned_to_left()]) * self._incarnation.get_light_attack_range(),
             0
-         )
-        other_players_hit = self.get_stage().foreach_colliding_entity()
+        )
+        players_hit = self.get_stage().foreach_colliding_entity(hitbox_extended, predicate=Player._is_player)
+        for player_hit in players_hit:
+            if player_hit != self:
+                self._incarnation.attack_light(player_hit)
+
+    def attack_heavy(self) -> None:
+        # We search for entities that will be hit
+        hitbox_extended = self._cached_hitbox
+        hitbox_extended.set_from(self.get_hitbox())
+        hitbox_extended.expand(
+            ((1, -1)[self.get_turned_to_left()]) * self._incarnation.get_heavy_attack_range(),
+            0
+        )
+        players_hit = self.get_stage().foreach_colliding_entity(hitbox_extended, predicate=Player._is_player)
+        for player_hit in players_hit:
+            if player_hit != self:
+                self._incarnation.attack_heavy(player_hit)
+
+    @staticmethod
+    def _is_player(entity: Entity) -> bool:
+        return isinstance(entity, Player)
