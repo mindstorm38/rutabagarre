@@ -113,6 +113,9 @@ class AnimTracker:
         if self._last_anim_name == name:
             self._anims_queue[0][2] = -1
 
+    def is_last_anim(self, *names: str) -> bool:
+        return self._last_anim_name in names
+
     def set_all_reversed(self, rev: bool):
         for data in self._anims_queue:
             data[1] = _format_reversed(data[0], rev)

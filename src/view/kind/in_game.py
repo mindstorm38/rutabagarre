@@ -67,14 +67,14 @@ class PlayerDrawer(EntityDrawer):
             self.rev = player.get_turned_to_left()
             self.tracker.set_all_reversed(self.rev)
 
-        block_anim = False
-
         for animation in player.foreach_animation():
             if animation == "rake_attack":
                 self.tracker.push_anim("attack_side", 1, 40, rev=self.rev, ignore_existing=False)
-                block_anim = True
+            elif animation == "spining_attack":
+                self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
 
-        if not block_anim and player.get_vel_x() != 0 and player.is_on_ground():
+
+        if self.tracker.is_last_anim("idle", "run") and player.get_vel_x() != 0 and player.is_on_ground():
             self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
@@ -100,7 +100,7 @@ class InGameView(View):
     TILE_SIZE = 64
     PLAYER_SIZE = 128
 
-    DEBUG_HITBOXES = True
+    DEBUG_HITBOXES = False
 
     def __init__(self):
 
@@ -242,6 +242,8 @@ class InGameView(View):
                         player_entity.move_jump()
                     elif action == "action":
                         player_entity.do_action()
+                    elif action == "heavy_action":
+                        player_entity.do_heavy_action()
 
 
     def event(self, event: Event):

@@ -5,6 +5,7 @@ from typing import Tuple, cast, Optional, List, Iterable
 from enum import Enum, auto
 import random
 import stage
+import time
 
 
 class PlayerColor(Enum):
@@ -47,6 +48,7 @@ class Player(MotionEntity):
         self._incarnation: Incarnation = Farmer(self)
 
         self._animations_queue: List[str] = []
+        self._block_oves_until = 0
 
     # GETTERS
 
@@ -92,7 +94,8 @@ class Player(MotionEntity):
     # MOVES
 
     def _move_side(self, vel) -> None:
-        self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
+        if self.can_move():
+            self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
 
     def move_right(self) -> None:
         self._move_side(self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
@@ -101,7 +104,7 @@ class Player(MotionEntity):
         self._move_side(-self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_jump(self) -> None:
-        if self._on_ground:
+        if self._on_ground and self.can_move():
             self.add_velocity(0, self.JUMP_VELOCITY)
 
     def do_action(self) -> None:
@@ -147,6 +150,12 @@ class Player(MotionEntity):
                 target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
                 knockback_x = random.uniform(0.01, 0.03)
                 target.add_velocity(-knockback_x if self.get_turned_to_left() else knockback_x, random.uniform(0.02, 0.05))
+
+    def block_moves_for(self, duration: float):
+        self._block_oves_until = time.monotonic() + duration
+
+    def can_move(self) -> bool:
+        return time.monotonic() >= self._block_oves_until
 
     @staticmethod
     def _is_player(entity: Entity) -> bool:
