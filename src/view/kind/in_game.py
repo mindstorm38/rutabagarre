@@ -74,7 +74,7 @@ class PlayerDrawer(EntityDrawer):
             elif animation == "spining_attack":
                 self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
 
-        if self.tracker.is_last_anim("idle", "run") and player.get_vel_x() != 0 and player.is_on_ground():
+        if player.get_vel_x() != 0 and player.is_on_ground() and self.tracker.is_last_anim("idle", "run"):
             self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
