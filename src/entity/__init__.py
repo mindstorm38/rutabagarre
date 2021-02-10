@@ -167,7 +167,7 @@ class MotionEntity(Entity, ABC):
             if abs(dx) < 0.01:
                 dx = 0
             else:
-                self._turned_to_right = (dx > 0)
+                self._turned_to_left = dx < 0
 
         if dy != 0 and abs(dy) < 0.01:
             dy = 0

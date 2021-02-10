@@ -60,12 +60,12 @@ class PlayerDrawer(EntityDrawer):
 
         player = cast(Player, self.entity)
 
+        if self.rev != player.get_turned_to_left():
+            self.rev = player.get_turned_to_left()
+            self.tracker.set_all_reversed(self.rev)
+
         if player.get_vel_x() != 0 and player.is_on_ground():
-            new_rev = player.get_vel_x() < 0
-            if new_rev != self.rev:
-                self.rev = new_rev
-                self.tracker.set_all_reversed(new_rev)
-            self.tracker.push_infinite_anim("run", 14, rev=new_rev, ignore_existing=False)
+            self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
 
