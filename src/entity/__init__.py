@@ -40,7 +40,7 @@ class Entity(ABC):
 
     @staticmethod
     def get_hard_hitbox() -> bool:
-        return True
+        return False
 
     # SETTERS
     def set_x(self, x: float) -> None:
@@ -91,8 +91,8 @@ class MotionEntity(Entity, ABC):
     """
     Abstract subclass of Entity that can move
     """
-    NATURAL_FRICTION = 0.4
-    NATURAL_GRAVITY = 0.05
+    NATURAL_FRICTION = 0.95
+    NATURAL_GRAVITY = 0.02
 
     def __init__(self, entity_stage: 'stage.Stage') -> None:
 
@@ -146,6 +146,12 @@ class MotionEntity(Entity, ABC):
         taking care of other hitboxes onto the stage
         """
 
+        # We cancel moves that are too short to avoid useless processing and then keep fluidity
+        if -0.001 < self._vel_x < 0.001:
+            self._vel_x = 0
+        if -0.001 < self._vel_y < 0.001:
+            self._vel_y = 0
+
         hitbox_copy = self.get_hitbox().copy()
         hitbox_copy.expand(self._vel_x, self._vel_y)
 
@@ -153,24 +159,12 @@ class MotionEntity(Entity, ABC):
 
         i = 0
         while i < len(entities) and self._vel_x != 0:
-            new_vel_x = self._vel_x
-            if entities[i].get_hard_hitbox() and hitbox_copy.intersects_x(entities[i].get_hitbox()):
-                new_vel_x = self.get_hitbox().calc_offset_x(entities[i].get_hitbox(), new_vel_x)
-                if new_vel_x != self._vel_x:
-                    self._vel_x = new_vel_x
-                    hitbox_copy = self.get_hitbox().copy()
-                    hitbox_copy.expand(self._vel_x, self._vel_y)
+            self._vel_x = self._hitbox.calc_offset_x(entities[i].get_hitbox(), self._vel_x)
             i += 1
 
         i = 0
         while i < len(entities) and self._vel_y != 0:
-            new_vel_y = self._vel_y
-            if entities[i].get_hard_hitbox and hitbox_copy.intersects_y(entities[i].get_hitbox()):
-                new_vel_y = self.get_hitbox().calc_offset_y(entities[i].get_hitbox(), new_vel_y)
-                if new_vel_y != self._vel_y:
-                    self._vel_y = new_vel_y
-                    hitbox_copy = self.get_hitbox().copy()
-                    hitbox_copy.expand(self._vel_x, self._vel_y)
+            self._vel_y = self._hitbox.calc_offset_x(entities[i].get_hitbox(), self._vel_y)
             i += 1
 
         self.get_hitbox().move(self._vel_x, self._vel_y)

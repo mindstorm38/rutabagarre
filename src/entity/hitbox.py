@@ -84,52 +84,50 @@ class Hitbox:
             self._min_y += y
 
     def intersects(self, other_hitbox: Hitbox) -> bool:
-        return self.intersects_x(other_hitbox) or self.intersects_y(other_hitbox)
-
-    def intersects_x(self, other_hitbox: Hitbox) -> bool:
-        """
-        :return: if other_hitbox intersects with this one
-        """
-        return not (
-            other_hitbox._max_x >= self._min_x or
-            other_hitbox._min_x <= self._max_x
+        return (
+                self._min_x < other_hitbox._max_x and
+                self._max_x > other_hitbox._min_x and
+                self._min_y < other_hitbox._max_y and
+                self._max_y > other_hitbox._min_y
         )
 
-    def intersects_y(self, other_hitbox: Hitbox) -> bool:
-        """
-        :return: if other_hitbox intersects with this one
-        """
-        return not (
-            other_hitbox._max_y <= self._min_y or
-            other_hitbox._min_y >= self._max_y
-        )
+    def calc_offset_x(self, other_hitbox: Hitbox, offset_x: float) -> float:
 
-    def calc_offset_x(self, other_hitbox: Hitbox, x: float) -> float:
-        """
-        Calculates how far we can move among the x-axis without hitting other_hitbox.
-        Supposes that else we we hit other_hitbox
-        :return: `x +/- (what is necessary to be able to move)`
-        """
-        if x > 0:
-            # We go right
-            return other_hitbox._min_x - self._max_x
-        elif x < 0:
-            # We go left
-            return other_hitbox._max_x - self._min_x
-        else:
-            raise ValueError("Error: it's abnormal to calculate the offset when x = 0: something goes wrong")
+        if other_hitbox._max_y > self._min_y and other_hitbox._min_y < self._max_y:
 
-    def calc_offset_y(self, other_hitbox: Hitbox, y: float) -> float:
-        """
-        Calculates how far we can move among the y-axis without hitting other_hitbox.
-        Supposes that else we we hit other_hitbox
-        :return: `y +/- (what is necessary to be able to move)`
-        """
-        if y > 0:
-            # We go up
-            return other_hitbox._min_y - self._max_y
-        elif y < 0:
-            # We go down
-            return other_hitbox._max_y - self._min_y
-        else:
-            raise ValueError("Error: it's abnormal to calculate the offset when y = 0: something goes wrong")
+            if offset_x > 0.0 and other_hitbox._max_x <= self._min_x:
+
+                d = self._min_x - other_hitbox._max_x
+
+                if d < offset_x:
+                    offset_x = d
+
+            elif offset_x < 0.0 and other_hitbox._min_x >= self._max_x:
+
+                d = self._max_x - other_hitbox._min_x
+
+                if d > offset_x:
+
+                    offset_x = d
+
+        return offset_x
+
+    def calc_offset_y(self, other_hitbox: Hitbox, offset_y: float) -> float:
+
+        if other_hitbox._max_x > self._min_x and other_hitbox._min_x < self._max_x:
+
+            if offset_y > 0.0 and other_hitbox._max_y <= self._min_y:
+
+                d = self._min_y - other_hitbox._max_y
+
+                if d < offset_y:
+                    offset_y = d
+
+            elif offset_y < 0.0 and other_hitbox._min_y >= self._max_y:
+
+                d = self._max_y - other_hitbox._min_y
+
+                if d > offset_y:
+                    offset_y = d
+
+        return offset_y

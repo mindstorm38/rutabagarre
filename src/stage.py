@@ -3,6 +3,7 @@ from typing import List, Union, Tuple, Iterable, Dict, TypeVar, Callable, Any, O
 from entity.player import Player, PlayerColor
 from entity import Entity
 from entity.hitbox import Hitbox
+from entity.floor import Floor
 
 
 E = TypeVar("E", bound=Entity)
@@ -143,6 +144,9 @@ class Stage:
 
         stage.add_spawn_point(7, 5)
         stage.add_spawn_point(23, 5)
+
+        floor = stage.add_entity(Floor)
+        floor.get_hitbox().set_positions(0, 3, 20, 4)
 
         return stage
 
