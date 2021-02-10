@@ -60,7 +60,7 @@ class PlayerDrawer(EntityDrawer):
 
         player = cast(Player, self.entity)
 
-        if player.get_vel_x() != 0:
+        if player.get_vel_x() != 0 and player.is_on_ground():
             new_rev = player.get_vel_x() < 0
             if new_rev != self.rev:
                 self.rev = new_rev
