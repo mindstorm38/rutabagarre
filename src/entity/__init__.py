@@ -165,7 +165,7 @@ class MotionEntity(Entity, ABC):
         i = 0
         while i < len(entities) and self._vel_y != 0:
             new_vel_y = self._vel_y
-            if entities[i].get_hard_hitbox and hitbox_copy.intersects_y(entities[i].get_hitbox()):
+            if entities[i].get_hard_hitbox() and hitbox_copy.intersects_y(entities[i].get_hitbox()):
                 new_vel_y = self.get_hitbox().calc_offset_y(entities[i].get_hitbox(), new_vel_y)
                 if new_vel_y != self._vel_y:
                     self._vel_y = new_vel_y
