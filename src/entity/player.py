@@ -26,6 +26,7 @@ class PlayerColor(Enum):
 
 
 class Player(MotionEntity):
+
     """
     Implementation of a player. Inherits from Entity
     """
@@ -71,6 +72,9 @@ class Player(MotionEntity):
     def add_to_hp(self, number) -> None:
         self._hp += number
 
+    def _setup_box_pos(self, x: float, y: float):
+        self._hitbox.set_positions(x - 0.5, y, x + 0.5, y + 2)
+
     # OTHER METHODS
     def update(self) -> None:
-        ...  # TODO l'implémenter
+        super().update()

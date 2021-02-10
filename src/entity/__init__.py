@@ -45,11 +45,11 @@ class Entity(ABC):
     # SETTERS
     def set_x(self, x: float) -> None:
         # self._x = x
-        raise NotImplementedError("deprecated")
+        raise ValueError("deprecated")
 
     def set_y(self, y: float) -> None:
         # self._y = y
-        raise NotImplementedError("deprecated")
+        raise ValueError("deprecated")
 
     def set_position(self, x: float, y: float):
         self._x = x
@@ -59,12 +59,12 @@ class Entity(ABC):
     def set_stage(self, stage_to_set: 'stage.Stage') -> None:
         # self._stage = stage_to_set
         # Une entité ne change pas de stage
-        raise NotImplementedError("deprecated")
+        raise ValueError("deprecated")
 
     def set_hitbox(self, the_hitbox: Hitbox) -> None:
         # self._hitbox = the_hitbox
         # On ne défini plus la hitbox par le setter
-        raise NotImplementedError("deprecated")
+        raise ValueError("deprecated")
 
     # ADDERS
 
@@ -113,11 +113,11 @@ class MotionEntity(Entity, ABC):
 
     def set_vel_x(self, x: float) -> None:
         # self._vel_x = x
-        raise NotImplementedError("deprecated")
+        raise ValueError("deprecated")
 
     def set_vel_y(self, y: float) -> None:
         # self._vel_y = y
-        raise NotImplementedError("deprecated")
+        raise ValueError("deprecated")
 
     def set_velocity(self, dx: float, dy: float):
         self._vel_x = dx
