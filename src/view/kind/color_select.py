@@ -139,7 +139,7 @@ class ViewColorGrid(ViewObject):
 
     def change_player_color(self, player_idx: int, backward: bool) -> bool:
 
-        """ Change la couleur selectionné par un joueur suivant une direction par rapport à la selection actuelle. """
+        """ Change la couleur selectionnée par un joueur suivant une direction par rapport à la selection actuelle. """
 
         if player_idx not in self._players_selections:
             return False
