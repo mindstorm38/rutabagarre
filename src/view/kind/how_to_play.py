@@ -20,6 +20,9 @@ class HowToPlayView(View):
 
         super().__init__()
 
+        if self._num is None :
+            self.num = 0
+
         self._return_button : Optional[ViewButton] = None
         self._title: Optional[ViewButton] = None
 
@@ -81,15 +84,17 @@ class HowToPlayView(View):
 
         self._left = ViewButton(35, ">")
         self._left.set_size(50, 50)
+        self._left.set_action_callback(self._shared_data.get_show_view_callback("how_to_play"))
         self.add_child(self._left)
 
         self._right = ViewButton(35, "<")
         self._right.set_size(50, 50)
+        self._right.set_action_callback(self._shared_data.get_show_view_callback("how_to_play"))
         self.add_child(self._right)
 
-        self._character_name_text = self._shared_data.get_font(50).render(self._authors[0]["name"], True, self.TEXT_COLOR)
-        self._character_type_text = self._shared_data.get_font(50).render(self._authors[0]["typechar"], True, self.TEXT_COLOR)
-        self._joke_text = self._shared_data.get_font(25).render(self._authors[0]["joke"], True, self.TEXT_COLOR)
+        self._character_name_text = self._shared_data.get_font(50).render(self._authors[self._num]["name"], True, self.TEXT_COLOR)
+        self._character_type_text = self._shared_data.get_font(50).render(self._authors[self._num]["typechar"], True, self.TEXT_COLOR)
+        self._joke_text = self._shared_data.get_font(25).render(self._authors[self._num]["joke"], True, self.TEXT_COLOR)
 
         self._walk_text = self._shared_data.get_font(40).render("Walk", True, self.TEXT_COLOR)
         self._run_text = self._shared_data.get_font(40).render("Run", True, self.TEXT_COLOR)
@@ -102,10 +107,10 @@ class HowToPlayView(View):
         self._runRL_text = self._shared_data.get_font(40).render("<- -> / Q D", True, self.TEXT_COLOR)
         self._up_text = self._shared_data.get_font(40).render("up / Z", True, self.TEXT_COLOR)
         self._down_text = self._shared_data.get_font(40).render("down / S", True, self.TEXT_COLOR)
-        self._input_superhit_text = self._shared_data.get_font(40).render(self._authors[0]["commandesuperhit"], True, self.TEXT_COLOR)
+        self._input_superhit_text = self._shared_data.get_font(40).render(self._authors[self._num]["commandesuperhit"], True, self.TEXT_COLOR)
         self._input_hit_text = self._shared_data.get_font(40).render("? / C", True, self.TEXT_COLOR)
 
-        self._image = self._shared_data.get_image(self._authors[0]["res"])
+        self._image = self._shared_data.get_image(self._authors[self._num]["res"])
 
     def _inner_pre_draw(self, surface: Surface):
         surface_width, surface_height = surface.get_size()
