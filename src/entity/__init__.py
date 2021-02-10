@@ -77,12 +77,11 @@ class Entity(ABC):
     # Physics
 
     def _setup_box_pos(self, x: float, y: float):
-        # TODO: Set bounding box pos unsafe
-        pass
+        self._hitbox.set_positions(x, y, x, y)
 
     def _reset_pos_to_box(self):
-        # TODO: Reset pos
-        pass
+        self._x = self._hitbox.get_width() / 2  # TODO: change with new method
+        self._y = self._hitbox.get_min_y()
 
     @abstractmethod
     def update(self): ...
