@@ -31,6 +31,10 @@ class Incarnation(ABC):
     def get_light_attack_range() -> float:
         return 1.0
 
+    @staticmethod
+    def get_heavy_attack_range() -> float:
+        return 1.5
+
     # SETTERS
     def set_duration(self, duration: float) -> None:
         self._duration = duration
