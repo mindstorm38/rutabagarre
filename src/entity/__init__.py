@@ -5,17 +5,21 @@ import stage
 
 class Entity(ABC):
 
-    UID_COUNTER = 1
+    UID_COUNTER = 0
 
     def __init__(self, entity_stage: 'stage.Stage'):
 
-        self._uid = self.UID_COUNTER
-        self.UID_COUNTER += 1
+        self._uid = self.new_uid()
 
         self._stage: 'stage.Stage' = entity_stage
         self._x: float = 0.0
         self._y: float = 0.0
         self._hitbox = Hitbox(0, 0, 0, 0)
+
+    @classmethod
+    def new_uid(cls) -> int:
+        cls.UID_COUNTER += 1
+        return cls.UID_COUNTER
 
     # GETTERS
 
