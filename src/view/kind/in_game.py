@@ -53,7 +53,7 @@ class PlayerDrawer(EntityDrawer):
         self.color = get_player_color(entity.get_color())
         self.anim_surface = view.get_player_anim_surface()
         self.tracker = AnimTracker()
-        self.tracker.push_infinite_anim("idle", 5)
+        self.tracker.push_infinite_anim("idle", 7)
         self.rev = False
 
     def draw(self, surface: Surface):
@@ -65,7 +65,7 @@ class PlayerDrawer(EntityDrawer):
             if new_rev != self.rev:
                 self.rev = new_rev
                 self.tracker.set_all_reversed(new_rev)
-            self.tracker.push_infinite_anim("run", 10, rev=new_rev, ignore_existing=False)
+            self.tracker.push_infinite_anim("run", 14, rev=new_rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
 
