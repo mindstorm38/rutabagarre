@@ -151,25 +151,27 @@ class MotionEntity(Entity, ABC):
 
         entities = self.get_stage().entities
 
-        if self._vel_x != 0:
-            for entity in entities:
-                new_vel_x = self._vel_x
-                if entity.get_hard_hitbox() and hitbox_copy.intersects_x(entity.get_hitbox()):
-                    new_vel_x = self.get_hitbox().calc_offset_x(entity.get_hitbox(), new_vel_x)
-                    if new_vel_x != self._vel_x:
-                        self._vel_x = new_vel_x
-                        hitbox_copy = self.get_hitbox().copy()
-                        hitbox_copy.expand(self._vel_x, self._vel_y)
+        i = 0
+        while i < len(entities) and self._vel_x != 0:
+            new_vel_x = self._vel_x
+            if entities[i].get_hard_hitbox() and hitbox_copy.intersects_x(entities[i].get_hitbox()):
+                new_vel_x = self.get_hitbox().calc_offset_x(entities[i].get_hitbox(), new_vel_x)
+                if new_vel_x != self._vel_x:
+                    self._vel_x = new_vel_x
+                    hitbox_copy = self.get_hitbox().copy()
+                    hitbox_copy.expand(self._vel_x, self._vel_y)
+            i += 1
 
-        if self._vel_y != 0:
-            for entity in entities:
-                new_vel_y = self._vel_y
-                if entity.get_hard_hitbox and hitbox_copy.intersects_y(entity.get_hitbox()):
-                    new_vel_y = self.get_hitbox().calc_offset_y(entity.get_hitbox(), new_vel_y)
-                    if new_vel_y != self._vel_y:
-                        self._vel_y = new_vel_y
-                        hitbox_copy = self.get_hitbox().copy()
-                        hitbox_copy.expand(self._vel_x, self._vel_y)
+        i = 0
+        while i < len(entities) and self._vel_y != 0:
+            new_vel_y = self._vel_y
+            if entities[i].get_hard_hitbox and hitbox_copy.intersects_y(entities[i].get_hitbox()):
+                new_vel_y = self.get_hitbox().calc_offset_y(entities[i].get_hitbox(), new_vel_y)
+                if new_vel_y != self._vel_y:
+                    self._vel_y = new_vel_y
+                    hitbox_copy = self.get_hitbox().copy()
+                    hitbox_copy.expand(self._vel_x, self._vel_y)
+            i += 1
 
         self.get_hitbox().move(self._vel_x, self._vel_y)
         self._reset_pos_to_box()
