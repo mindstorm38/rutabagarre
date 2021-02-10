@@ -157,7 +157,7 @@ class ViewColorGrid(ViewObject):
             return False
 
     def get_selections(self) -> Dict[int, PlayerColor]:
-        return {idx: ORDERED_PLAYER_COLORS[selection.color_index] for idx, selection in self._players_selections.items()}
+        return {idx: ORDERED_PLAYER_COLORS[selection.color_index][0] for idx, selection in self._players_selections.items()}
 
     def set_size(self, width: float, height: float):
         raise ValueError("Cannot set size for this.")

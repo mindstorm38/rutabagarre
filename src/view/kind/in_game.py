@@ -9,6 +9,7 @@ from entity import Entity
 from typing import Optional, Dict, Type, Callable, Tuple
 from abc import ABC, abstractmethod
 from pygame import Surface
+import traceback
 import pygame
 
 
@@ -158,6 +159,7 @@ class InGameView(View):
                 self._entities[entity.get_uid()] = drawer
             except (Exception,) as e:
                 print("Failed to construct {}: {}".format(constructor, e))
+                traceback.print_exc()
 
     def _inner_init(self):
 
