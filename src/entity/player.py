@@ -100,4 +100,9 @@ class Player(MotionEntity):
 
     def attack_light(self) -> None:
         # We search for entities that will be hit
-        pass
+        hitbox_extended = self.get_hitbox().copy()
+        hitbox_extended.expand(
+            ((1, -1)[self.get_turned_to_left()]) * self._incarnation.get_light_attack_range(),
+            0
+         )
+        other_players_hit = self.get_stage().foreach_colliding_entity()
