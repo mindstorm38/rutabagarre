@@ -85,15 +85,19 @@ class Player(MotionEntity):
 
     # MOVES
 
-    def _move_side(self, vel):
+    def _move_side(self, vel) -> None:
         self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
 
-    def move_right(self):
+    def move_right(self) -> None:
         self._move_side(self.MOVE_VELOCITY)
 
-    def move_left(self):
+    def move_left(self) -> None:
         self._move_side(-self.MOVE_VELOCITY)
 
-    def move_jump(self):
+    def move_jump(self) -> None:
         if self._on_ground:
             self.add_velocity(0, self.JUMP_VELOCITY)
+
+    def attack_light(self) -> None:
+        # We search for entities that will be hit
+        pass

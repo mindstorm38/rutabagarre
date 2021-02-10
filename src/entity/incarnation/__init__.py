@@ -27,6 +27,10 @@ class Incarnation(ABC):
     def get_speed_multiplier() -> float:
         return 1.0
 
+    @staticmethod
+    def get_light_attack_range() -> float:
+        return 1.0
+
     # SETTERS
     def set_duration(self, duration: float) -> None:
         self._duration = duration
