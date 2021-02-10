@@ -80,6 +80,10 @@ class Stage:
                 if entity.get_hitbox().intersects(box):
                     yield entity
 
+    def get_player(self, player_idx: int) -> Optional[Player]:
+        data = self._players.get(player_idx)
+        return None if data is None else data[0]
+
     # Terrain
 
     def set_terrain(self, left: int, bottom: int, *terrain: Union[bytes, bytearray]):

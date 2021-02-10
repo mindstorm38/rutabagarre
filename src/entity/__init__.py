@@ -73,7 +73,8 @@ class MotionEntity(Entity, ABC):
     """
     Abstract subclass of Entity that can move
     """
-    NATURAL_FRICTION = 0.95
+    GROUND_FRICTION = 0.82
+    AIR_FRICTION = 0.95
     NATURAL_GRAVITY = 0.02
 
     def __init__(self, entity_stage: 'stage.Stage') -> None:
@@ -86,6 +87,8 @@ class MotionEntity(Entity, ABC):
         self._cached_hitbox = Hitbox(0, 0, 0, 0)
         self._cached_hitboxes: List[Hitbox] = []
 
+        self._on_ground = False
+
     # GETTERS
 
     def get_vel_x(self) -> float:
@@ -93,6 +96,9 @@ class MotionEntity(Entity, ABC):
 
     def get_vel_y(self) -> float:
         return self._vel_y
+
+    def is_on_ground(self) -> bool:
+        return self._on_ground
 
     # SETTERS
 
@@ -114,8 +120,8 @@ class MotionEntity(Entity, ABC):
         self.move_position(self._vel_x, self._vel_y)
 
     def update_natural_velocity(self) -> None:
-        self._vel_x *= MotionEntity.NATURAL_FRICTION
-        self._vel_y = self._vel_y * MotionEntity.NATURAL_FRICTION - MotionEntity.NATURAL_GRAVITY
+        self._vel_x *= self.GROUND_FRICTION if self._on_ground else self.AIR_FRICTION
+        self._vel_y = self._vel_y * self.AIR_FRICTION - MotionEntity.NATURAL_GRAVITY
 
     @staticmethod
     def _has_entity_hard_box(entity: Entity) -> bool:
@@ -163,8 +169,10 @@ class MotionEntity(Entity, ABC):
             self._hitbox.move(dx, 0)
 
         if dy != 0:
+            down = dy < 0
             for box in self._cached_hitboxes:
                 dy = box.calc_offset_y(self._hitbox, dy)
+            self._on_ground = down and dy == 0
             self._hitbox.move(0, dy)
 
         self._cached_hitboxes.clear()

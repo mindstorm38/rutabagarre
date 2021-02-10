@@ -7,6 +7,10 @@ import pygame
 from .tilemap import GridDefinition
 
 
+def _format_reversed(name: str, rev: bool) -> str:
+    return "{}_rev".format(name) if rev else name
+
+
 class AnimDefinition(GridDefinition):
 
     __slots__ = "animations",
@@ -44,9 +48,7 @@ class Anim:
         if not no_init:
             for name, ranges in definition.animations.items():
                 for rev in (False, True):
-                    if rev:
-                        name = "{}_rev".format(name)
-                    self.sub_surfaces[name] = sub_surfaces = []
+                    self.sub_surfaces[_format_reversed(name, rev)] = sub_surfaces = []
                     for x, y, count in ranges:
                         for _ in range(count):
                             px, py = definition.get_tile_pos(x, y)
@@ -70,17 +72,49 @@ class Anim:
 
 class AnimTracker:
 
-    __slots__ = "_anims_queue", "_last_time"
+    __slots__ = "_anims_queue", "_last_time", "_last_anim_name"
 
     def __init__(self):
+        self._last_anim_name: Optional[str] = None
         self._anims_queue = []
         self._last_time = 0
 
-    def push_anim(self, name: str, repeat_count: int, fps: float):
-        self._anims_queue.insert(0, [name, repeat_count, 1 / fps, 0])
+    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True):
 
-    def push_infinite_anim(self, name: str, fps: float):
-        self.push_anim(name, 0, fps)
+        """
+        Ajoute une animation dans la queue des animation.
+
+        :param name: Nom de l'animation à jouer.
+        :param repeat_count: Si < 1 l'animation va être stoppé instantanément, si == 0 la durée est indéfini,
+         sinon c'est le nombre de fois qu'il faut jouer l'animation.
+        :param fps: Nombre d'image par secondes.
+        :param rev: Prendre ou non l'animation renversé sur l'axe X.
+        :param ignore_existing: Mettre à `False` si on ne veut pas ajouter l'animation si on a déjà la même
+         avant (suivant `name`).
+        """
+
+        if ignore_existing or self._last_anim_name != name:
+            self._last_anim_name = name
+            self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev])
+            # base name, effective name, repeat count, interval, reversed?
+
+    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True):
+        """ Version raccourci de `push_anim` avec un `repeat_count = 0` (durée indeterminée). """
+        self.push_anim(name, 0, fps, rev=rev, ignore_existing=ignore_existing)
+
+    def stop_last_anim(self, name: str):
+
+        """
+        Défini le `repeat_count = -1` (arrêt de l'animation) de la dernière anim demandée si
+        celle-ci est bien nommée `name`.
+        """
+
+        if self._last_anim_name == name:
+            self._anims_queue[0][2] = -1
+
+    def set_all_reversed(self, rev: bool):
+        for data in self._anims_queue:
+            data[1] = _format_reversed(data[0], rev)
 
     def get_anim(self) -> Optional[Tuple[str, int, int]]:
 
@@ -90,16 +124,18 @@ class AnimTracker:
         data = self._anims_queue[0]
 
         now = time.monotonic()
-        if now - self._last_time >= data[2]:
+        if now - self._last_time >= data[3]:
             if self._last_time != 0:
-                data[3] += 1
+                data[4] += 1
             self._last_time = now
 
-        return data[0], data[3], data[1]
+        # tile name, frames count, repeat count
+        return data[1], data[4], data[2]
 
     def pop_anim(self):
         if len(self._anims_queue):
             self._anims_queue.pop(0)
+        self._last_anim_name = self._anims_queue[0][0] if len(self._anims_queue) else None
 
 
 class _AnimLayer:
@@ -160,7 +196,7 @@ class AnimSurface:
                 sub_surfaces_count = len(sub_surfaces)
                 sub_surface = sub_surfaces[frame % sub_surfaces_count]
                 surface.blit(sub_surface, pos)
-                if 0 < repeat_count < (frame // sub_surfaces_count):
+                if repeat_count != 0 or 0 < repeat_count < (frame // sub_surfaces_count):
                     tracker.pop_anim()
 
 

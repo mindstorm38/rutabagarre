@@ -74,7 +74,7 @@ class ViewButton(ViewObject):
         if event.type == pygame.MOUSEMOTION:
             self._over = self.is_cursor_over(*event.pos)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self._over and not self._disabled or self._action_cb is not None:
+            if self._over and not self._disabled and self._action_cb is not None:
                 self._action_cb(self)
 
     def set_view(self, view: View):
