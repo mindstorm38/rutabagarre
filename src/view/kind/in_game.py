@@ -28,7 +28,7 @@ class EntityDrawer(ABC):
         hitbox = self.entity.get_hitbox()
         min_x, min_y = self.view.get_screen_pos(hitbox.get_min_x(), hitbox.get_min_y())
         max_x, max_y = self.view.get_screen_pos(hitbox.get_max_x(), hitbox.get_max_y())
-        return min_x, min_y, max_x - min_x, max_y - min_y
+        return min_x, max_y, max_x - min_x, min_y - max_y
 
     @abstractmethod
     def draw(self, surface: Surface): ...
@@ -68,7 +68,7 @@ class InGameView(View):
     TILE_SIZE = 64
     PLAYER_SIZE = 128
 
-    DEBUG_HITBOXES = False
+    DEBUG_HITBOXES = True
 
     def __init__(self):
 
@@ -187,7 +187,7 @@ class InGameView(View):
         for entity_drawer in self._entities.values():
             entity_drawer.draw(self._final_surface)
             if self.DEBUG_HITBOXES:
-                pygame.draw.rect(self._final_surface, (255, 255, 255), entity_drawer.get_bounding_draw_rect())
+                pygame.draw.rect(self._final_surface, (255, 255, 255, 60), entity_drawer.get_bounding_draw_rect(), 2)
 
         pygame.transform.scale(self._final_surface, self._scaled_surface.get_size(), self._scaled_surface)
         surface.blit(self._scaled_surface, self._scaled_surface_pos)
