@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from entity import player
-from time import time
+from time import monotonic
 
 
 __all__ = ["Incarnation", "Farmer", "Potato", "Corn"]
@@ -10,7 +10,7 @@ class Incarnation(ABC):
 
     def __init__(self, owner_player: 'player.Player') -> None:
         self._owner = owner_player
-        self._end_time: float = time() + self.get_duration()
+        self._end_time: float = monotonic() + self.get_duration()
 
     # GETTERS
     @staticmethod
@@ -31,6 +31,14 @@ class Incarnation(ABC):
     @staticmethod
     @abstractmethod
     def get_name() -> str: ...
+
+    @staticmethod
+    def get_cooldown_action() -> float:
+        return 0.3
+
+    @staticmethod
+    def get_cooldown_heavy_action() -> float:
+        return 1.0
 
     @abstractmethod
     def action(self): ...
