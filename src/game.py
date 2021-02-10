@@ -138,3 +138,6 @@ class Game:
 
     def remove_stage(self):
         self._stage = None
+
+    def stop_game(self):
+        self._running = False
