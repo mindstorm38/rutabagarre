@@ -54,8 +54,8 @@ class HowToPlayView(View):
         self._authors = []
         self._image : Optional[Surface] = None
 
-        self._add_charact("howtoplay/farmer.png", "Farmer", "Base character", "NONE", "J'adore le riz")
-        self._add_charact("howtoplay/potato.png", "Potato", "Hand-to-Hand attack", "X", "J'adore le riz")
+        self._add_charact("howtoplay/farmer.png", "Farmer", "Base character", "NONE", "Yes yes yes")
+        self._add_charact("howtoplay/potato.png", "Potato", "Hand-to-Hand attack", "X", "Yes yes yes")
         self._add_charact("howtoplay/corn.png", "Corn", "Ranged attack", "X", "COMING SOON")
         self._add_charact("howtoplay/mushroom.png", "Mushroom", "Smock attack", "X", "COMING SOON")
         self._add_charact("howtoplay/carrot.png", "Carrot", "Sword attack", "X", "COMING SOON")
