@@ -1,32 +1,21 @@
 from abc import ABC, abstractmethod
 from entity import player
+from time import time
 
 
 class Incarnation(ABC):
 
     def __init__(self, owner_player: 'player.Player') -> None:
         self._owner = owner_player
-        self._duration: float = 10.0
+        self._end_time: float = time() + self.get_duration()
 
     # GETTERS
-    def get_duration(self) -> float:
-        return self._duration
-
     @staticmethod
-    @abstractmethod
-    def get_name() -> str: ...
+    def get_duration() -> float:
+        return 10.0
 
-    @abstractmethod
-    def action(self): ...
-
-    @abstractmethod
-    def heavy_action(self): ...
-
-
-
-    @staticmethod
-    def get_attack() -> float:
-        return 1.0
+    def get_end_time(self) -> float:
+        return self._end_time
 
     @staticmethod
     def get_defense() -> float:
@@ -37,24 +26,11 @@ class Incarnation(ABC):
         return 1.0
 
     @staticmethod
-    def get_light_attack_range() -> float:
-        return 1.0
+    @abstractmethod
+    def get_name() -> str: ...
 
-    @staticmethod
-    def get_heavy_attack_range() -> float:
-        return 1.5
+    @abstractmethod
+    def action(self): ...
 
-    # SETTERS
-    def set_duration(self, duration: float) -> None:
-        self._duration = duration
-
-    # ADDERS
-    def add_to_duration(self, number: float) -> None:
-        self._duration += number
-
-    # OTHER METHODS
-    def attack_light(self, target: 'entity.player') -> None:
-        target.add_to_hp(- (self.get_attack() / target.get_incarnation().get_defense()))
-
-    def attack_heavy(self, target: 'entity.player') -> None:
-        target.add_to_hp(- (self.get_attack()*1.5 / target.get_incarnation().get_defense()))
+    @abstractmethod
+    def heavy_action(self): ...
