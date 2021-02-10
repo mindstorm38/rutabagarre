@@ -133,28 +133,6 @@ class MotionEntity(Entity, ABC):
         taking care of other hitboxes onto the stage
         """
 
-        # We cancel moves that are too short to avoid useless processing and then keep fluidity
-        """if -0.001 < self._vel_x < 0.001:
-            self._vel_x = 0
-        if -0.001 < self._vel_y < 0.001:
-            self._vel_y = 0
-
-        hitbox_copy = self.get_hitbox().copy()
-        hitbox_copy.expand(self._vel_x, self._vel_y)
-
-        entities = self.get_stage().entities
-
-        i = 0
-        while i < len(entities) and self._vel_x != 0:
-            self._vel_x = self._hitbox.calc_offset_x(entities[i].get_hitbox(), self._vel_x)
-            i += 1
-
-        i = 0
-        while i < len(entities) and self._vel_y != 0:
-            self._vel_y = self._hitbox.calc_offset_x(entities[i].get_hitbox(), self._vel_y)
-            i += 1
-        """
-
         self._cached_hitbox.set_from(self._hitbox)
         self._cached_hitbox.expand(dx, dy)
 
@@ -177,6 +155,7 @@ class MotionEntity(Entity, ABC):
 
         self._cached_hitboxes.clear()
 
+        # We cancel moves that are too short to avoid useless processing and then keep fluidity
         if dx != 0 and abs(dx) < 0.01:
             dx = 0
 
