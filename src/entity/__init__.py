@@ -87,7 +87,8 @@ class MotionEntity(Entity, ABC):
         self._cached_hitbox = Hitbox(0, 0, 0, 0)
         self._cached_hitboxes: List[Hitbox] = []
 
-        self._on_ground = False
+        self._on_ground: bool = False
+        self._turned_to_right: bool = False
 
     # GETTERS
 
@@ -100,6 +101,9 @@ class MotionEntity(Entity, ABC):
     def is_on_ground(self) -> bool:
         return self._on_ground
 
+    def get_turned_to_right(self) -> bool:
+        return self._turned_to_right
+
     # SETTERS
 
     def set_velocity(self, dx: float, dy: float):
@@ -109,6 +113,9 @@ class MotionEntity(Entity, ABC):
     def add_velocity(self, ddx: float, ddy: float):
         self._vel_x += ddx
         self._vel_y += ddy
+
+    def set_turned_to_right(self, turned_to_right: bool) -> None:
+        self._turned_to_right = turned_to_right
 
     # OTHER METHODS
 
@@ -156,8 +163,11 @@ class MotionEntity(Entity, ABC):
         self._cached_hitboxes.clear()
 
         # We cancel moves that are too short to avoid useless processing and then keep fluidity
-        if dx != 0 and abs(dx) < 0.01:
-            dx = 0
+        if dx != 0:
+            if abs(dx) < 0.01:
+                dx = 0
+            else:
+                self._turned_to_right = (dx > 0)
 
         if dy != 0 and abs(dy) < 0.01:
             dy = 0
