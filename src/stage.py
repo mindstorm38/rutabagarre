@@ -1,6 +1,7 @@
 from typing import List, Union, Tuple, Iterable, Dict, TypeVar, Callable, Any, Optional
 
 from entity.player import Player, PlayerColor
+from entity.hitbox import Hitbox
 from entity import Entity
 
 
@@ -72,6 +73,12 @@ class Stage:
 
     def get_entities(self) -> List[Entity]:
         return self.entities
+
+    def foreach_colliding_entities(self, box: Hitbox, *, only_hard: bool = False) -> Iterable[Entity]:
+        for entity in self.entities:
+            if not only_hard or entity.get_hard_hitbox():
+                # TODO
+                pass
 
     # Terrain
 

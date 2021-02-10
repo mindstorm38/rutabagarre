@@ -1,4 +1,5 @@
 from typing import Optional, Dict
+from pygame.time import Clock
 from pygame import Surface
 import pygame
 
@@ -59,6 +60,8 @@ class Game:
 
         print("Start loop...")
 
+        clock = Clock()
+
         while self._running:
 
             for event in pygame.event.get():
@@ -70,6 +73,7 @@ class Game:
             self._update()
 
             pygame.display.flip()
+            clock.tick(60)
 
         print("Cleanup...")
 
