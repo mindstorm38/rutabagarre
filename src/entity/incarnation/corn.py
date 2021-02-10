@@ -3,9 +3,11 @@ from entity import player
 
 
 class Corn(Incarnation):
+
     """
     Implementation of the incarnation Corn, the range attacker. Inherits from incarnation
     """
+
     def __init__(self, owner_player: 'player.Player'):
         Incarnation.__init__(self, owner_player)
 
@@ -21,3 +23,9 @@ class Corn(Incarnation):
     @staticmethod
     def get_speed_multiplier() -> float:
         return 1.2
+
+    def action(self):
+        pass
+
+    def heavy_action(self):
+        pass

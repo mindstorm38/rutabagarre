@@ -3,6 +3,9 @@ from entity import player
 from time import time
 
 
+__all__ = ["Incarnation", "Farmer", "Potato", "Corn"]
+
+
 class Incarnation(ABC):
 
     def __init__(self, owner_player: 'player.Player') -> None:
@@ -34,3 +37,8 @@ class Incarnation(ABC):
 
     @abstractmethod
     def heavy_action(self): ...
+
+
+from .farmer import Farmer
+from .potato import Potato
+from .corn import Corn

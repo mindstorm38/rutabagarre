@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple, Iterable, Dict, TypeVar, Callable, Any, Optional
+from typing import List, Union, Tuple, Generator, Dict, TypeVar, Callable, Any, Optional
 
 from entity.player import Player, PlayerColor
 from entity import Entity
@@ -7,7 +7,8 @@ from entity.floor import Floor
 
 
 E = TypeVar("E", bound=Entity)
-NewEntityCallback = Optional[Callable[[Entity], None]]
+AddEntityCallback = Optional[Callable[[Entity], None]]
+RemoveEntityCallback = Optional[Callable[[int], None]]
 
 
 class Tile:
@@ -34,7 +35,7 @@ class Tile:
 class Stage:
 
     __slots__ = "entities", "_size", "_terrain", "_spawn_points", "_players", \
-                "_new_entity_cb"
+                "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
 
@@ -46,17 +47,26 @@ class Stage:
         self._spawn_points: List[List[int, int, bool]] = []
         self._players: Dict[int, Tuple[Player, int]] = {}
 
-        self._new_entity_cb: NewEntityCallback = None
+        self._add_entity_cb: AddEntityCallback = None
+        self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
-        for entity in self.entities:
-            entity.update()
+        i = 0
+        while i < len(self.entities):
+            entity = self.entities[i]
+            if entity.is_dead():
+                euid = self.entities.pop(i).get_uid()
+                if self._remove_entity_cb is not None:
+                    self._remove_entity_cb(euid)
+            else:
+                entity.update()
+                i += 1
 
     def add_entity(self, constructor: Callable[['Stage', Any], E], *args, **kwargs) -> E:
         entity = constructor(self, *args, **kwargs)
         self.entities.append(entity)
-        if self._new_entity_cb is not None:
-            self._new_entity_cb(entity)
+        if self._add_entity_cb is not None:
+            self._add_entity_cb(entity)
         return entity
 
     def add_player(self, player_idx: int, color: PlayerColor):
@@ -74,7 +84,7 @@ class Stage:
     def get_entities(self) -> List[Entity]:
         return self.entities
 
-    def foreach_colliding_entity(self, box: Hitbox, *, predicate: Optional[Callable[[Entity], bool]] = None) -> Iterable[Entity]:
+    def foreach_colliding_entity(self, box: Hitbox, *, predicate: Optional[Callable[[Entity], bool]] = None) -> Generator[Entity, None, None]:
         for entity in self.entities:
             if predicate is None or predicate(entity):
                 if entity.get_hitbox().intersects(box):
@@ -123,7 +133,7 @@ class Stage:
         if 0 <= x < width and 0 <= y < height:
             self._terrain[self.get_tile_index(x, y)] = ord(tile)
 
-    def for_each_tile(self) -> Iterable[Tuple[int, int, int]]:
+    def for_each_tile(self) -> Generator[Tuple[int, int, int], None, None]:
         i = 0
         for y in range(self._size[1]):
             for x in range(self._size[0]):
@@ -132,8 +142,13 @@ class Stage:
 
     # Callbacks
 
-    def set_new_entity_callback(self, callback: NewEntityCallback):
-        self._new_entity_cb = callback
+    def set_add_entity_callback(self, callback: AddEntityCallback):
+        self._add_entity_cb = callback
+
+    def set_remove_entity_callback(self, callback: RemoveEntityCallback):
+        self._remove_entity_cb = callback
+
+    # Factory
 
     @classmethod
     def new_example_stage(cls) -> 'Stage':

@@ -22,7 +22,7 @@ class Entity(ABC):
         self._x: float = 0.0
         self._y: float = 0.0
         self._hitbox = Hitbox(0, 0, 0, 0)
-
+        self._dead = False
 
     # GETTERS
 
@@ -41,6 +41,9 @@ class Entity(ABC):
     def get_hitbox(self) -> Hitbox:
         return self._hitbox
 
+    def is_dead(self) -> bool:
+        return self._dead
+
     @classmethod
     def has_hard_hitbox(cls) -> bool:
         return False
@@ -55,6 +58,9 @@ class Entity(ABC):
     def move_position(self, dx: float, dy: float):
         self._hitbox.move(dx, dy)
         self._reset_pos_to_box()
+
+    def set_dead(self):
+        self._dead = True
 
     # Physics
 

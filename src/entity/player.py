@@ -1,6 +1,5 @@
 from entity import Entity, MotionEntity
-from entity.incarnation import Incarnation
-from entity.incarnation.farmer import Farmer
+from entity.incarnation import Incarnation, Farmer, Potato
 from typing import Tuple, cast, Optional, List, Iterable
 from enum import Enum, auto
 import random
@@ -9,9 +8,7 @@ import time
 
 
 class PlayerColor(Enum):
-    """
-    Enumeration of the colors available for the players
-    """
+    """ Enumeration of the colors available for the players. """
     VIOLET = auto()
     BLUE = auto()
     GREEN = auto()
@@ -28,6 +25,11 @@ class PlayerColor(Enum):
     CYAN = auto()
 
 
+class IncarnationType(Enum):
+    """ Enumeration des """
+    POTATO = auto()
+
+
 class Player(MotionEntity):
 
     """
@@ -38,6 +40,10 @@ class Player(MotionEntity):
     MOVE_AIR_FACTOR = 0.3
     JUMP_VELOCITY = 0.55
 
+    INCARNATIONS_CONSTRUCTORS = {
+        IncarnationType.POTATO: Potato
+    }
+
     def __init__(self, entity_stage: 'stage.Stage', number: int, color: PlayerColor, hp: float = 100.0) -> None:
 
         super().__init__(entity_stage)
@@ -45,6 +51,8 @@ class Player(MotionEntity):
         self._number: int = number
         self._color: PlayerColor = color
         self._hp: float = hp
+
+        self._incarnation_type: Optional[IncarnationType] = None
         self._incarnation: Incarnation = Farmer(self)
 
         self._animations_queue: List[str] = []
@@ -144,7 +152,7 @@ class Player(MotionEntity):
             self._cached_hitbox.expand(-reach if self.get_turned_to_left() else reach, 0)
             self._cached_hitbox.move(-reach_offset if self.get_turned_to_left() else reach_offset, 0)
 
-        for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player._is_player):
+        for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player.is_player):
             target = cast(Player, target)
             if target != self:
                 target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
@@ -158,5 +166,21 @@ class Player(MotionEntity):
         return time.monotonic() >= self._block_oves_until
 
     @staticmethod
-    def _is_player(entity: Entity) -> bool:
+    def is_player(entity: Entity) -> bool:
         return isinstance(entity, Player)
+
+    # INCARNATION
+
+    def load_incarnation(self, typ: IncarnationType) -> bool:
+        if self._incarnation_type is None and typ in self.INCARNATIONS_CONSTRUCTORS:
+            constructor = self.INCARNATIONS_CONSTRUCTORS[typ]
+            try:
+                self._incarnation = constructor(self)
+                self._incarnation_type = typ
+            except (Exception,):
+                print("Error while constructing incarnation type {}.".format(typ.name))
+                import traceback
+                traceback.print_exc()
+            return True
+        else:
+            return False

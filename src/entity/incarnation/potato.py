@@ -3,9 +3,11 @@ from entity import player
 
 
 class Potato(Incarnation):
+
     """
     Implementation of the incarnation Potato, the solid attacker. Inherits from incarnation
     """
+
     def __init__(self, owner_player: 'player.Player'):
         Incarnation.__init__(self, owner_player)
 
@@ -21,3 +23,9 @@ class Potato(Incarnation):
     @staticmethod
     def get_speed_multiplier() -> float:
         return 0.7
+
+    def action(self):
+        pass
+
+    def heavy_action(self):
+        pass

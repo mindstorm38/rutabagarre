@@ -134,7 +134,8 @@ class InGameView(View):
             print("=> No stage ready in the game.")
         else:
 
-            self._stage.set_new_entity_callback(self._on_entity_added)
+            self._stage.set_add_entity_callback(self._on_entity_added)
+            self._stage.set_remove_entity_callback(self._on_entity_removed)
 
             for entity in self._stage.get_entities():
                 self._on_entity_added(entity)
@@ -145,7 +146,8 @@ class InGameView(View):
 
     def on_quit(self):
         if self._stage is not None:
-            self._stage.set_new_entity_callback(None)
+            self._stage.set_add_entity_callback(None)
+            self._stage.set_remove_entity_callback(None)
             self._stage = None
 
     def get_player_anim_surface(self) -> Optional[AnimSurfaceColored]:
@@ -201,6 +203,11 @@ class InGameView(View):
         except (Exception,) as e:
             print("Failed to construct {}: {}".format(constructor, e))
             traceback.print_exc()
+
+    def _on_entity_removed(self, euid: int):
+        print("Entity removed from view: {}".format(euid))
+        if euid in self._entities:
+            del self._entities[euid]
 
     def _inner_init(self):
 
