@@ -1,13 +1,15 @@
 from view.anim import AnimSurfaceColored, AnimTracker, FARMER_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP
 from view.player import get_player_color
-from view import View, ViewObject, controls
+from view.controls import KEYS_PLAYERS
 from stage import Stage, Tile
+from view import View
 
 from entity.player import Player
 from entity import Entity
 
-from typing import Optional, Dict, Type, Callable, Tuple
+from typing import Optional, Dict, Type, Callable, Tuple, cast
+from pygame.event import Event
 from pygame import Surface
 import traceback
 import pygame
@@ -44,16 +46,29 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "anim_surface", "tracker"
+    __slots__ = "color", "anim_surface", "tracker", "rev"
 
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
         self.color = get_player_color(entity.get_color())
         self.anim_surface = view.get_player_anim_surface()
         self.tracker = AnimTracker()
-        self.tracker.push_infinite_anim("idle", 5)
+        self.tracker.push_infinite_anim("idle", 7)
+        self.rev = False
 
     def draw(self, surface: Surface):
+
+        player = cast(Player, self.entity)
+
+        if player.get_vel_x() != 0 and player.is_on_ground():
+            new_rev = player.get_vel_x() < 0
+            if new_rev != self.rev:
+                self.rev = new_rev
+                self.tracker.set_all_reversed(new_rev)
+            self.tracker.push_infinite_anim("run", 14, rev=new_rev, ignore_existing=False)
+        else:
+            self.tracker.stop_last_anim("run")
+
         self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
 
 
@@ -188,6 +203,9 @@ class InGameView(View):
 
         surface.fill((0, 0, 0))
 
+        if self._stage is None:
+            return
+
         self._recompute_camera_scale(surface)
 
         self._final_surface.fill((0, 0, 0))
@@ -200,3 +218,21 @@ class InGameView(View):
 
         pygame.transform.scale(self._final_surface, self._scaled_surface.get_size(), self._scaled_surface)
         surface.blit(self._scaled_surface, self._scaled_surface_pos)
+
+        pressed_keys = pygame.key.get_pressed()
+        for (key, (player_idx, action)) in KEYS_PLAYERS.items():
+            if pressed_keys[key]:
+                player_entity = self._stage.get_player(player_idx)
+                if player_entity is not None:
+                    if action == "left":
+                        player_entity.move_left()
+                    elif action == "right":
+                        player_entity.move_right()
+                    elif action == "up":
+                        player_entity.move_jump()
+
+
+    def event(self, event: Event):
+        super().event(event)
+
+

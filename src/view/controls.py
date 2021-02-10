@@ -33,5 +33,5 @@ KEYS_PLAYERS = {}
 
 
 for i, controls in enumerate(PLAYERS_KEYS):
-    for control, key in controls.items():
-        KEYS_PLAYERS[key] = (i, control)
+    for action, key in controls.items():
+        KEYS_PLAYERS[key] = (i, action)

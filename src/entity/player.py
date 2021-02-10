@@ -31,6 +31,10 @@ class Player(MotionEntity):
     Implementation of a player. Inherits from Entity
     """
 
+    MOVE_VELOCITY = 0.04
+    MOVE_AIR_FACTOR = 0.3
+    JUMP_VELOCITY = 0.4
+
     def __init__(self, entity_stage: 'stage.Stage', number: int, color: PlayerColor, hp: float = 100.0) -> None:
         super().__init__(entity_stage)
         self._number: int = number
@@ -39,6 +43,7 @@ class Player(MotionEntity):
         self._incarnation: Incarnation = Farmer()
 
     # GETTERS
+
     def get_number(self) -> int:
         return self._number
 
@@ -52,6 +57,7 @@ class Player(MotionEntity):
         return self._incarnation
 
     # SETTERS
+
     def set_number(self, number: int) -> None:
         self._number = number
 
@@ -65,6 +71,7 @@ class Player(MotionEntity):
         self._incarnation = incarnation
 
     # ADDERS
+
     def add_to_hp(self, number) -> None:
         self._hp += number
 
@@ -72,5 +79,21 @@ class Player(MotionEntity):
         self._hitbox.set_positions(x - 0.5, y, x + 0.5, y + 2)
 
     # OTHER METHODS
+
     def update(self) -> None:
         super().update()
+
+    # MOVES
+
+    def _move_side(self, vel):
+        self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
+
+    def move_right(self):
+        self._move_side(self.MOVE_VELOCITY)
+
+    def move_left(self):
+        self._move_side(-self.MOVE_VELOCITY)
+
+    def move_jump(self):
+        if self._on_ground:
+            self.add_velocity(0, self.JUMP_VELOCITY)
