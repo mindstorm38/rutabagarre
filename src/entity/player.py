@@ -58,6 +58,7 @@ class Player(MotionEntity):
         self._block_oves_until: float = 0.0
         self._block_action_until: float = 0.0
         self._block_heavy_action_until: float = 0.0
+        self._invincible_until: float = 0.0
 
         self._animations_queue: List[str] = []
 
@@ -74,6 +75,12 @@ class Player(MotionEntity):
 
     def get_incarnation(self) -> Incarnation:
         return self._incarnation
+
+    def can_move(self) -> bool:
+        return time.monotonic() >= self._block_oves_until
+
+    def is_invincible(self) -> bool:
+        return time.monotonic() < self._invincible_until
 
     # SETTERS
 
@@ -98,8 +105,8 @@ class Player(MotionEntity):
     def block_heavy_action_for(self, duration: float):
         self._block_heavy_action_until = time.monotonic() + duration
 
-    def can_move(self) -> bool:
-        return time.monotonic() >= self._block_oves_until
+    def set_invincible_for(self, duration: float):
+        self._invincible_until = time.monotonic() + duration
 
     # ADDERS
 
@@ -174,7 +181,7 @@ class Player(MotionEntity):
 
         for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player.is_player):
             target = cast(Player, target)
-            if target != self:
+            if target != self and not target.is_invincible():
                 target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
                 knockback_x = random.uniform(0.1, 0.2) * knockback
                 knockback_y = random.uniform(0.1, 0.3) * knockback
@@ -194,6 +201,10 @@ class Player(MotionEntity):
             try:
                 self._incarnation = constructor(self)
                 self._incarnation_type = typ
+                self.block_moves_for(1)
+                self.block_action_for(1)
+                self.block_heavy_action_for(1)
+                self.set_invincible_for(1)
             except (Exception,):
                 print("Error while constructing incarnation type {}.".format(typ.name))
                 import traceback
