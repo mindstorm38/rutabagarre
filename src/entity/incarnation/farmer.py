@@ -12,10 +12,13 @@ class Farmer(Incarnation):
         super().__init__(owner_player)
 
     # GETTER
-
     @staticmethod
     def get_name() -> str:
         return "farmer"
+
+    @staticmethod
+    def get_duration() -> float:
+        return 9999.9
 
     def action(self):
         self._owner.front_attack(1.0, (3.0, 5.0))
@@ -24,9 +27,3 @@ class Farmer(Incarnation):
     def heavy_action(self):
         self._owner.front_attack(-1, (10.0, 12.0))
         self._owner.push_animation("spining_attack")
-
-    def add_to_duration(self, number: float) -> None:
-        """
-        since the time in farmer is infinite, it's useless to change it
-        """
-        var = None
