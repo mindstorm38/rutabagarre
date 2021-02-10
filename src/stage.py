@@ -74,9 +74,9 @@ class Stage:
     def get_entities(self) -> List[Entity]:
         return self.entities
 
-    def foreach_colliding_entity(self, box: Hitbox, *, only_hard: bool = False) -> Iterable[Entity]:
+    def foreach_colliding_entity(self, box: Hitbox, *, predicate: Optional[Callable[[Entity], bool]] = None) -> Iterable[Entity]:
         for entity in self.entities:
-            if not only_hard or entity.get_hard_hitbox():
+            if predicate is None or predicate(entity):
                 if entity.get_hitbox().intersects(box):
                     yield entity
 

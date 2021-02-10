@@ -3,7 +3,9 @@ from view.tilemap import TileMap, TERRAIN_TILEMAP
 from view.player import get_player_color
 from view import View, ViewObject, controls
 from stage import Stage, Tile
+
 from entity.player import Player
+from entity.floor import Floor
 from entity import Entity
 
 from typing import Optional, Dict, Type, Callable, Tuple
@@ -50,6 +52,13 @@ class PlayerDrawer(EntityDrawer):
         self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
 
 
+class FloorDrawer(EntityDrawer):
+    def __init__(self, entity: Player, view: 'InGameView'):
+        super().__init__(entity, view, (0, 0))
+    def draw(self, surface: Surface):
+        pass
+
+
 class InGameView(View):
 
     BACKGROUND_COLOR = None
@@ -62,7 +71,8 @@ class InGameView(View):
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
-        Player: PlayerDrawer
+        Player: PlayerDrawer,
+        Floor: FloorDrawer
     }
 
     TILE_SIZE = 64
@@ -167,6 +177,8 @@ class InGameView(View):
             except (Exception,) as e:
                 print("Failed to construct {}: {}".format(constructor, e))
                 traceback.print_exc()
+        else:
+            print("=> This entity has no drawer constructor.")
 
     def _inner_init(self):
 

@@ -1,10 +1,10 @@
-from __future__ import annotations
-
 
 class Hitbox:
+
     """
     Class that defines a rectangular hitbox with absolute position
     """
+
     def __init__(self, min_x: float, min_y: float, max_x: float, max_y: float) -> None:
         self._min_x: float = min_x
         self._min_y: float = min_y
@@ -12,6 +12,7 @@ class Hitbox:
         self._max_y: float = max_y
 
     # GETTERS
+
     def get_min_x(self) -> float:
         return self._min_x
 
@@ -37,11 +38,15 @@ class Hitbox:
         return (self._min_y + self._max_y) / 2
 
     # SETTERS
+
     def set_positions(self, min_x: float, min_y: float, max_x: float, max_y: float) -> None:
         self._min_x = min_x
         self._min_y = min_y
         self._max_x = max_x
         self._max_y = max_y
+
+    def set_from(self, other: 'Hitbox'):
+        self.set_positions(other._min_x, other._min_y, other._max_x, other._max_y)
 
     def set_min_x(self, min_x: float) -> None:
         self._min_x = min_x
@@ -56,7 +61,8 @@ class Hitbox:
         self._max_y = max_y
 
     # OTHER METHODS
-    def copy(self) -> Hitbox:
+
+    def copy(self) -> 'Hitbox':
         return Hitbox(self._min_x, self._min_y, self._max_x, self._max_y)
 
     def move(self, x: float, y: float) -> None:
@@ -83,7 +89,7 @@ class Hitbox:
         else:
             self._min_y += y
 
-    def intersects(self, other_hitbox: Hitbox) -> bool:
+    def intersects(self, other_hitbox: 'Hitbox') -> bool:
         return (
                 self._min_x < other_hitbox._max_x and
                 self._max_x > other_hitbox._min_x and
@@ -91,7 +97,7 @@ class Hitbox:
                 self._max_y > other_hitbox._min_y
         )
 
-    def calc_offset_x(self, other_hitbox: Hitbox, offset_x: float) -> float:
+    def calc_offset_x(self, other_hitbox: 'Hitbox', offset_x: float) -> float:
 
         if other_hitbox._max_y > self._min_y and other_hitbox._min_y < self._max_y:
 
@@ -107,12 +113,11 @@ class Hitbox:
                 d = self._max_x - other_hitbox._min_x
 
                 if d > offset_x:
-
                     offset_x = d
 
         return offset_x
 
-    def calc_offset_y(self, other_hitbox: Hitbox, offset_y: float) -> float:
+    def calc_offset_y(self, other_hitbox: 'Hitbox', offset_y: float) -> float:
 
         if other_hitbox._max_x > self._min_x and other_hitbox._min_x < self._max_x:
 

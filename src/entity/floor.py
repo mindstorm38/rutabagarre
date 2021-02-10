@@ -9,6 +9,6 @@ class Floor(MotionEntity):
     def update(self) -> None:
         pass
 
-    @staticmethod
-    def get_hard_hitbox() -> bool:
+    @classmethod
+    def has_hard_hitbox(cls) -> bool:
         return True
