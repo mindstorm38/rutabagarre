@@ -67,8 +67,7 @@ class Stage:
 
         self._spawn_points[index][2] = True
         player = self.add_entity(Player, player_idx, color)
-        player.set_x(x)
-        player.set_y(y)
+        player.set_position(x, y)
         self._players[player_idx] = (player, index)
 
     def get_entities(self) -> List[Entity]:

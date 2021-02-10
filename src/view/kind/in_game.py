@@ -13,12 +13,15 @@ import pygame
 
 class EntityDrawer(ABC):
 
-    def __init__(self, entity: Entity, view: 'InGameView'):
+    def __init__(self, entity: Entity, view: 'InGameView', size: Tuple[int, int]):
         self.entity = entity
         self.view = view
+        self.offsets = (-int(size[0] / 2), -size[1])
 
     def get_draw_pos(self) -> Tuple[int, int]:
-        return self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
+        x, y = self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
+        return x + self.offsets[0], y + self.offsets[1]
+
 
     @abstractmethod
     def draw(self, surface: Surface): ...
@@ -30,7 +33,7 @@ class EntityDrawer(ABC):
 class PlayerDrawer(EntityDrawer):
 
     def __init__(self, entity: Entity, view: 'InGameView'):
-        super().__init__(entity, view)
+        super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
         self.anim_surface = view.get_player_anim_surface()
         self.tracker = AnimTracker()
         self.tracker.push_infinite_anim("idle", 5)
