@@ -44,23 +44,45 @@ class Entity(ABC):
 
     # SETTERS
     def set_x(self, x: float) -> None:
-        self._x = x
+        # self._x = x
+        raise NotImplementedError("deprecated")
 
     def set_y(self, y: float) -> None:
+        # self._y = y
+        raise NotImplementedError("deprecated")
+
+    def set_position(self, x: float, y: float):
+        self._x = x
         self._y = y
+        self._setup_box_pos(x, y)
 
     def set_stage(self, stage_to_set: 'stage.Stage') -> None:
-        self._stage = stage_to_set
+        # self._stage = stage_to_set
+        # Une entité ne change pas de stage
+        raise NotImplementedError("deprecated")
 
     def set_hitbox(self, the_hitbox: Hitbox) -> None:
-        self._hitbox = the_hitbox
+        # self._hitbox = the_hitbox
+        # On ne défini plus la hitbox par le setter
+        raise NotImplementedError("deprecated")
 
     # ADDERS
+
     def add_to_x(self, number: float) -> None:
         self._x += number
 
     def add_to_y(self, number: float) -> None:
         self._y += number
+
+    # Physics
+
+    def _setup_box_pos(self, x: float, y: float):
+        # TODO: Set bounding box pos unsafe
+        pass
+
+    def _reset_pos_to_box(self):
+        # TODO: Reset pos
+        pass
 
     @abstractmethod
     def update(self): ...
@@ -74,11 +96,14 @@ class MotionEntity(Entity, ABC):
     NATURAL_GRAVITY = 0.05
 
     def __init__(self, entity_stage: 'stage.Stage') -> None:
-        Entity.__init__(self, entity_stage)
+
+        super().__init__(entity_stage)
+
         self._vel_x: float = 0.0
         self._vel_y: float = 0.0
 
     # GETTERS
+
     def get_vel_x(self) -> float:
         return self._vel_x
 
@@ -86,13 +111,25 @@ class MotionEntity(Entity, ABC):
         return self._vel_y
 
     # SETTERS
+
     def set_vel_x(self, x: float) -> None:
-        self._vel_x = x
+        # self._vel_x = x
+        raise NotImplementedError("deprecated")
 
     def set_vel_y(self, y: float) -> None:
-        self._vel_y = y
+        # self._vel_y = y
+        raise NotImplementedError("deprecated")
+
+    def set_velocity(self, dx: float, dy: float):
+        self._vel_x = dx
+        self._vel_y = dy
+
+    def add_velocity(self, ddx: float, ddy: float):
+        self._vel_x += ddx
+        self._vel_y += ddy
 
     # OTHER METHODS
+
     def update(self) -> None:
         self.update_motion()
 
@@ -136,5 +173,4 @@ class MotionEntity(Entity, ABC):
                         hitbox_copy.expand(self._vel_x, self._vel_y)
 
         self.get_hitbox().move(self._vel_x, self._vel_y)
-        self.add_to_x(self._vel_x)
-        self.add_to_y(self._vel_y)
+        self._reset_pos_to_box()
