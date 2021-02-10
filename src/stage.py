@@ -1,9 +1,10 @@
 from typing import List, Union, Tuple, Generator, Dict, TypeVar, Callable, Any, Optional
 
-from entity.player import Player, PlayerColor
-from entity import Entity
+from entity.player import Player, PlayerColor, IncarnationType
 from entity.hitbox import Hitbox
 from entity.floor import Floor
+from entity.item import Item
+from entity import Entity
 
 
 E = TypeVar("E", bound=Entity)
@@ -166,5 +167,7 @@ class Stage:
 
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(6, 2, 24, 4)
+
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(15, 5)
 
         return stage

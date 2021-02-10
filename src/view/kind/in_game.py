@@ -1,11 +1,12 @@
 from view.anim import AnimSurfaceColored, AnimTracker, FARMER_ANIMATION
-from view.tilemap import TileMap, TERRAIN_TILEMAP
+from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
 from stage import Stage, Tile
 from view import View
 
-from entity.player import Player
+from entity.player import Player, IncarnationType
+from entity.item import Item
 from entity import Entity
 
 from typing import Optional, Dict, Type, Callable, Tuple, cast
@@ -73,13 +74,30 @@ class PlayerDrawer(EntityDrawer):
             elif animation == "spining_attack":
                 self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
 
-
         if self.tracker.is_last_anim("idle", "run") and player.get_vel_x() != 0 and player.is_on_ground():
             self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
 
         self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
+
+
+class ItemDrawer(EntityDrawer):
+
+    __slots__ = "tile_surface"
+
+    ITEMS_NAMES = {
+        IncarnationType.POTATO: "potato"
+    }
+
+    def __init__(self, entity: Item, view: 'InGameView'):
+        super().__init__(entity, view, (InGameView.ITEM_SIZE, InGameView.ITEM_SIZE))
+        tile_name = self.ITEMS_NAMES.get(entity.get_incarnation_type())
+        self.tile_surface = None if tile_name is None else view.get_item_tilemap().get_tile(tile_name)
+
+    def draw(self, surface: Surface):
+        if self.tile_surface is not None:
+            surface.blit(self.tile_surface, self.get_draw_pos())
 
 
 class InGameView(View):
@@ -94,19 +112,23 @@ class InGameView(View):
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
-        Player: PlayerDrawer
+        Player: PlayerDrawer,
+        Item: ItemDrawer
     }
 
     TILE_SIZE = 64
     PLAYER_SIZE = 128
+    ITEM_SIZE = 128
 
-    DEBUG_HITBOXES = False
+    DEBUG_HITBOXES = True
 
     def __init__(self):
 
         super().__init__()
 
         self._terrain_tilemap: Optional[TileMap] = None
+        self._item_tilemap: Optional[TileMap] = None
+        self._player_anim_surface: Optional[AnimSurfaceColored] = None
 
         self._stage: Optional[Stage] = None
         self._stage_size = (0, 0)
@@ -120,7 +142,7 @@ class InGameView(View):
         self._scaled_surface: Optional[Surface] = None
         self._scaled_surface_pos = (0, 0)
 
-        self._player_anim_surface: Optional[AnimSurfaceColored] = None
+
         self._entities: Dict[int, EntityDrawer] = {}
 
     def on_enter(self):
@@ -149,6 +171,9 @@ class InGameView(View):
             self._stage.set_add_entity_callback(None)
             self._stage.set_remove_entity_callback(None)
             self._stage = None
+
+    def get_item_tilemap(self) -> TileMap:
+        return self._item_tilemap
 
     def get_player_anim_surface(self) -> Optional[AnimSurfaceColored]:
         return self._player_anim_surface
@@ -214,7 +239,11 @@ class InGameView(View):
         self._terrain_tilemap = self._shared_data.get_tilemap("terrain.png", TERRAIN_TILEMAP)\
             .copy_scaled(self.TILE_SIZE, self.TILE_SIZE)
 
-        self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
+        self._item_tilemap = self._shared_data.get_tilemap("items.png", ITEMS_TILEMAP)\
+            .copy_scaled(self.ITEM_SIZE, self.ITEM_SIZE)
+
+        self._player_anim_surface = self._shared_data\
+            .new_anim_colored("farmer", FARMER_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
 
     def _inner_pre_draw(self, surface: Surface):
 

@@ -13,6 +13,9 @@ class Item(MotionEntity):
     def _setup_box_pos(self, x: float, y: float):
         self._hitbox.set_positions(x - 0.2, y, x + 0.2, y + 0.4)
 
+    def get_incarnation_type(self) -> IncarnationType:
+        return self._incarnation_type
+
     def update(self) -> None:
 
         super().update()
