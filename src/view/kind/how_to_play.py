@@ -52,8 +52,14 @@ class HowToPlayView(View):
         self._letter_hit_text: Optional[Surface] = None
 
         self._authors = []
+        self._image : Optional[Surface] = None
 
         self._add_charact("howtoplay/farmer.png", "Farmer", "Base character", "NONE", "J'adore le riz")
+        self._add_charact("howtoplay/potato.png", "Potato", "Hand-to-Hand attack", "X", "J'adore le riz")
+        self._add_charact("howtoplay/corn.png", "Corn", "Ranged attack", "X", "COMING SOON")
+        self._add_charact("howtoplay/mushroom.png", "Mushroom", "Smock attack", "X", "COMING SOON")
+        self._add_charact("howtoplay/carrot.png", "Carrot", "Sword attack", "X", "COMING SOON")
+        self._add_charact("howtoplay/chilli.png", "Chilli", "Fire attack", "X", "COMING SOON")
 
     def _add_charact(self, res_path: str, name: str, type: str, specialhit: str, joke: str):
         self._authors.append({
@@ -81,9 +87,9 @@ class HowToPlayView(View):
         self._right.set_size(50, 50)
         self.add_child(self._right)
 
-        self._character_name_text = self._shared_data.get_font(50).render("Farmer", True, self.TEXT_COLOR)
-        self._character_type_text = self._shared_data.get_font(50).render("Base character", True, self.TEXT_COLOR)
-        self._joke_text = self._shared_data.get_font(25).render("PUTIN J ADORE JOUIR DES POMMES", True, self.TEXT_COLOR)
+        self._character_name_text = self._shared_data.get_font(50).render(self._authors[0]["name"], True, self.TEXT_COLOR)
+        self._character_type_text = self._shared_data.get_font(50).render(self._authors[0]["typechar"], True, self.TEXT_COLOR)
+        self._joke_text = self._shared_data.get_font(25).render(self._authors[0]["joke"], True, self.TEXT_COLOR)
 
         self._walk_text = self._shared_data.get_font(40).render("Walk", True, self.TEXT_COLOR)
         self._run_text = self._shared_data.get_font(40).render("Run", True, self.TEXT_COLOR)
@@ -96,9 +102,10 @@ class HowToPlayView(View):
         self._runRL_text = self._shared_data.get_font(40).render("<- -> / Q D", True, self.TEXT_COLOR)
         self._up_text = self._shared_data.get_font(40).render("up / Z", True, self.TEXT_COLOR)
         self._down_text = self._shared_data.get_font(40).render("down / S", True, self.TEXT_COLOR)
-        self._input_superhit_text = self._shared_data.get_font(40).render("NONE", True, self.TEXT_COLOR)
+        self._input_superhit_text = self._shared_data.get_font(40).render(self._authors[0]["commandesuperhit"], True, self.TEXT_COLOR)
         self._input_hit_text = self._shared_data.get_font(40).render("? / C", True, self.TEXT_COLOR)
 
+        self._image = self._shared_data.get_image(self._authors[0]["res"])
 
     def _inner_pre_draw(self, surface: Surface):
         surface_width, surface_height = surface.get_size()
@@ -143,3 +150,5 @@ class HowToPlayView(View):
         surface.blit(self._down_text, (750,340))
         surface.blit(self._input_hit_text, (760,400))
         surface.blit(self._input_superhit_text, (760,460))
+
+        surface.blit(self._image, (155,235))
