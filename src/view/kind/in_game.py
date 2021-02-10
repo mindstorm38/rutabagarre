@@ -32,14 +32,15 @@ class EntityDrawer(ABC):
 
 class PlayerDrawer(EntityDrawer):
 
-    def __init__(self, entity: Entity, view: 'InGameView'):
+    def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
+        self.color = entity.get_color()
         self.anim_surface = view.get_player_anim_surface()
         self.tracker = AnimTracker()
         self.tracker.push_infinite_anim("idle", 5)
 
     def draw(self, surface: Surface):
-        self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, (255, 255, 255))
+        self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
 
 
 class InGameView(View):
