@@ -1,7 +1,6 @@
 from typing import List, Union, Tuple, Iterable, Dict, TypeVar, Callable, Any, Optional
 
 from entity.player import Player, PlayerColor
-from entity.hitbox import Hitbox
 from entity import Entity
 from entity.hitbox import Hitbox
 
