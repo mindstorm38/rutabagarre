@@ -1,5 +1,6 @@
 from view.anim import AnimSurfaceColored, AnimTracker, FARMER_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP
+from view.player import get_player_color
 from view import View, ViewObject, controls
 from stage import Stage, Tile
 from entity.player import Player
@@ -34,7 +35,7 @@ class PlayerDrawer(EntityDrawer):
 
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
-        self.color = entity.get_color()
+        self.color = get_player_color(entity.get_color())
         self.anim_surface = view.get_player_anim_surface()
         self.tracker = AnimTracker()
         self.tracker.push_infinite_anim("idle", 5)
