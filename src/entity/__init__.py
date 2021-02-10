@@ -88,7 +88,7 @@ class MotionEntity(Entity, ABC):
         self._cached_hitboxes: List[Hitbox] = []
 
         self._on_ground: bool = False
-        self._turned_to_right: bool = False
+        self._turned_to_left: bool = False
 
     # GETTERS
 
@@ -101,8 +101,8 @@ class MotionEntity(Entity, ABC):
     def is_on_ground(self) -> bool:
         return self._on_ground
 
-    def get_turned_to_right(self) -> bool:
-        return self._turned_to_right
+    def get_turned_to_left(self) -> bool:
+        return self._turned_to_left
 
     # SETTERS
 
@@ -114,8 +114,8 @@ class MotionEntity(Entity, ABC):
         self._vel_x += ddx
         self._vel_y += ddy
 
-    def set_turned_to_right(self, turned_to_right: bool) -> None:
-        self._turned_to_right = turned_to_right
+    def set_turned_to_left(self, turned_to_left: bool) -> None:
+        self._turned_to_left = turned_to_left
 
     # OTHER METHODS
 
