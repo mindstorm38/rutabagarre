@@ -44,7 +44,7 @@ class TitleView(View):
 
         self._quit_button = ViewButton(25, "Quit")
         self._quit_button.set_size(200, 35)
-        self._quit_button.set_action_callback(lambda: self._shared_data.get_game().stop_game())
+        self._quit_button.set_action_callback(lambda e: self._shared_data.get_game().stop_game())
         self.add_child(self._quit_button)
 
         self._title_surface = self._shared_data.get_image("title.png")
