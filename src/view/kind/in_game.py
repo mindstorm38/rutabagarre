@@ -5,22 +5,26 @@ from view import View, ViewObject, controls
 from stage import Stage, Tile
 
 from entity.player import Player
-from entity.floor import Floor
 from entity import Entity
 
 from typing import Optional, Dict, Type, Callable, Tuple
-from abc import ABC, abstractmethod
 from pygame import Surface
 import traceback
 import pygame
 
 
-class EntityDrawer(ABC):
+class EntityDrawer:
+
+    __slots__ = "entity", "view", "offsets"
 
     def __init__(self, entity: Entity, view: 'InGameView', size: Tuple[int, int]):
         self.entity = entity
         self.view = view
         self.offsets = (-int(size[0] / 2), -size[1])
+
+    @classmethod
+    def undefined_drawer(cls, entity: Entity, view: 'InGameView'):
+        return cls(entity, view, (0, 0))
 
     def get_draw_pos(self) -> Tuple[int, int]:
         x, y = self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
@@ -32,7 +36,6 @@ class EntityDrawer(ABC):
         max_x, max_y = self.view.get_screen_pos(hitbox.get_max_x(), hitbox.get_max_y())
         return min_x, max_y, max_x - min_x, min_y - max_y
 
-    @abstractmethod
     def draw(self, surface: Surface): ...
 
     def __str__(self):
@@ -40,6 +43,8 @@ class EntityDrawer(ABC):
 
 
 class PlayerDrawer(EntityDrawer):
+
+    __slots__ = "color", "anim_surface", "tracker"
 
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
@@ -50,13 +55,6 @@ class PlayerDrawer(EntityDrawer):
 
     def draw(self, surface: Surface):
         self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
-
-
-class FloorDrawer(EntityDrawer):
-    def __init__(self, entity: Player, view: 'InGameView'):
-        super().__init__(entity, view, (0, 0))
-    def draw(self, surface: Surface):
-        pass
 
 
 class InGameView(View):
@@ -71,8 +69,7 @@ class InGameView(View):
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
-        Player: PlayerDrawer,
-        Floor: FloorDrawer
+        Player: PlayerDrawer
     }
 
     TILE_SIZE = 64
@@ -170,15 +167,15 @@ class InGameView(View):
     def _on_entity_added(self, entity: Entity):
         print("Entity added to view: {}".format(entity))
         constructor = self.ENTITY_DRAWERS.get(type(entity))
-        if constructor is not None:
-            try:
-                drawer = constructor(entity, self)
-                self._entities[entity.get_uid()] = drawer
-            except (Exception,) as e:
-                print("Failed to construct {}: {}".format(constructor, e))
-                traceback.print_exc()
-        else:
-            print("=> This entity has no drawer constructor.")
+        if constructor is None:
+            print("=> This entity has no drawer constructor, using undefined drawer.")
+            constructor = EntityDrawer.undefined_drawer
+        try:
+            drawer = constructor(entity, self)
+            self._entities[entity.get_uid()] = drawer
+        except (Exception,) as e:
+            print("Failed to construct {}: {}".format(constructor, e))
+            traceback.print_exc()
 
     def _inner_init(self):
 
