@@ -96,6 +96,7 @@ class AnimTracker:
         if ignore_existing or self._last_anim_name != name:
             self._last_anim_name = name
             self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev])
+            self._last_time = 0
             # base name, effective name, repeat count, interval, reversed?
 
     def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True):
@@ -196,7 +197,7 @@ class AnimSurface:
                 sub_surfaces_count = len(sub_surfaces)
                 sub_surface = sub_surfaces[frame % sub_surfaces_count]
                 surface.blit(sub_surface, pos)
-                if repeat_count != 0 or 0 < repeat_count < (frame // sub_surfaces_count):
+                if repeat_count < 0 or 0 < repeat_count <= (frame // sub_surfaces_count):
                     tracker.pop_anim()
 
 

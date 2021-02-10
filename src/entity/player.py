@@ -1,7 +1,7 @@
 from entity import Entity, MotionEntity
 from entity.incarnation import Incarnation
 from entity.incarnation.farmer import Farmer
-from typing import Tuple, cast
+from typing import Tuple, cast, Optional, List, Iterable
 from enum import Enum, auto
 import random
 import stage
@@ -45,6 +45,8 @@ class Player(MotionEntity):
         self._color: PlayerColor = color
         self._hp: float = hp
         self._incarnation: Incarnation = Farmer(self)
+
+        self._animations_queue: List[str] = []
 
     # GETTERS
 
@@ -109,6 +111,17 @@ class Player(MotionEntity):
         self._incarnation.heavy_action()
 
     # ACTIONS FOR INCARNATIONS
+
+    def push_animation(self, action: str):
+        self._animations_queue.append(action)
+
+    def foreach_animation(self) -> Iterable[str]:
+        for anim in self._animations_queue:
+            yield anim
+        self._animations_queue.clear()
+
+    def poll_animation(self) -> Optional[str]:
+        return self._animations_queue.pop(0) if len(self._animations_queue) else None
 
     def front_attack(self, reach: float, damage_range: Tuple[float, float]):
 

@@ -19,9 +19,11 @@ class Farmer(Incarnation):
 
     def action(self):
         self._owner.front_attack(1.0, (3.0, 5.0))
+        self._owner.push_animation("rake_attack")
 
     def heavy_action(self):
         self._owner.front_attack(-1, (10.0, 12.0))
+        self._owner.push_animation("spining_attack")
 
     def add_to_duration(self, number: float) -> None:
         """

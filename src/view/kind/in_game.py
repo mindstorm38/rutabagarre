@@ -46,12 +46,15 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "anim_surface", "tracker", "rev"
+    __slots__ = "color", "anim_surface", "tracker", "rev", "last_action"
 
     def __init__(self, entity: Player, view: 'InGameView'):
+
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
+
         self.color = get_player_color(entity.get_color())
         self.anim_surface = view.get_player_anim_surface()
+
         self.tracker = AnimTracker()
         self.tracker.push_infinite_anim("idle", 7)
         self.rev = False
@@ -64,7 +67,14 @@ class PlayerDrawer(EntityDrawer):
             self.rev = player.get_turned_to_left()
             self.tracker.set_all_reversed(self.rev)
 
-        if player.get_vel_x() != 0 and player.is_on_ground():
+        block_anim = False
+
+        for animation in player.foreach_animation():
+            if animation == "rake_attack":
+                self.tracker.push_anim("attack_side", 1, 40, rev=self.rev, ignore_existing=False)
+                block_anim = True
+
+        if not block_anim and player.get_vel_x() != 0 and player.is_on_ground():
             self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
