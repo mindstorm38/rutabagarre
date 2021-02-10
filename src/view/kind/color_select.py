@@ -283,9 +283,10 @@ class ViewPlayerSlot(ViewObject):
 
         self._key_buttons = {}
         for action, key in self._controls.items():
-            self._key_buttons[action] = button = ViewButton(25, pygame.key.name(key).upper())
-            button.set_size(32, 32)
-            button.set_disabled(True)
+            if action in self._KEY_BUTTONS_OFFSETS:
+                self._key_buttons[action] = button = ViewButton(25, pygame.key.name(key).upper())
+                button.set_size(32, 32)
+                button.set_disabled(True)
 
         self._player_anim_surface = player_anim_surface
         self._player_anim_tracker = player_anim_tracker
@@ -313,9 +314,8 @@ class ViewPlayerSlot(ViewObject):
         y_bottom = self._pos[1] + self._size[1]
 
         for action, button in self._key_buttons.items():
-            if action in self._KEY_BUTTONS_OFFSETS:
-                dx, dy = self._KEY_BUTTONS_OFFSETS[action]
-                button.set_position_centered(x_mid + dx, y_bottom + dy - 70)
+            dx, dy = self._KEY_BUTTONS_OFFSETS[action]
+            button.set_position_centered(x_mid + dx, y_bottom + dy - 70)
 
         self._player_anim_pos = (x_mid - self._player_anim_surface.get_width() / 2, self._pos[1] + 10)
 
