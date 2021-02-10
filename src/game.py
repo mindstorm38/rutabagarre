@@ -38,6 +38,7 @@ class Game:
         self._add_view("color_select", ColorSelectView())
         self._add_view("in_game", InGameView())
         self._add_view("credits", CreditsView())
+        self._add_view("how_to_play", HowToPlayView())
 
     def start(self):
 
