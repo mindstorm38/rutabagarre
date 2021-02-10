@@ -80,7 +80,7 @@ class Entity(ABC):
         self._hitbox.set_positions(x, y, x, y)
 
     def _reset_pos_to_box(self):
-        self._x = self._hitbox.get_width() / 2  # TODO: change with new method
+        self._x = self._hitbox.get_mid_x()
         self._y = self._hitbox.get_min_y()
 
     @abstractmethod
