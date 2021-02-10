@@ -20,8 +20,7 @@ class HowToPlayView(View):
 
         super().__init__()
 
-        if self._num is None :
-            self.num = 0
+        self._num = 0
 
         self._return_button : Optional[ViewButton] = None
         self._title: Optional[ViewButton] = None
