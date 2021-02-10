@@ -1,7 +1,9 @@
 from entity import Entity, MotionEntity
 from entity.incarnation import Incarnation
 from entity.incarnation.farmer import Farmer
+from typing import Tuple, cast
 from enum import Enum, auto
+import random
 import stage
 
 
@@ -36,11 +38,13 @@ class Player(MotionEntity):
     JUMP_VELOCITY = 0.4
 
     def __init__(self, entity_stage: 'stage.Stage', number: int, color: PlayerColor, hp: float = 100.0) -> None:
+
         super().__init__(entity_stage)
+
         self._number: int = number
         self._color: PlayerColor = color
         self._hp: float = hp
-        self._incarnation: Incarnation = Farmer()
+        self._incarnation: Incarnation = Farmer(self)
 
     # GETTERS
 
@@ -97,6 +101,43 @@ class Player(MotionEntity):
     def move_jump(self) -> None:
         if self._on_ground:
             self.add_velocity(0, self.JUMP_VELOCITY)
+
+    def do_action(self) -> None:
+        self._incarnation.action()
+
+    def do_heavy_action(self) -> None:
+        self._incarnation.heavy_action()
+
+    # ACTIONS FOR INCARNATIONS
+
+    def front_attack(self, reach: float, damage_range: Tuple[float, float]):
+
+        """
+        Attack player in the reach range.
+        :param reach: Reach range in the front of the player, negate the reach to indicate both side reach.
+        :param damage_range: Range of damage to pick.
+        """
+
+        self._cached_hitbox.set_from(self._hitbox)
+        if reach < 0:
+            self._cached_hitbox.expand(reach, 0)
+            self._cached_hitbox.expand(-reach, 0)
+        else:
+            reach_offset = self._hitbox.get_width() / 2
+            reach -= reach_offset
+            self._cached_hitbox.expand(-reach if self.get_turned_to_left() else reach, 0)
+            self._cached_hitbox.move(-reach_offset if self.get_turned_to_left() else reach_offset, 0)
+
+        for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player._is_player):
+            target = cast(Player, target)
+            if target != self:
+                target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
+                knockback_x = random.uniform(0.01, 0.03)
+                target.add_velocity(-knockback_x if self.get_turned_to_left() else knockback_x, random.uniform(0.02, 0.05))
+
+
+
+
 
     def attack_light(self) -> None:
         # We search for entities that will be hit

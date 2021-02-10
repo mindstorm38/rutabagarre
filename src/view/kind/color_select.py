@@ -313,8 +313,9 @@ class ViewPlayerSlot(ViewObject):
         y_bottom = self._pos[1] + self._size[1]
 
         for action, button in self._key_buttons.items():
-            dx, dy = self._KEY_BUTTONS_OFFSETS[action]
-            button.set_position_centered(x_mid + dx, y_bottom + dy - 70)
+            if action in self._KEY_BUTTONS_OFFSETS:
+                dx, dy = self._KEY_BUTTONS_OFFSETS[action]
+                button.set_position_centered(x_mid + dx, y_bottom + dy - 70)
 
         self._player_anim_pos = (x_mid - self._player_anim_surface.get_width() / 2, self._pos[1] + 10)
 

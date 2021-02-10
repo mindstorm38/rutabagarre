@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
-import entity.player
+from entity import player
 
 
 class Incarnation(ABC):
-    def __init__(self) -> None:
+
+    def __init__(self, owner_player: 'player.Player') -> None:
+        self._owner = owner_player
         self._duration: float = 10.0
 
     # GETTERS
@@ -12,8 +14,15 @@ class Incarnation(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_name() -> str:
-        ...
+    def get_name() -> str: ...
+
+    @abstractmethod
+    def action(self): ...
+
+    @abstractmethod
+    def heavy_action(self): ...
+
+
 
     @staticmethod
     def get_attack() -> float:

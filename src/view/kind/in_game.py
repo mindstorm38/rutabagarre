@@ -230,6 +230,8 @@ class InGameView(View):
                         player_entity.move_right()
                     elif action == "up":
                         player_entity.move_jump()
+                    elif action == "action":
+                        player_entity.do_action()
 
 
     def event(self, event: Event):
