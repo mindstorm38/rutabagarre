@@ -2,6 +2,7 @@ from typing import List, Union, Tuple, Iterable, Dict, TypeVar, Callable, Any, O
 
 from entity.player import Player, PlayerColor
 from entity import Entity
+from entity.hitbox import Hitbox
 
 
 E = TypeVar("E", bound=Entity)
@@ -139,3 +140,43 @@ class Stage:
         stage.add_spawn_point(23, 5)
 
         return stage
+
+    # Other methods
+
+    def get_hit_entities(self, hitbox: Hitbox, vect: Tuple[float, float]) -> List[Entity]:
+        """
+        Returns the list of entities hit by the hitbox if it is moved
+        :param hitbox: hitbox to move
+        :param vect: directional vector of the hitbox, [x, y]
+        :return: list of hit entities
+        """
+        return Stage.get_hit_entities_in_list(hitbox, vect, self.entities)
+
+    @staticmethod
+    def get_hit_entities_in_list(hitbox: Hitbox, vect: Tuple[float, float], entities: List[Entity]) -> List[Entity]:
+        """
+        Returns the list of entities hit by the hitbox if it is moved
+        :param hitbox: hitbox to move
+        :param vect: directional vector of the hitbox, [x, y]
+        :param entities: list of entities to search on
+        :return: list of hit entities
+        """
+        hitbox_copy = hitbox.copy()
+        hitbox_copy.expand(vect[0], vect[1])
+        hit_entities = []
+
+        if vect[0] != 0:  # there is a movement on the x-axis
+            for entity in entities:
+                if entity.get_hard_hitbox() and hitbox_copy.intersects_x(entity.get_hitbox()):
+                    hit_entities.append(entity)
+
+        if vect[1] != 0:  # there is a movement on the y-axis
+            for entity in entities:
+                if (
+                        entity.get_hard_hitbox and
+                        hitbox_copy.intersects_y(entity.get_hitbox()) and
+                        entity not in hit_entities
+                ):
+                    hit_entities.append(entity)
+
+        return hit_entities
