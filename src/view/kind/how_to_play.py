@@ -83,12 +83,12 @@ class HowToPlayView(View):
 
         self._left = ViewButton(35, ">")
         self._left.set_size(50, 50)
-        self._left.set_action_callback(self._shared_data.get_show_view_callback("how_to_play"))
+        self._left.set_action_callback(self._next_element_character_list(1))
         self.add_child(self._left)
 
         self._right = ViewButton(35, "<")
         self._right.set_size(50, 50)
-        self._right.set_action_callback(self._shared_data.get_show_view_callback("how_to_play"))
+        self._right.set_action_callback(self._next_element_character_list(0))
         self.add_child(self._right)
 
         self._character_name_text = self._shared_data.get_font(50).render(self._authors[self._num]["name"], True, self.TEXT_COLOR)
@@ -110,6 +110,26 @@ class HowToPlayView(View):
         self._input_hit_text = self._shared_data.get_font(40).render("? / C", True, self.TEXT_COLOR)
 
         self._image = self._shared_data.get_image(self._authors[self._num]["res"])
+
+    def on_enter(self):
+        self._character_name_text = self._shared_data.get_font(50).render(self._authors[self._num]["name"], True, self.TEXT_COLOR)
+        self._character_type_text = self._shared_data.get_font(50).render(self._authors[self._num]["typechar"], True, self.TEXT_COLOR)
+        self._joke_text = self._shared_data.get_font(25).render(self._authors[self._num]["joke"], True, self.TEXT_COLOR)
+        self._input_superhit_text = self._shared_data.get_font(40).render(self._authors[self._num]["commandesuperhit"], True, self.TEXT_COLOR)
+        self._image = self._shared_data.get_image(self._authors[self._num]["res"])
+
+    def _next_element_character_list(self, way: int):
+        def _cb(_i) :
+            if way is 1 :
+                self._num = self._num + 1
+                if self._num > 5 :
+                    self._num = 0
+            else :
+                self._num = self._num - 1
+                if self._num < 0 :
+                    self._num = 5
+            self._shared_data.get_game().show_view("how_to_play")
+        return _cb
 
     def _inner_pre_draw(self, surface: Surface):
         surface_width, surface_height = surface.get_size()
