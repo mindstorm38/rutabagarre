@@ -28,7 +28,7 @@ class ColorSelectView(View):
         self._player_anim_tracker = AnimTracker()
         self._player_anim_tracker.push_infinite_anim("idle", 4)
 
-        self._title_button: Optional[ViewButton] = None
+        self._title: Optional[ViewButton] = None
         self._color_grid: Optional['ViewColorGrid'] = None
         self._players_slots: List[Tuple[ViewPlayerSlot, int]] = []
         self._players_slots_width = 0
@@ -41,9 +41,8 @@ class ColorSelectView(View):
 
         self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, 210, 210)
 
-        self._title_button = ViewButton(35, "Select your color")
-        self._title_button.set_disabled(True)
-        self.add_child(self._title_button)
+        self._title = ViewButton(35, "Select your color", disabled=True)
+        self.add_child(self._title)
 
         self._color_grid = ViewColorGrid(100, 2, 7)
         self._color_grid.set_change_callback(self._grid_player_changed)
@@ -72,7 +71,7 @@ class ColorSelectView(View):
         x_mid = width / 2
 
         self._color_grid.set_position_centered(x_mid, 225)
-        self._title_button.set_position_centered(x_mid, 55)
+        self._title.set_position_centered(x_mid, 55)
 
         players_slots_x = x_mid - self._players_slots_width / 2
         for slot, offset in self._players_slots:
