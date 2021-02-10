@@ -5,6 +5,7 @@ from typing import Tuple, cast
 from enum import Enum, auto
 import random
 import stage
+from time import monotonic
 
 
 class PlayerColor(Enum):
@@ -45,6 +46,7 @@ class Player(MotionEntity):
         self._color: PlayerColor = color
         self._hp: float = hp
         self._incarnation: Incarnation = Farmer(self)
+        self._next_possible_action: float = 0.0
 
     # GETTERS
 
@@ -60,6 +62,9 @@ class Player(MotionEntity):
     def get_incarnation(self) -> Incarnation:
         return self._incarnation
 
+    def get_next_possible_action(self) -> float:
+        return self._next_possible_action
+
     # SETTERS
 
     def set_number(self, number: int) -> None:
@@ -73,6 +78,9 @@ class Player(MotionEntity):
 
     def set_incarnation(self, incarnation: Incarnation) -> None:
         self._incarnation = incarnation
+
+    def set_next_possible_action(self, next_possible_action: float) -> None:
+        self._next_possible_action = next_possible_action
 
     # ADDERS
 
@@ -103,10 +111,14 @@ class Player(MotionEntity):
             self.add_velocity(0, self.JUMP_VELOCITY)
 
     def do_action(self) -> None:
-        self._incarnation.action()
+        if monotonic() >= self._next_possible_action:
+            self._incarnation.action()
+            self._next_possible_action = self._incarnation.get_cooldown_action() + monotonic()
 
     def do_heavy_action(self) -> None:
-        self._incarnation.heavy_action()
+        if monotonic() >= self._next_possible_action:
+            self._incarnation.heavy_action()
+            self._next_possible_action = self._incarnation.get_cooldown_heavy_action() + monotonic()
 
     # ACTIONS FOR INCARNATIONS
 
