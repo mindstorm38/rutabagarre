@@ -30,6 +30,12 @@ class Hitbox:
     def get_height(self) -> float:
         return self._max_y - self._min_y
 
+    def get_mid_x(self) -> float:
+        return (self._min_x + self._max_x) / 2
+
+    def get_mid_y(self) -> float:
+        return (self._min_y + self._max_y) / 2
+
     # SETTERS
     def set_positions(self, min_x: float, min_y: float, max_x: float, max_y: float) -> None:
         self._min_x = min_x
