@@ -74,11 +74,11 @@ class Stage:
     def get_entities(self) -> List[Entity]:
         return self.entities
 
-    def foreach_colliding_entities(self, box: Hitbox, *, only_hard: bool = False) -> Iterable[Entity]:
+    def foreach_colliding_entity(self, box: Hitbox, *, only_hard: bool = False) -> Iterable[Entity]:
         for entity in self.entities:
             if not only_hard or entity.get_hard_hitbox():
-                # TODO
-                pass
+                if entity.get_hitbox().intersects(box):
+                    yield entity
 
     # Terrain
 
