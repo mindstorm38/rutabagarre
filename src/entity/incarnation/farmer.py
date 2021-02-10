@@ -21,10 +21,10 @@ class Farmer(Incarnation):
         return 9999.9
 
     def action(self):
-        self._owner.front_attack(1.0, (3.0, 5.0))
+        self._owner.front_attack(0.5, (3.0, 5.0), 0.6)
         self._owner.push_animation("rake_attack")
 
     def heavy_action(self):
-        self._owner.front_attack(-1, (10.0, 12.0))
+        self._owner.front_attack(-0.5, (10.0, 12.0), 2.0)
         self._owner.push_animation("spining_attack")
         self._owner.block_moves_for(0.4)

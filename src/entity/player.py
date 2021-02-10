@@ -54,10 +54,12 @@ class Player(MotionEntity):
 
         self._incarnation_type: Optional[IncarnationType] = None
         self._incarnation: Incarnation = Farmer(self)
-        self._next_possible_action: float = 0.0
+
+        self._block_oves_until: float = 0.0
+        self._block_action_until: float = 0.0
+        self._block_heavy_action_until: float = 0.0
 
         self._animations_queue: List[str] = []
-        self._block_oves_until = 0
 
     # GETTERS
 
@@ -73,9 +75,6 @@ class Player(MotionEntity):
     def get_incarnation(self) -> Incarnation:
         return self._incarnation
 
-    def get_next_possible_action(self) -> float:
-        return self._next_possible_action
-
     # SETTERS
 
     def set_number(self, number: int) -> None:
@@ -90,8 +89,17 @@ class Player(MotionEntity):
     def set_incarnation(self, incarnation: Incarnation) -> None:
         self._incarnation = incarnation
 
-    def set_next_possible_action(self, next_possible_action: float) -> None:
-        self._next_possible_action = next_possible_action
+    def block_moves_for(self, duration: float):
+        self._block_oves_until = time.monotonic() + duration
+
+    def block_action_for(self, duration: float):
+        self._block_action_until = time.monotonic() + duration
+
+    def block_heavy_action_for(self, duration: float):
+        self._block_heavy_action_until = time.monotonic() + duration
+
+    def can_move(self) -> bool:
+        return time.monotonic() >= self._block_oves_until
 
     # ADDERS
 
@@ -123,14 +131,14 @@ class Player(MotionEntity):
             self.add_velocity(0, self.JUMP_VELOCITY)
 
     def do_action(self) -> None:
-        if time.monotonic() >= self._next_possible_action:
+        if time.monotonic() >= self._block_action_until:
             self._incarnation.action()
-            self._next_possible_action = self._incarnation.get_cooldown_action() + time.monotonic()
+            self.block_action_for(self._incarnation.get_action_cooldown())
 
     def do_heavy_action(self) -> None:
-        if time.monotonic() >= self._next_possible_action:
+        if time.monotonic() >= self._block_heavy_action_until:
             self._incarnation.heavy_action()
-            self._next_possible_action = self._incarnation.get_cooldown_heavy_action() + time.monotonic()
+            self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
 
     # ACTIONS FOR INCARNATIONS
 
@@ -145,12 +153,13 @@ class Player(MotionEntity):
     def poll_animation(self) -> Optional[str]:
         return self._animations_queue.pop(0) if len(self._animations_queue) else None
 
-    def front_attack(self, reach: float, damage_range: Tuple[float, float]):
+    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback: float):
 
         """
         Attack player in the reach range.
         :param reach: Reach range in the front of the player, negate the reach to indicate both side reach.
         :param damage_range: Range of damage to pick.
+        :param knockback: Knockback multiplier
         """
 
         self._cached_hitbox.set_from(self._hitbox)
@@ -167,14 +176,11 @@ class Player(MotionEntity):
             target = cast(Player, target)
             if target != self:
                 target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
-                knockback_x = random.uniform(0.01, 0.03)
-                target.add_velocity(-knockback_x if self.get_turned_to_left() else knockback_x, random.uniform(0.02, 0.05))
-
-    def block_moves_for(self, duration: float):
-        self._block_oves_until = time.monotonic() + duration
-
-    def can_move(self) -> bool:
-        return time.monotonic() >= self._block_oves_until
+                knockback_x = random.uniform(0.1, 0.2) * knockback
+                knockback_y = random.uniform(0.1, 0.3) * knockback
+                if (reach < 0 and target.get_x() < self.get_x()) or (reach >= 0 and self.get_turned_to_left()):
+                    knockback_x = -knockback_x
+                target.add_velocity(knockback_x, knockback_y)
 
     @staticmethod
     def is_player(entity: Entity) -> bool:

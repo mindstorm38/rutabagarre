@@ -33,12 +33,12 @@ class Incarnation(ABC):
     def get_name() -> str: ...
 
     @staticmethod
-    def get_cooldown_action() -> float:
-        return 0.3
+    def get_action_cooldown() -> float:
+        return 0.5
 
     @staticmethod
-    def get_cooldown_heavy_action() -> float:
-        return 1.0
+    def get_heavy_action_cooldown() -> float:
+        return 3.0
 
     @abstractmethod
     def action(self): ...
