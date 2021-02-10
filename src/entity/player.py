@@ -35,7 +35,7 @@ class Player(MotionEntity):
 
     MOVE_VELOCITY = 0.04
     MOVE_AIR_FACTOR = 0.3
-    JUMP_VELOCITY = 0.4
+    JUMP_VELOCITY = 0.55
 
     def __init__(self, entity_stage: 'stage.Stage', number: int, color: PlayerColor, hp: float = 100.0) -> None:
 
@@ -93,10 +93,10 @@ class Player(MotionEntity):
         self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
 
     def move_right(self) -> None:
-        self._move_side(self.MOVE_VELOCITY)
+        self._move_side(self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_left(self) -> None:
-        self._move_side(-self.MOVE_VELOCITY)
+        self._move_side(-self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_jump(self) -> None:
         if self._on_ground:
