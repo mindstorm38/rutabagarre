@@ -194,7 +194,7 @@ class ItemDrawer(EntityDrawer):
     def draw(self, surface: Surface):
         if self.tile_surface is not None:
             x, y = self.get_draw_pos()
-            surface.blit(self.tile_surface, (x, y + math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 3))
+            surface.blit(self.tile_surface, (x, y - max(0.0, math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 4)))
 
 
 class EffectDrawer(EntityDrawer):
