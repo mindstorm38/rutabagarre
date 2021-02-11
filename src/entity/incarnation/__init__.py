@@ -34,17 +34,20 @@ class Incarnation(ABC):
 
     @staticmethod
     def get_action_cooldown() -> float:
-        return 0.5
+        return 0.3
 
     @staticmethod
     def get_heavy_action_cooldown() -> float:
-        return 3.0
+        return 2.0
 
     @abstractmethod
     def action(self): ...
 
     @abstractmethod
     def heavy_action(self): ...
+
+    def sliding(self):
+        pass
 
 
 from .farmer import Farmer
