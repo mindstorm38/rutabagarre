@@ -64,6 +64,8 @@ class Player(MotionEntity):
 
         self._animations_queue: List[str] = []
 
+        self._sliding: bool = False
+
     # GETTERS
 
     def get_number(self) -> int:
@@ -80,6 +82,9 @@ class Player(MotionEntity):
 
     def get_incarnation_type(self) -> IncarnationType:
         return self._incarnation_type
+
+    def get_sliding(self) -> bool:
+        return self._sliding
 
     def can_move(self) -> bool:
         return time.monotonic() >= self._block_oves_until
@@ -107,6 +112,9 @@ class Player(MotionEntity):
     def set_incarnation(self, incarnation: Incarnation) -> None:
         self._incarnation = incarnation
 
+    def set_sliding(self, sliding: bool) -> None:
+        self._sliding = sliding
+
     def block_moves_for(self, duration: float):
         self._block_oves_until = time.monotonic() + duration
 
@@ -130,6 +138,8 @@ class Player(MotionEntity):
         super().update()
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
+        if self._sliding:
+            self._incarnation.heavy_action()
 
     # MOVES
 
@@ -138,9 +148,13 @@ class Player(MotionEntity):
             self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
 
     def move_right(self) -> None:
+        if self.get_turned_to_left() and self._sliding:
+            self._sliding = False
         self._move_side(self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_left(self) -> None:
+        if not self.get_turned_to_left() and self._sliding:
+            self._sliding = False
         self._move_side(-self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_jump(self) -> None:
