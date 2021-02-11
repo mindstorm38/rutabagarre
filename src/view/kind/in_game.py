@@ -310,6 +310,8 @@ class InGameView(View):
 
         self._entities: Dict[int, EntityDrawer] = {}
 
+        self._stop_running_at: Optional[float] = None
+
     def on_enter(self):
 
         print("Loading stage...")
@@ -520,6 +522,12 @@ class InGameView(View):
                     elif action == "heavy_action":
                         player_entity.do_heavy_action()
 
+        # Stop running
+        if self._stop_running_at is None:
+            if self._stage.is_finished():
+                self._stop_running_at = time.monotonic() + 5
+        elif time.monotonic() >= self._stop_running_at:
+            self._shared_data.get_game().show_view("end")
 
     def event(self, event: Event):
         super().event(event)
