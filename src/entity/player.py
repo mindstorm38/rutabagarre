@@ -113,8 +113,11 @@ class Player(MotionEntity):
     def can_jump(self) -> bool:
         return time.monotonic() >= self._block_jump_until and not self._sleeping
 
+    def is_purely_invincible(self) -> bool:
+        return time.monotonic() < self._invincible_until
+
     def is_invincible(self) -> bool:
-        return self._sleeping or time.monotonic() < self._invincible_until
+        return self._sleeping or self.is_purely_invincible()
 
     def is_sleeping(self) -> bool:
         return self._sleeping
@@ -186,16 +189,21 @@ class Player(MotionEntity):
             if self._hp < self._max_hp:
                 self._hp = min(self._hp + Player.REGEN_BY_TICK, self._max_hp)
         elif self._grabing is not None:
-            player, grab_at, throw_at = self._grabing
+            target, grab_at, throw_at = self._grabing
+            target = cast(Player, target)
             now = time.monotonic()
             if grab_at != 0:
                 if now >= grab_at:
-                    player.add_velocity(0, 0.7)
-                    self._grabing = player, 0, throw_at
+                    target.add_velocity(0, 0.5)
+                    self._grabing = target, 0, throw_at
             elif now >= throw_at:
                 knockback_x = random.uniform(0.1, 0.2)
-                knockback_y = random.uniform(0.1, 0.2)
-                player.add_velocity(-knockback_x if self.get_turned_to_left() else knockback_x, knockback_y)
+                knockback_y = random.uniform(0.9, 1.1)
+                target_on_left = target.get_x() < self.get_x()
+                target.add_velocity(-knockback_x if target_on_left else knockback_x, knockback_y)
+                target.push_animation("hit")
+                target.set_invincible_for(0.5)
+                target.add_to_hp(-random.uniform(17.0, 20.0) / target.get_incarnation().get_defense())
                 self._grabing = None
 
     # MOVES
@@ -217,7 +225,7 @@ class Player(MotionEntity):
     def move_jump(self) -> None:
         if self._sleeping:
             self._sleeping = False
-            self.block_jump_for(0.5)
+            self.complete_stun_for(0.7)
         elif self._on_ground and self.can_jump():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
@@ -240,15 +248,16 @@ class Player(MotionEntity):
 
         for target in self.foreach_down_sleeping_players():
             target = cast(Player, target)
-            now = time.monotonic()
-            self._grabing = (target, now + 0.5, now + 1)
-            self.complete_stun_for(2)
-            target.complete_stun_for(2)
-            target.push_animation("hit")
-            self.push_animation("grabing")
-            return
+            if not target.is_purely_invincible():
+                now = time.monotonic()
+                self._grabing = (target, now + 0.5, now + 1)
+                self.complete_stun_for(2)
+                target.complete_stun_for(2)
+                target._sleeping = False
+                self.push_animation("grabing")
+                return
 
-        if self._incarnation is not None:
+        if self._incarnation_type is not None:
             self._sleeping = True
             self.set_invincible_for(2)
 
