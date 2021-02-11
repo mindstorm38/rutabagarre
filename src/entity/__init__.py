@@ -5,18 +5,18 @@ from entity.hitbox import Hitbox
 import stage
 
 
-UID_COUNTER = 0
-def new_uid() -> int:
-    global UID_COUNTER
-    UID_COUNTER += 1
-    return UID_COUNTER
+_UID_COUNTER = 0
+def _new_uid() -> int:
+    global _UID_COUNTER
+    _UID_COUNTER += 1
+    return _UID_COUNTER
 
 
 class Entity(ABC):
 
     def __init__(self, entity_stage: 'stage.Stage'):
 
-        self._uid = new_uid()
+        self._uid = _new_uid()
 
         self._stage: 'stage.Stage' = entity_stage
         self._x: float = 0.0
