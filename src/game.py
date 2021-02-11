@@ -6,7 +6,7 @@ import pygame
 from stage import Stage
 from view import View, SharedViewData
 from view.kind import *
-
+from view.kind.scenario import ScenarioView
 
 class Game:
 
@@ -38,6 +38,7 @@ class Game:
         self._add_view("color_select", ColorSelectView())
         self._add_view("in_game", InGameView())
         self._add_view("credits", CreditsView())
+        self._add_view("scenario", ScenarioView())
         self._add_view("end", EndView())
 
     def start(self):

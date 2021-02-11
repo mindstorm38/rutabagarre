@@ -66,7 +66,7 @@ class EndView(View):
         #surface.blit(self._player_one_surface, player_one_pos)
 
         #tableau 1
-        pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (10+10, 150, 229, 252))
+        pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (20, 150, 229, 252))
 
         pygame.draw.line(surface, self.TEXT_COLOR, (20, 150), (248, 150), 1)
         pygame.draw.line(surface, self.TEXT_COLOR, (20, 213), (248, 213), 1)
