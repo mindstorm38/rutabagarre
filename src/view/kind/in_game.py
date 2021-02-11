@@ -237,24 +237,26 @@ class InGameView(View):
         Tile.TILE_DIRT_8: "TILE_DIRT_8",
         Tile.TILE_DIRT_9: "TILE_DIRT_9",
 
-        Tile.TILE_GRASS_LIGHT_1: "TILE_GRASS_LIGHT_1",
-        Tile.TILE_GRASS_LIGHT_2: "TILE_GRASS_LIGHT_2",
-        Tile.TILE_GRASS_LIGHT_3: "TILE_GRASS_LIGHT_3",
-        Tile.TILE_GRASS_LIGHT_4: "TILE_GRASS_LIGHT_4",
-        Tile.TILE_GRASS_LIGHT_6: "TILE_GRASS_LIGHT_6",
-        Tile.TILE_GRASS_LIGHT_7: "TILE_GRASS_LIGHT_7",
-        Tile.TILE_GRASS_LIGHT_8: "TILE_GRASS_LIGHT_8",
-        Tile.TILE_GRASS_LIGHT_9: "TILE_GRASS_LIGHT_9",
+        Tile.TILE_GRASS_HOLED_1: "TILE_GRASS_HOLED_1",
+        Tile.TILE_GRASS_HOLED_2: "TILE_GRASS_HOLED_2",
+        Tile.TILE_GRASS_HOLED_3: "TILE_GRASS_HOLED_3",
+        Tile.TILE_GRASS_HOLED_4: "TILE_GRASS_HOLED_4",
+        Tile.TILE_GRASS_HOLED_6: "TILE_GRASS_HOLED_6",
+        Tile.TILE_GRASS_HOLED_7: "TILE_GRASS_HOLED_7",
+        Tile.TILE_GRASS_HOLED_8: "TILE_GRASS_HOLED_8",
+        Tile.TILE_GRASS_HOLED_9: "TILE_GRASS_HOLED_9",
 
-        Tile.TILE_GRASS_DARK_1: "TILE_GRASS_DARK_1",
-        Tile.TILE_GRASS_DARK_2: "TILE_GRASS_DARK_2",
-        Tile.TILE_GRASS_DARK_3: "TILE_GRASS_DARK_3",
-        Tile.TILE_GRASS_DARK_4: "TILE_GRASS_DARK_4",
-        Tile.TILE_GRASS_DARK_5: "TILE_GRASS_DARK_5",
-        Tile.TILE_GRASS_DARK_6: "TILE_GRASS_DARK_6",
-        Tile.TILE_GRASS_DARK_7: "TILE_GRASS_DARK_7",
-        Tile.TILE_GRASS_DARK_8: "TILE_GRASS_DARK_8",
-        Tile.TILE_GRASS_DARK_9: "TILE_GRASS_DARK_9",
+        Tile.TILE_GRASS_1: "TILE_GRASS_1",
+        Tile.TILE_GRASS_2: "TILE_GRASS_2",
+        Tile.TILE_GRASS_3: "TILE_GRASS_3",
+        Tile.TILE_GRASS_4: "TILE_GRASS_4",
+        Tile.TILE_GRASS_5: "TILE_GRASS_5",
+        Tile.TILE_GRASS_6: "TILE_GRASS_6",
+        Tile.TILE_GRASS_7: "TILE_GRASS_7",
+        Tile.TILE_GRASS_8: "TILE_GRASS_8",
+        Tile.TILE_GRASS_9: "TILE_GRASS_9",
+
+        Tile.TILE_WHEAT: "TILE_WHEAT",
 
         Tile.TILE_FARMLAND: "TILE_FARMLAND",
 
@@ -262,6 +264,16 @@ class InGameView(View):
         Tile.TILE_PUDDLE_2: "TILE_PUDDLE_2",
         Tile.TILE_PUDDLE_3: "TILE_PUDDLE_3",
         Tile.TILE_PUDDLE_4: "TILE_PUDDLE_4",
+
+        Tile.TILE_STONE_1: "TILE_STONE_1",
+        Tile.TILE_STONE_2: "TILE_STONE_2",
+        Tile.TILE_STONE_3: "TILE_STONE_3",
+        Tile.TILE_STONE_4: "TILE_STONE_4",
+        Tile.TILE_STONE_5: "TILE_STONE_5",
+        Tile.TILE_STONE_6: "TILE_STONE_6",
+        Tile.TILE_STONE_7: "TILE_STONE_7",
+        Tile.TILE_STONE_8: "TILE_STONE_8",
+        Tile.TILE_STONE_9: "TILE_STONE_9"
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
