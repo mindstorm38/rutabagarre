@@ -166,8 +166,10 @@ class Stage:
             b" DDDDDDDDDDDDDDDD "
         )
 
-        stage.add_spawn_point(7, 5)
-        stage.add_spawn_point(23, 5)
+        stage.add_spawn_point(8, 5)
+        stage.add_spawn_point(12, 5)
+        stage.add_spawn_point(18, 5)
+        stage.add_spawn_point(22, 5)
 
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(6, 2, 24, 4)
