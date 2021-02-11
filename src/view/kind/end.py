@@ -1,8 +1,7 @@
-from select import select
-from typing import Optional
-from view import View, AnimSurfaceColored
 from view.anim import FARMER_ANIMATION, AnimTracker
+from view import View, AnimSurfaceColored
 from view.button import ViewButton
+from typing import Optional
 from pygame import Surface
 import pygame
 

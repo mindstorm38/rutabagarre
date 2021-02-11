@@ -72,6 +72,8 @@ class Player(MotionEntity):
 
         self._animations_queue: List[str] = []
 
+        self._statistics = PlayerStatistics()
+
     # GETTERS
 
     def get_number(self) -> int:
@@ -124,6 +126,9 @@ class Player(MotionEntity):
 
     def is_sliding(self) -> bool:
         return self._sliding
+
+    def get_statistics(self) -> Statistics:
+        return self._statistics
 
     # SETTERS
 
@@ -343,3 +348,37 @@ class Player(MotionEntity):
             return True
         else:
             return False
+
+
+class PlayerStatistics:
+
+    def __init__(self):
+
+        self._kos: int = 0
+        self._plants_collected: int = 0
+        self._damage_dealt: int = 0
+        self._damage_taken: int = 0
+
+    def get_kos(self) -> int:
+        return self._kos
+
+    def get_plants_collected(self) -> int:
+        return self._plants_collected
+
+    def get_damage_dealt(self) -> int:
+        return self._damage_dealt
+
+    def get_damage_taken(self) -> int:
+        return self._damage_taken
+
+    def add_kos(self, ko: int):
+        self._kos += ko
+
+    def add_plants_collected(self, pl_co: int):
+        self._plants_collected += pl_co
+
+    def add_damage_dealt(self, da_de: int):
+        self._damage_dealt += da_de
+
+    def add_damage_taken(self, da_ta: int):
+        self._damage_taken += da_ta
