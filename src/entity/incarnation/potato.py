@@ -38,5 +38,5 @@ class Potato(Incarnation):
             (0.2, -0.2)[self._owner.get_turned_to_left()],
             self._owner.get_vel_y()
         )
-        self._owner.front_attack(0, (15.0, 16.0), 1)
+        self._owner.front_attack(0, (10.0, 11.0), 1)
         self._owner.push_animation("potato:roll")
