@@ -46,6 +46,9 @@ class Incarnation(ABC):
     @abstractmethod
     def heavy_action(self): ...
 
+    def sliding(self):
+        pass
+
 
 from .farmer import Farmer
 from .potato import Potato

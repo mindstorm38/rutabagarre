@@ -153,7 +153,7 @@ class Player(MotionEntity):
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
         if self._sliding:
-            self._incarnation.heavy_action()
+            self._incarnation.sliding()
         elif self._sleeping and self._hp < Player.MAX_HP:
             self._hp = min(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
 
@@ -211,13 +211,14 @@ class Player(MotionEntity):
     def poll_animation(self) -> Optional[str]:
         return self._animations_queue.pop(0) if len(self._animations_queue) else None
 
-    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback: float):
+    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback_x: float, knockback_y: float):
 
         """
         Attack player in the reach range.
         :param reach: Reach range in the front of the player, negate the reach to indicate both side reach.
         :param damage_range: Range of damage to pick.
-        :param knockback: Knockback multiplier
+        :param knockback_x: Knockback multiplier x-axis
+        :param knockback_y: Knockback multiplier y-axis
         """
 
         self._cached_hitbox.set_from(self._hitbox)
@@ -234,12 +235,13 @@ class Player(MotionEntity):
             target = cast(Player, target)
             if target != self and not target.is_invincible():
                 target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
-                knockback_x = random.uniform(0.1, 0.2) * knockback
-                knockback_y = random.uniform(0.1, 0.3) * knockback
+                knockback_x = random.uniform(0.1, 0.2) * knockback_x
+                knockback_y = random.uniform(0.1, 0.3) * knockback_y
                 if (reach < 0 and target.get_x() < self.get_x()) or (reach >= 0 and self.get_turned_to_left()):
                     knockback_x = -knockback_x
                 target.add_velocity(knockback_x, knockback_y)
                 target.push_animation("hit")
+                target.set_invincible_for(0.5)
 
     @staticmethod
     def is_player(entity: Entity) -> bool:
