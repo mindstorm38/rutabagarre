@@ -235,5 +235,3 @@ class EndView(View):
                 self._damage_dealt_p4_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_dealt()), True, self.TEXT_COLOR)
                 self._damage_taken_p4_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_taken()), True, self.TEXT_COLOR)
                 cmpt = cmpt + 1
-
-            pass
