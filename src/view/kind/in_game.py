@@ -265,10 +265,10 @@ class InGameView(View):
         Effect: EffectDrawer
     }
 
-    TILE_SIZE = 64
-    PLAYER_SIZE = 128
-    ITEM_SIZE = 128
-    EFFECT_SIZE = 128
+    TILE_SIZE = 48
+    PLAYER_SIZE = 96
+    ITEM_SIZE = 96
+    EFFECT_SIZE = 96
 
     CAMERA_WIDTH_MIN = 20
     CAMERA_WIDTH_MARGIN = 8
