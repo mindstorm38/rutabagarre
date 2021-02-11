@@ -61,6 +61,12 @@ class Game:
 
         self.show_view("title")
 
+        print("Start music...")
+
+        pygame.mixer.music.load("../res/music/menumusic.ogg")
+        pygame.mixer.music.play(1, 6.0)
+        pygame.mixer.music.set_volume(1)
+
         print("Start loop...")
 
         clock = Clock()
