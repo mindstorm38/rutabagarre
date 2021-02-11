@@ -58,6 +58,7 @@ class Player(MotionEntity):
 
         self._incarnation_type: Optional[IncarnationType] = None
         self._incarnation: Incarnation = Farmer(self)
+        self._incarnation_until: float = 0.0
 
         self._block_moves_until: float = 0.0
         self._block_action_until: float = 0.0
@@ -96,6 +97,9 @@ class Player(MotionEntity):
 
     def get_incarnation_type(self) -> IncarnationType:
         return self._incarnation_type
+
+    def get_incarnation_remaining_duration(self) -> float:
+        return self._incarnation_until - time.monotonic()
 
     def get_sliding(self) -> bool:
         return self._sliding
@@ -186,8 +190,13 @@ class Player(MotionEntity):
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 
+        if self._incarnation_type is not None and not self._sleeping and time.monotonic() >= self._incarnation_until:
+            self.unload_incarnation()
+
         if self._sliding:
             self._incarnation.sliding()
+            if random.random() < 0.08:
+                self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
         elif self._sleeping:
             if random.random() < 0.003:
                 self._stage.add_effect(EffectType.SLEEPING, 5, self._x + random.uniform(-1, 1), self._y + 0.2 + random.random() * 0.6)
@@ -231,6 +240,8 @@ class Player(MotionEntity):
         if self._sleeping:
             self._sleeping = False
             self.complete_stun_for(0.7)
+            # On restaure le temps restant
+            self._incarnation_until += time.monotonic()
         elif self._on_ground and self.can_jump():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
@@ -267,6 +278,8 @@ class Player(MotionEntity):
 
         if can_sleep:
             self._sleeping = True
+            # Quand on dors, on défini le "until" au temps restant, afin de le restaurer au reveil
+            self._incarnation_until = self.get_incarnation_remaining_duration()
             self.set_invincible_for(2)
 
     # ACTIONS FOR INCARNATIONS
@@ -340,6 +353,7 @@ class Player(MotionEntity):
             try:
                 self._incarnation = constructor(self)
                 self._incarnation_type = typ
+                self._incarnation_until = time.monotonic() + self._incarnation.get_duration()
                 self.complete_stun_for(1)
                 self.push_animation("player:mutation")
                 self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
@@ -351,6 +365,14 @@ class Player(MotionEntity):
             return True
         else:
             return False
+
+    def unload_incarnation(self):
+        if self._incarnation_type is not None and self.can_move():
+            self._incarnation = Farmer(self)
+            self._incarnation_type = None
+            self.complete_stun_for(1)
+            self.push_animation("player:unmutation")
+            self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
 
 
 class PlayerStatistics:

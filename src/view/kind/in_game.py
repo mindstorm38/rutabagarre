@@ -100,6 +100,9 @@ class PlayerDrawer(EntityDrawer):
         player = cast(Player, self.entity)
         self.tracker.set_all_reversed(player.get_turned_to_left())
 
+        # TODO
+        unmutating_soon = player.get_incarnation_remaining_duration() < 2.0
+
         can_run = player.get_vel_x() != 0 and player.is_on_ground()
         incarnation_type = player.get_incarnation_type()
         is_potato = incarnation_type == IncarnationType.POTATO
@@ -110,6 +113,8 @@ class PlayerDrawer(EntityDrawer):
                 self.state = self.STATE_MISC_ANIM
                 if animation == "player:mutation":
                     self.state = self.STATE_MUTATING
+            elif animation == "player:unmutation":
+                self.state = self.STATE_UNINIT
 
         if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
             self.state = self.STATE_UNINIT
