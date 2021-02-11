@@ -81,14 +81,15 @@ TERRAIN_TILEMAP = TileMapDefinition(0, 0, 1, 1, 16, 16)\
     .tile("TILE_GRASS_LIGHT_7", 5, 2)\
     .tile("TILE_GRASS_LIGHT_8", 6, 2)\
     .tile("TILE_GRASS_LIGHT_9", 7, 2)\
-    .tile("TILE_GRASS_DARK_1", 8, 1)\
-    .tile("TILE_GRASS_DARK_2", 9, 1)\
-    .tile("TILE_GRASS_DARK_3", 10, 1)\
-    .tile("TILE_GRASS_DARK_4", 8, 2)\
-    .tile("TILE_GRASS_DARK_6", 10, 2)\
-    .tile("TILE_GRASS_DARK_7", 8, 3)\
-    .tile("TILE_GRASS_DARK_8", 9, 3)\
-    .tile("TILE_GRASS_DARK_9", 10, 3)\
+    .tile("TILE_GRASS_DARK_1", 8, 0)\
+    .tile("TILE_GRASS_DARK_2", 9, 0)\
+    .tile("TILE_GRASS_DARK_3", 10, 0)\
+    .tile("TILE_GRASS_DARK_4", 8, 1)\
+    .tile("TILE_GRASS_DARK_5", 9, 1)\
+    .tile("TILE_GRASS_DARK_6", 10, 1)\
+    .tile("TILE_GRASS_DARK_7", 8, 2)\
+    .tile("TILE_GRASS_DARK_8", 9, 2)\
+    .tile("TILE_GRASS_DARK_9", 10, 2)\
     .tile("TILE_FARMLAND", 0, 0)\
     .tile("TILE_WHEAT", 0, 3)\
     .tile("TILE_PUDDLE_1", 1, 0)\

@@ -40,19 +40,20 @@ class Tile:
     TILE_GRASS_DARK_2 = ord("S")
     TILE_GRASS_DARK_3 = ord("T")
     TILE_GRASS_DARK_4 = ord("U")
-    TILE_GRASS_DARK_6 = ord("V")
-    TILE_GRASS_DARK_7 = ord("W")
-    TILE_GRASS_DARK_8 = ord("X")
-    TILE_GRASS_DARK_9 = ord("Y")
+    TILE_GRASS_DARK_5 = ord("V")
+    TILE_GRASS_DARK_6 = ord("W")
+    TILE_GRASS_DARK_7 = ord("X")
+    TILE_GRASS_DARK_8 = ord("Y")
+    TILE_GRASS_DARK_9 = ord("Z")
 
-    TILE_FARMLAND = ord("Z")
+    TILE_FARMLAND = ord("a")
 
-    TILE_WHEAT = ord("a")
+    TILE_WHEAT = ord("b")
 
-    TILE_PUDDLE_1 = ord("b")
-    TILE_PUDDLE_2 = ord("c")
-    TILE_PUDDLE_3 = ord("d")
-    TILE_PUDDLE_4 = ord("e")
+    TILE_PUDDLE_1 = ord("c")
+    TILE_PUDDLE_2 = ord("d")
+    TILE_PUDDLE_3 = ord("e")
+    TILE_PUDDLE_4 = ord("f")
 
     VALID_TILES_IDS = {
         TILE_DIRT_1,
@@ -78,6 +79,7 @@ class Tile:
         TILE_GRASS_DARK_2,
         TILE_GRASS_DARK_3,
         TILE_GRASS_DARK_4,
+        TILE_GRASS_DARK_5,
         TILE_GRASS_DARK_6,
         TILE_GRASS_DARK_7,
         TILE_GRASS_DARK_8,
@@ -227,30 +229,30 @@ class Stage:
 
         stage.set_terrain(
             15, 2,
-            b"JKKKKKKKKKKKKKKKKKKKKL",
-            b"EEEEEEEEEEEEEEEEEEEEEE",
-            b" EEEEEEEEEEEEEEEEEEEE"
+            b"RSSSSSSSSSSSSSSSSSSSST",
+            b"VVVVVVVVVVVVVVVVVVVVVV",
+            b" VVVVVVVVVVVVVVVVVVVV"
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(15, 2, 37, 4)
 
         stage.set_terrain(
             18, 8,
-            b"JKKL",
+            b"RSST",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(18, 7, 22, 8)
 
         stage.set_terrain(
             24, 12,
-            b"JKKL",
+            b"RSST",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(24, 11, 28, 12)
 
         stage.set_terrain(
             30, 8,
-            b"JKKL",
+            b"RSST",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(30, 7, 34, 8)
