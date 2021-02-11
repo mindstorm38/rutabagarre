@@ -3,7 +3,7 @@ from enum import Enum, auto
 import random
 import time
 
-from entity.incarnation import Incarnation, Farmer, Potato
+from entity.incarnation import Incarnation, Farmer, Potato, Corn
 from entity import Entity, MotionEntity
 from entity.effect import EffectType
 import stage
@@ -30,6 +30,7 @@ class PlayerColor(Enum):
 class IncarnationType(Enum):
     """ Enumeration des """
     POTATO = auto()
+    CORN = auto()
 
 
 class Player(MotionEntity):
@@ -44,7 +45,8 @@ class Player(MotionEntity):
     REGEN_BY_TICK = 0.1
 
     INCARNATIONS_CONSTRUCTORS = {
-        IncarnationType.POTATO: Potato
+        IncarnationType.POTATO: Potato,
+        IncarnationType.CORN: Corn
     }
 
     def __init__(self, entity_stage: 'stage.Stage', player_index: int, color: PlayerColor, hp: float = 100.0) -> None:

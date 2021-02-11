@@ -318,7 +318,7 @@ class Stage:
         stage.add_spawn_point(17, 5)
         stage.add_spawn_point(35, 5)
 
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(26, 5)
+        stage.add_entity(Item, IncarnationType.CORN).set_position(26, 5)
         stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
         stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 

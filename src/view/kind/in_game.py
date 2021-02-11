@@ -1,4 +1,5 @@
-from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
+from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, \
+    EFFECTS_ANIMATION, CORN_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -108,6 +109,7 @@ class PlayerDrawer(EntityDrawer):
         can_run = player.get_vel_x() != 0 and player.is_on_ground()
         incarnation_type = player.get_incarnation_type()
         is_potato = incarnation_type == IncarnationType.POTATO
+        is_corn = incarnation_type == IncarnationType.CORN
 
         for animation in player.foreach_animation():
             if self.state in (self.STATE_IDLE, self.STATE_RUNNING) and animation in self.MISC_ANIMATIONS:
@@ -141,8 +143,11 @@ class PlayerDrawer(EntityDrawer):
             self.state = self.STATE_IDLE
 
         anim_surface = self.view.get_player_anim_surface()
-        if self.state != self.STATE_MUTATING and is_potato:
-            anim_surface = self.view.get_potato_anim_surface()
+        if self.state != self.STATE_MUTATING:
+            if is_potato:
+                anim_surface = self.view.get_potato_anim_surface()
+            elif is_corn:
+                anim_surface = self.view.get_corn_anim_surface()
 
         player_color = self.color
         if unmutating_soon and cosine_rot < 0:
@@ -182,7 +187,8 @@ class ItemDrawer(EntityDrawer):
     __slots__ = "tile_surface", "anim_phase_shift"
 
     ITEMS_NAMES = {
-        IncarnationType.POTATO: "potato"
+        IncarnationType.POTATO: "potato",
+        IncarnationType.CORN: "corn"
     }
 
     def __init__(self, entity: Item, view: 'InGameView'):
@@ -302,6 +308,7 @@ class InGameView(View):
         self._item_tilemap: Optional[TileMap] = None
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
         self._potato_anim_surface: Optional[AnimSurfaceColored] = None
+        self._corn_anim_surface: Optional[AnimSurfaceColored] = None
         self._effect_anim_surface: Optional[AnimSurface] = None
 
         self._stage: Optional[Stage] = None
@@ -364,6 +371,9 @@ class InGameView(View):
 
     def get_potato_anim_surface(self) -> Optional[AnimSurfaceColored]:
         return self._potato_anim_surface
+
+    def get_corn_anim_surface(self) -> Optional[AnimSurfaceColored]:
+        return self._corn_anim_surface
 
     def get_effect_anim_surface(self) -> Optional[AnimSurface]:
         return self._effect_anim_surface
@@ -459,6 +469,9 @@ class InGameView(View):
 
         self._potato_anim_surface = self._shared_data\
             .new_anim_colored("potato", POTATO_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
+
+        self._corn_anim_surface = self._shared_data\
+            .new_anim_colored("corn", CORN_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
 
         self._effect_anim_surface = AnimSurface(self.EFFECT_SIZE, self.EFFECT_SIZE, [
             self._shared_data.get_anim("effects.png", EFFECTS_ANIMATION)
