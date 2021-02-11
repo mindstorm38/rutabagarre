@@ -14,19 +14,25 @@ PLAYERS_KEYS = [
         "up": pygame.K_i,
         "down": pygame.K_k,
         "left": pygame.K_j,
-        "right": pygame.K_l
+        "right": pygame.K_l,
+        "action": pygame.K_n,
+        "heavy_action": pygame.K_SPACE
     },
     {
         "up": pygame.K_UP,
         "down": pygame.K_DOWN,
         "left": pygame.K_LEFT,
-        "right": pygame.K_RIGHT
+        "right": pygame.K_RIGHT,
+        "action": pygame.K_EXCLAIM,
+        "heavy_action": pygame.K_COLON
     },
     {
         "up": pygame.K_KP8,
         "down": pygame.K_KP5,
         "left": pygame.K_KP4,
-        "right": pygame.K_KP6
+        "right": pygame.K_KP6,
+        "action": pygame.K_KP1,
+        "heavy_action": pygame.K_KP0
     }
 ]
 

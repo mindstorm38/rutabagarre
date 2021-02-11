@@ -364,6 +364,7 @@ class InGameView(View):
             self._stage.set_add_entity_callback(None)
             self._stage.set_remove_entity_callback(None)
             self._stage = None
+        self._stop_running_at = None
 
     def get_item_tilemap(self) -> TileMap:
         return self._item_tilemap
