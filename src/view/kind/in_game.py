@@ -1,4 +1,4 @@
-from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
+from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -24,7 +24,7 @@ class EntityDrawer:
 
     __slots__ = "entity", "view", "offsets"
 
-    DEBUG_HITBOXES = True
+    DEBUG_HITBOXES = False
 
     def __init__(self, entity: Entity, view: 'InGameView', size: Tuple[int, int]):
         self.entity = entity
@@ -60,6 +60,7 @@ class PlayerDrawer(EntityDrawer):
 
     BAR_WIDTH, BAR_HEIGHT = 150, 10
     BAR_OFFSET = 40
+    BAR_SLEEPING_OFFSET = 25
     HALF_BAR_WIDTH = BAR_WIDTH // 2
     HEALTH_BACKGROUND_COLOR = 16, 26, 11
     MAX_HEALTH_COLOR = 74, 201, 20
@@ -72,12 +73,14 @@ class PlayerDrawer(EntityDrawer):
     STATE_MUTATING = 3
     STATE_ROLLING = 4
     STATE_MISC_ANIM = 5
+    STATE_SLEEPING = 6
 
     MISC_ANIMATIONS = {
         "farmer:rake_attack": (("attack_side", 40, 1),),
         "farmer:spinning_attack": (("attack_down", 40, 2),),
         "potato:punch": (("attack_side", 20, 1),),
         "hit": (("hit", 20, 1),),
+        "grabing": (("grab", 20, 1),),
         "player:mutation": (("pick", 10, 1),)
     }
 
@@ -111,11 +114,18 @@ class PlayerDrawer(EntityDrawer):
         if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
             self.state = self.STATE_UNINIT
         elif self.state == self.STATE_ROLLING and not player.is_sliding():
-            self.state = self.STATE_UNINIT
+            self.tracker.set_anim(("attack_roll_end", 14, 1))
+            self.state = self.STATE_MISC_ANIM
+        elif self.state == self.STATE_SLEEPING and not player.is_sleeping():
+            self.tracker.set_anim(("unsleep", 14, 1))
+            self.state = self.STATE_MISC_ANIM
 
         if self.state != self.STATE_ROLLING and is_potato and player.is_sliding():
             self.tracker.set_anim(("attack_roll_start", 14, 1), ("attack_roll_idle", 14, -1))
             self.state = self.STATE_ROLLING
+        elif self.state != self.STATE_SLEEPING and player.is_sleeping() and incarnation_type is not None:
+            self.tracker.set_anim(("sleep", 14, 1), pause_at_end=True)
+            self.state = self.STATE_SLEEPING
         elif self.state in (self.STATE_UNINIT, self.STATE_IDLE) and can_run:
             self.tracker.set_anim(("run", 14, -1))
             self.state = self.STATE_RUNNING
@@ -133,7 +143,11 @@ class PlayerDrawer(EntityDrawer):
         health_color = _lerp_color(self.MIN_HEALTH_COLOR, self.MAX_HEALTH_COLOR, health_ratio)
         health_bar_x, health_bar_y = self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
         health_bar_x -= self.HALF_BAR_WIDTH
-        health_bar_y -= InGameView.PLAYER_SIZE + self.BAR_OFFSET + math.cos(time.monotonic() * 6 + self.bar_phase_shift) * 4
+        if not player.is_sleeping():
+            health_bar_y -= InGameView.PLAYER_SIZE + self.BAR_OFFSET
+        else:
+            health_bar_y += self.BAR_SLEEPING_OFFSET
+        health_bar_y -= math.cos(time.monotonic() * 6 + self.bar_phase_shift) * 4
         health_bar_width = int(self.BAR_WIDTH * health_ratio)
 
         pygame.draw.rect(surface, self.HEALTH_BACKGROUND_COLOR, (
@@ -180,10 +194,10 @@ class EffectDrawer(EntityDrawer):
     DEBUG_HITBOXES = False
 
     EFFECT_ANIMS = {
-        EffectType.SMOKE: ("smoke", 6),
-        EffectType.SMALL_GROUND_DUST: ("small_ground_dust", 8),
-        EffectType.BIG_GROUND_DUST: ("big_ground_dust", 8),
-        EffectType.SLEEPING: ("sleeping_start", 3)
+        EffectType.SMOKE: (("smoke", 6, 1),),
+        EffectType.SMALL_GROUND_DUST: (("small_ground_dust", 8, 1),),
+        EffectType.BIG_GROUND_DUST: (("big_ground_dust", 8, 1),),
+        EffectType.SLEEPING: (("sleeping_start", 3, 1), ("sleeping_idle", 3, -1)),
     }
 
     def __init__(self, entity: Effect, view: 'InGameView'):
@@ -192,8 +206,7 @@ class EffectDrawer(EntityDrawer):
         self.tracker = NewAnimTracker()
         self.effect_type = entity.get_effect_type()
         if self.effect_type in self.EFFECT_ANIMS:
-            name, fps = self.EFFECT_ANIMS[self.effect_type]
-            self.tracker.set_anim((name, fps, 1))
+            self.tracker.set_anim(*self.EFFECT_ANIMS[self.effect_type])
 
     def draw(self, surface: Surface):
         self.anim_surface.blit_on(surface, self.get_draw_pos(), self.tracker)
