@@ -31,6 +31,7 @@ class HowToPlayView(View):
         self._character_type_text: Optional[Surface] = None
         self._character_name_text: Optional[Surface] = None
         self._joke_text: Optional[Surface] = None
+        self._joke_resp_text: Optional[Surface] = None
 
         self._walk_text: Optional[Surface] = None
         self._run_text: Optional[Surface] = None
@@ -56,20 +57,21 @@ class HowToPlayView(View):
         self._authors = []
         self._image : Optional[Surface] = None
 
-        self._add_charact("howtoplay/farmer.png", "Farmer", "Base character", "NONE", "Yes yes yes")
-        self._add_charact("howtoplay/potato.png", "Potato", "Hand-to-Hand attack", "X", "Yes yes yes")
-        self._add_charact("howtoplay/corn.png", "Corn", "Ranged attack", "X", "COMING SOON")
-        self._add_charact("howtoplay/mushroom.png", "Mushroom", "Smock attack", "X", "COMING SOON")
-        self._add_charact("howtoplay/carrot.png", "Carrot", "Sword attack", "X", "COMING SOON")
-        self._add_charact("howtoplay/chilli.png", "Chilli", "Fire attack", "X", "COMING SOON")
+        self._add_charact("howtoplay/farmer.png", "Farmer", "Base character", "NONE", "Where does a farmer get his medicine from?", "The farm-acist!")
+        self._add_charact("howtoplay/potato.png", "Potato", "Hand-to-Hand attack", "X", "Why does everyone love cooking whit potatoes?", "They're very a-peeling!")
+        self._add_charact("howtoplay/corn.png", "Corn", "Ranged attack", "X", "COMING SOON", " ")
+        self._add_charact("howtoplay/mushroom.png", "Mushroom", "Smock attack", "X", "COMING SOON", " ")
+        self._add_charact("howtoplay/carrot.png", "Carrot", "Sword attack", "X", "COMING SOON", " ")
+        self._add_charact("howtoplay/chilli.png", "Chilli", "Fire attack", "X", "COMING SOON", " ")
 
-    def _add_charact(self, res_path: str, name: str, type: str, specialhit: str, joke: str):
+    def _add_charact(self, res_path: str, name: str, type: str, specialhit: str, joke: str, respons: str):
         self._authors.append({
             "res": res_path,
             "name": name,
             "typechar":type,
             "commandesuperhit":specialhit,
-            "joke":joke
+            "joke":joke,
+            "jokeresponse":respons
         })
 
     def _inner_init(self):
@@ -94,6 +96,7 @@ class HowToPlayView(View):
         self._character_name_text = self._shared_data.get_font(50).render(self._authors[self._num]["name"], True, self.TEXT_COLOR)
         self._character_type_text = self._shared_data.get_font(50).render(self._authors[self._num]["typechar"], True, self.TEXT_COLOR)
         self._joke_text = self._shared_data.get_font(25).render(self._authors[self._num]["joke"], True, self.TEXT_COLOR)
+        self._joke_resp_text = self._shared_data.get_font(25).render(self._authors[self._num]["jokeresponse"], True, self.TEXT_COLOR)
 
         self._walk_text = self._shared_data.get_font(40).render("Walk", True, self.TEXT_COLOR)
         self._run_text = self._shared_data.get_font(40).render("Run", True, self.TEXT_COLOR)
@@ -115,6 +118,7 @@ class HowToPlayView(View):
         self._character_name_text = self._shared_data.get_font(50).render(self._authors[self._num]["name"], True, self.TEXT_COLOR)
         self._character_type_text = self._shared_data.get_font(50).render(self._authors[self._num]["typechar"], True, self.TEXT_COLOR)
         self._joke_text = self._shared_data.get_font(25).render(self._authors[self._num]["joke"], True, self.TEXT_COLOR)
+        self._joke_resp_text = self._shared_data.get_font(25).render(self._authors[self._num]["jokeresponse"], True, self.TEXT_COLOR)
         self._input_superhit_text = self._shared_data.get_font(40).render(self._authors[self._num]["commandesuperhit"], True, self.TEXT_COLOR)
         self._image = self._shared_data.get_image(self._authors[self._num]["res"])
 
@@ -160,6 +164,7 @@ class HowToPlayView(View):
         surface.blit(self._character_name_text, (x_mid - 200 - self._character_name_text.get_width() / 2, 150))
         surface.blit(self._character_type_text, (x_mid - 200 - self._character_type_text.get_width() / 2, 580))
         surface.blit(self._joke_text, (x_mid + 200 - self._joke_text.get_width() / 2, 550))
+        surface.blit(self._joke_resp_text, (x_mid + 200 - self._joke_resp_text.get_width() / 2, 580))
 
         surface.blit(self._walk_text, (575, 160))
         surface.blit(self._run_text, (575, 220))
