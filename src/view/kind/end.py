@@ -49,7 +49,7 @@ class EndView(View):
 
     def _inner_init(self):
 
-        self._winner_button = ViewButton(45, "P" + str(self._shared_data.get_game().get_stage().get_winner().get_player_index() + 1) + " Win", disabled=True)
+        self._winner_button = ViewButton(45, "P1 Win", disabled=True)
         self._winner_button.set_size(300, 100)
         self.add_child(self._winner_button)
 
@@ -209,7 +209,8 @@ class EndView(View):
                 pass
 
     def on_enter(self):
-        self._winner_button = ViewButton(45, "P" + str(self._shared_data.get_game().get_stage().get_winner().get_player_index() + 1) + " Win", disabled=True)
+
+        self._winner_button.set_text("P" + str(self._shared_data.get_game().get_stage().get_winner().get_player_index() + 1) + " Win!")
 
         stage = self._shared_data.get_game().get_stage()
         players = stage.get_players()
