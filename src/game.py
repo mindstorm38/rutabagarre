@@ -67,7 +67,7 @@ class Game:
 
         pygame.mixer.music.load("../res/music/menumusic.ogg")
         pygame.mixer.music.play(1, 6.0)
-        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.set_volume(0.0)
 
         print("Start loop...")
 
