@@ -318,8 +318,7 @@ class InGameView(View):
 
         self._background_surface = self._shared_data.get_image("fightbackground.png")
 
-        pygame.mixer.music.load("../res/music/fightmusic.ogg")
-        pygame.mixer.music.play(1)
+        self._shared_data.play_music("music/fightmusic.ogg")
 
         game = self._shared_data.get_game()
         self._stage = game.get_stage()

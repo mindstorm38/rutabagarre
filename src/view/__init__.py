@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional
 from abc import ABC, abstractmethod
 
+from pygame.mixer import Sound
 from pygame.event import Event
 from pygame.font import Font
 from pygame import Surface
@@ -76,6 +77,9 @@ class SharedViewData:
         self._images: Dict[str, Surface] = {}
         self._animations: Dict[str, Anim] = {}
         self._tilemaps: Dict[str, TileMap] = {}
+        self._sounds: Dict[str, Sound] = {}
+        self._music_volume: float = 0.01
+        self._sound_volume: float = 0.05
 
     def init(self):
         """ Appelée lors de l'initialisation du jeu, après la création de la fenêtre. """
@@ -86,6 +90,7 @@ class SharedViewData:
         self._images.clear()
         self._animations.clear()
         self._tilemaps.clear()
+        self._sounds.clear()
 
     def get_game(self) -> 'game.Game':
         """ Retourne l'instance actuelle du controlleur de jeu. """
@@ -124,10 +129,27 @@ class SharedViewData:
             raise ValueError("The tile map for '{}' is already set but not of this type.".format(res_path))
         return tm
 
+    def get_sound(self, res_path: str) -> Sound:
+        sound = self._sounds.get(res_path)
+        if sound is None:
+            sound = Sound(res.get_res(res_path))
+            self._sounds[res_path] = sound
+        return sound
+
     def new_anim_colored(self, anim_name, anim_def: AnimDefinition, width: int, height: int) -> AnimSurfaceColored:
         main_anim = self.get_anim("animations/{}.png".format(anim_name), anim_def)
         overlay_anim = self.get_anim("animations/{}_overlay.png".format(anim_name), anim_def)
         return AnimSurfaceColored(width, height, main_anim, overlay_anim)
+
+    def play_sound(self, res_path: str, loops=0, maxtime=0, fade_ms=0):
+        channel = self.get_sound(res_path).play(loops, maxtime, fade_ms)
+        if channel is not None:
+            channel.set_volume(self._sound_volume)
+
+    def play_music(self, res_path: str, loops=-1, maxtime=0, fade_ms=500):
+        pygame.mixer.music.load(res.get_res(res_path))
+        pygame.mixer.music.play(loops, maxtime, fade_ms)
+        pygame.mixer.music.set_volume(self._music_volume)
 
     def get_show_view_callback(self, view_name: str) -> callable:
         """ Retourne une fonction de type `callback` qui change la vue active quand elle est appelée. """
