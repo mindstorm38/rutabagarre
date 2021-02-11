@@ -14,7 +14,10 @@ from typing import Optional, Dict, Type, Callable, Tuple, cast
 from pygame.event import Event
 from pygame import Surface
 import traceback
+import random
 import pygame
+import math
+import time
 
 
 class EntityDrawer:
@@ -50,7 +53,14 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "tracker", "rev", "last_action"
+    __slots__ = "color", "tracker", "rev", "bar_phase_shift"
+
+    BAR_WIDTH, BAR_HEIGHT = 150, 10
+    BAR_OFFSET = 40
+    HALF_BAR_WIDTH = BAR_WIDTH // 2
+    HEALTH_BACKGROUND_COLOR = 16, 26, 11
+    MAX_HEALTH_COLOR = 74, 201, 20
+    MIN_HEALTH_COLOR = 201, 20, 20
 
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
@@ -58,6 +68,7 @@ class PlayerDrawer(EntityDrawer):
         self.tracker = AnimTracker()
         self.tracker.push_infinite_anim("idle", 7)
         self.rev = False
+        self.bar_phase_shift = random.random() * math.pi
 
     def draw(self, surface: Surface):
 
@@ -97,6 +108,27 @@ class PlayerDrawer(EntityDrawer):
             anim_surface = self.view.get_player_anim_surface()
 
         anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
+
+        health_ratio = player.get_hp_ratio()
+        health_color = _lerp_color(self.MIN_HEALTH_COLOR, self.MAX_HEALTH_COLOR, health_ratio)
+        health_bar_x, health_bar_y = self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
+        health_bar_x -= self.HALF_BAR_WIDTH
+        health_bar_y -= InGameView.PLAYER_SIZE + self.BAR_OFFSET + math.cos(time.monotonic() * 6 + self.bar_phase_shift) * 4
+        health_bar_width = int(self.BAR_WIDTH * health_ratio)
+
+        pygame.draw.rect(surface, self.HEALTH_BACKGROUND_COLOR, (
+            health_bar_x + health_bar_width,
+            health_bar_y,
+            self.BAR_WIDTH - health_bar_width,
+            self.BAR_HEIGHT
+        ))
+
+        pygame.draw.rect(surface, health_color, (
+            health_bar_x,
+            health_bar_y,
+            health_bar_width,
+            self.BAR_HEIGHT
+        ))
 
 
 class ItemDrawer(EntityDrawer):
@@ -346,3 +378,8 @@ class InGameView(View):
         super().event(event)
 
 
+def _lerp_color(from_color: Tuple[int, int, int], to_color: Tuple[int, int, int], ratio: float) -> Tuple[int, int, int]:
+    dr = to_color[0] - from_color[0]
+    dg = to_color[1] - from_color[1]
+    db = to_color[2] - from_color[2]
+    return from_color[0] + int(dr * ratio), from_color[1] + int(dg * ratio), from_color[1] + int(db * ratio)

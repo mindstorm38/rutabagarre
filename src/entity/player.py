@@ -52,6 +52,7 @@ class Player(MotionEntity):
 
         self._number: int = number
         self._color: PlayerColor = color
+        self._max_hp: float = hp
         self._hp: float = hp
 
         self._incarnation_type: Optional[IncarnationType] = None
@@ -69,8 +70,14 @@ class Player(MotionEntity):
     def get_number(self) -> int:
         return self._number
 
+    def get_max_hp(self) -> float:
+        return self._max_hp
+
     def get_hp(self) -> float:
         return self._hp
+
+    def get_hp_ratio(self) -> float:
+        return max(0.0, min(1.0, self._hp / self._max_hp))
 
     def get_color(self) -> PlayerColor:
         return self._color
