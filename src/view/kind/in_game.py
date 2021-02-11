@@ -64,7 +64,7 @@ class PlayerDrawer(EntityDrawer):
     HEALTH_BACKGROUND_COLOR = 16, 26, 11
     MAX_HEALTH_COLOR = 74, 201, 20
     MIN_HEALTH_COLOR = 201, 20, 20
-    CAMERA_SPEED = 0.5
+    CAMERA_SPEED = 0.1
 
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
@@ -206,7 +206,9 @@ class InGameView(View):
     PLAYER_SIZE = 128
     ITEM_SIZE = 128
     EFFECT_SIZE = 128
-    CAMERA_MARGIN = 5
+    CAMERA_MARGIN = 8
+
+    CAMERA_UPDATE_THRESHOLD = 0.02
 
     def __init__(self):
 
@@ -227,7 +229,10 @@ class InGameView(View):
         self._final_surface: Optional[Surface] = None
         self._y_offset: int = 0
 
-        self._camera_range = (0, 0)
+        self._camera_range = (0, 0, 0)
+        self._camera_dirty_pos = False
+        self._camera_last_next_update: float = 0
+
         self._scaled_surface: Optional[Surface] = None
         self._scaled_surface_pos = (0, 0)
 
@@ -311,9 +316,9 @@ class InGameView(View):
 
     def _recompute_camera_scale(self, surface: Surface):
 
-        if self._scaled_surface is None:
+        if self._camera_dirty_pos:
 
-            range_width = self._camera_range[1] - self._camera_range[0]
+            range_width = self._camera_range[2]
             range_invert_ratio = self._stage_size[0] / range_width
 
             start_ratio = self._camera_range[0] / self._stage_size[0]
@@ -325,7 +330,9 @@ class InGameView(View):
                 surface_width * range_invert_ratio * self._stage_ratio
             )
 
-            self._scaled_surface = Surface(scaled_size, 0, self._shared_data.get_game().get_surface())
+            if self._scaled_surface is None:
+                self._scaled_surface = Surface(scaled_size, 0, self._shared_data.get_game().get_surface())
+
             self._scaled_surface_pos = (-scaled_size[0] * start_ratio, (surface_height - scaled_size[1]) / 2)
 
     def _on_entity_added(self, entity: Entity):
@@ -394,10 +401,16 @@ class InGameView(View):
         if camera_range_min is None:
             camera_range_max = camera_range_min = self._stage_size[0] / 2
 
-        new_camera_range = camera_range_min - self.CAMERA_MARGIN, camera_range_max + self.CAMERA_MARGIN
-        if self._camera_range != new_camera_range:
-            self._camera_range = new_camera_range
-            self._scaled_surface = None
+        camera_range_min = min(self._stage_size[0], max(0, camera_range_min)) - self.CAMERA_MARGIN
+        camera_range_max = min(self._stage_size[0], max(0, camera_range_max)) + self.CAMERA_MARGIN
+
+        if abs(self._camera_range[0] - camera_range_min) >= self.CAMERA_UPDATE_THRESHOLD or \
+           abs(self._camera_range[1] - camera_range_max) >= self.CAMERA_UPDATE_THRESHOLD:
+            range_width = camera_range_max - camera_range_min
+            if abs(self._camera_range[2] - range_width) >= self.CAMERA_UPDATE_THRESHOLD:
+                self._scaled_surface = None
+            self._camera_dirty_pos = True
+            self._camera_range = (camera_range_min, camera_range_max, camera_range_max - camera_range_min)
 
         # Recompute camera (only if self._scaled_surface = None)
         self._recompute_camera_scale(surface)
