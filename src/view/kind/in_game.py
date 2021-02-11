@@ -214,7 +214,7 @@ class InGameView(View):
         # Surfaces "not-scaled"
         self._terrain_surface: Optional[Surface] = None
         self._final_surface: Optional[Surface] = None
-        self._unscaled_size = (0, 0)
+        self._y_offset: int = 0
 
         self._scaled_surface: Optional[Surface] = None
         self._scaled_surface_pos = (0, 0)
@@ -262,7 +262,7 @@ class InGameView(View):
         return self._effect_anim_surface
 
     def get_screen_pos(self, x: float, y: float) -> Tuple[int, int]:
-        return int(x * self.TILE_SIZE), self._unscaled_size[1] - int((y + 1) * self.TILE_SIZE)
+        return int(x * self.TILE_SIZE), self._y_offset - int(y * self.TILE_SIZE)
 
     # Private #
 
@@ -272,20 +272,26 @@ class InGameView(View):
 
         width, height = self._stage.get_size()
 
-        self._unscaled_size = (
+        height_factor = math.ceil(width / height)
+        old_height = height
+        height *= height_factor
+
+        unscaled_size = (
             width * self.TILE_SIZE,
             height * self.TILE_SIZE
         )
 
-        self._terrain_surface = Surface(self._unscaled_size, 0, self._shared_data.get_game().get_surface())
-        self._final_surface = Surface(self._unscaled_size, 0, self._shared_data.get_game().get_surface())
+        self._y_offset = unscaled_size[1] - (((height - old_height) // 2) + 1) * self.TILE_SIZE
+
+        self._terrain_surface = Surface(unscaled_size, 0, self._shared_data.get_game().get_surface())
+        self._final_surface = Surface(unscaled_size, 0, self._shared_data.get_game().get_surface())
 
         for x, y, tile_id in self._stage.for_each_tile():
             tile_name = self.TILES_NAMES.get(tile_id)
             if tile_name is not None:
                 tile_surface = self._terrain_tilemap.get_tile(tile_name)
                 if tile_surface is not None:
-                    self._terrain_surface.blit(tile_surface, (x * self.TILE_SIZE, self._unscaled_size[1] - (y + 1) * self.TILE_SIZE))
+                    self._terrain_surface.blit(tile_surface, (x * self.TILE_SIZE, self._y_offset - y * self.TILE_SIZE))
 
         self._stage_size = (width, height)
         self._stage_ratio = height / width
