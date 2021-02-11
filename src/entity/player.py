@@ -59,6 +59,7 @@ class Player(MotionEntity):
         self._block_action_until: float = 0.0
         self._block_heavy_action_until: float = 0.0
         self._invincible_until: float = 0.0
+        self._sleeping: bool = False
 
         self._animations_queue: List[str] = []
 
@@ -80,7 +81,10 @@ class Player(MotionEntity):
         return time.monotonic() >= self._block_oves_until
 
     def is_invincible(self) -> bool:
-        return time.monotonic() < self._invincible_until
+        return self._sleeping or time.monotonic() < self._invincible_until
+
+    def is_sleeping(self) -> bool:
+        return self._sleeping
 
     # SETTERS
 
@@ -134,6 +138,7 @@ class Player(MotionEntity):
         self._move_side(-self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_jump(self) -> None:
+        # TODO: Si en train de dormir, sortir de terre.
         if self._on_ground and self.can_move():
             self.add_velocity(0, self.JUMP_VELOCITY)
 
@@ -146,6 +151,12 @@ class Player(MotionEntity):
         if time.monotonic() >= self._block_heavy_action_until:
             self._incarnation.heavy_action()
             self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
+
+    def do_down_action(self) -> None:
+        if self._incarnation is None:
+            pass # TODO: Déterrer un éventuel joueur en dessous
+        else:
+            pass # TODO: S'enterrer s'il n'y a pas de joueur trop près
 
     # ACTIONS FOR INCARNATIONS
 
@@ -205,6 +216,7 @@ class Player(MotionEntity):
                 self.block_action_for(1)
                 self.block_heavy_action_for(1)
                 self.set_invincible_for(1)
+                self.push_animation("mutation")
             except (Exception,):
                 print("Error while constructing incarnation type {}.".format(typ.name))
                 import traceback

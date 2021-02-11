@@ -89,6 +89,7 @@ class MotionEntity(Entity, ABC):
 
         self._vel_x: float = 0.0
         self._vel_y: float = 0.0
+        self._no_clip: bool = False
 
         self._cached_hitbox = Hitbox(0, 0, 0, 0)
         self._cached_hitboxes: List[Hitbox] = []
@@ -103,6 +104,9 @@ class MotionEntity(Entity, ABC):
 
     def get_vel_y(self) -> float:
         return self._vel_y
+
+    def is_no_clip(self) -> bool:
+        return self._no_clip
 
     def is_on_ground(self) -> bool:
         return self._on_ground
@@ -119,6 +123,9 @@ class MotionEntity(Entity, ABC):
     def add_velocity(self, ddx: float, ddy: float):
         self._vel_x += ddx
         self._vel_y += ddy
+
+    def set_no_clip(self, no_clip: bool):
+        self._no_clip = no_clip
 
     def set_turned_to_left(self, turned_to_left: bool) -> None:
         self._turned_to_left = turned_to_left
@@ -141,10 +148,15 @@ class MotionEntity(Entity, ABC):
         return entity.has_hard_hitbox()
 
     def move_position(self, dx: float, dy: float) -> None:
+
         """
         Moves the entity and its hitbox following its actual velocity,
-        taking care of other hitboxes onto the stage
+        taking care of other hitboxes onto the stage.
         """
+
+        if self._no_clip:
+            super().move_position(dx, dy)
+            return
 
         self._cached_hitbox.set_from(self._hitbox)
         self._cached_hitbox.expand(dx, dy)
