@@ -100,7 +100,9 @@ class Tile:
 
 class Stage:
 
-    __slots__ = "entities", "_size", "_terrain", "_finished", "_spawn_points", "_players", \
+    __slots__ = "entities", "_size", "_terrain", \
+                "_finished", "_winner", \
+                "_spawn_points", "_players", "_living_players_count", \
                 "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
@@ -111,30 +113,35 @@ class Stage:
         self._terrain = bytearray(width * height)
 
         self._finished = False
+        self._winner: Optional[Player] = None
 
         self._spawn_points: List[List[int, int, bool]] = []
         self._players: Dict[int, Tuple[Player, int]] = {}
+        self._living_players_count: int = 0
 
         self._add_entity_cb: AddEntityCallback = None
         self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
         if not self._finished:
-            living_players = 0
             i = 0
             while i < len(self.entities):
                 entity = self.entities[i]
                 if entity.is_dead():
                     euid = self.entities.pop(i).get_uid()
+                    if isinstance(entity, Player):
+                        player_data = self._players.get(entity.get_player_index())
+                        if player_data is not None:
+                            self._spawn_points[player_data[1]][2] = False
+                            self._living_players_count -= 1
+                            if self._living_players_count < 1:
+                                self._finished = True
+                                self._winner = entity
                     if self._remove_entity_cb is not None:
                         self._remove_entity_cb(euid)
                 else:
                     entity.update()
                     i += 1
-                if isinstance(entity, Player) and not entity.is_dead():
-                    living_players += 1
-            if living_players <= 1:
-                self._finished = True
 
     def add_entity(self, constructor: Callable[['Stage', Any], E], *args, **kwargs) -> E:
         entity = constructor(self, *args, **kwargs)
@@ -145,6 +152,9 @@ class Stage:
 
     def add_player(self, player_idx: int, color: PlayerColor):
 
+        if player_idx in self._players:
+            raise ValueError("A player with this index already exists in the stage.")
+
         try:
             index, x, y = next((i, x, y) for i, (x, y, used) in enumerate(self._spawn_points) if not used)
         except StopIteration:
@@ -153,6 +163,7 @@ class Stage:
         self._spawn_points[index][2] = True
         player = self.add_entity(Player, player_idx, color)
         player.set_position(x, y)
+        self._living_players_count += 1
         self._players[player_idx] = (player, index)
 
     def add_effect(self, effect_type: EffectType, duration: float, x: float, y: float):
@@ -176,6 +187,9 @@ class Stage:
 
     def is_finished(self) -> bool:
         return self._finished
+
+    def get_winner(self) -> Optional[Player]:
+        return self._winner
 
     # Terrain
 
