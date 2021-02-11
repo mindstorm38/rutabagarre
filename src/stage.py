@@ -100,7 +100,7 @@ class Tile:
 
 class Stage:
 
-    __slots__ = "entities", "_size", "_terrain", "_spawn_points", "_players", \
+    __slots__ = "entities", "_size", "_terrain", "_finished", "_spawn_points", "_players", \
                 "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
@@ -110,6 +110,8 @@ class Stage:
         self._size = (width, height)
         self._terrain = bytearray(width * height)
 
+        self._finished = False
+
         self._spawn_points: List[List[int, int, bool]] = []
         self._players: Dict[int, Tuple[Player, int]] = {}
 
@@ -117,16 +119,22 @@ class Stage:
         self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
-        i = 0
-        while i < len(self.entities):
-            entity = self.entities[i]
-            if entity.is_dead():
-                euid = self.entities.pop(i).get_uid()
-                if self._remove_entity_cb is not None:
-                    self._remove_entity_cb(euid)
-            else:
-                entity.update()
-                i += 1
+        if not self._finished:
+            living_players = 0
+            i = 0
+            while i < len(self.entities):
+                entity = self.entities[i]
+                if entity.is_dead():
+                    euid = self.entities.pop(i).get_uid()
+                    if self._remove_entity_cb is not None:
+                        self._remove_entity_cb(euid)
+                else:
+                    entity.update()
+                    i += 1
+                if isinstance(entity, Player) and not entity.is_dead():
+                    living_players += 1
+            if living_players <= 1:
+                self._finished = True
 
     def add_entity(self, constructor: Callable[['Stage', Any], E], *args, **kwargs) -> E:
         entity = constructor(self, *args, **kwargs)
@@ -165,6 +173,9 @@ class Stage:
 
     def get_players(self) -> Dict[int, Player]:
         return {idx: player for idx, (player, _) in self._players.items()}
+
+    def is_finished(self) -> bool:
+        return self._finished
 
     # Terrain
 

@@ -176,10 +176,20 @@ class Player(MotionEntity):
         self.block_jump_for(duration)
         self.set_invincible_for(duration)
 
+    def set_dead(self):
+        super().set_dead()
+        self._statistics.set_death_time(time.monotonic())
+
     # ADDERS
 
     def add_to_hp(self, number) -> None:
         self._hp += number
+
+    def remove_hp_to_other(self, target: 'Player', hp: float):
+        hp /= target.get_incarnation().get_defense()
+        self._statistics.add_damage_dealt(int(hp))
+        target._statistics.add_damage_taken(int(hp))
+        target.add_to_hp(-hp)
 
     def _setup_box_pos(self, x: float, y: float):
         self._hitbox.set_positions(x - 0.5, y, x + 0.5, y + 2)
@@ -228,7 +238,7 @@ class Player(MotionEntity):
                 target.add_velocity(-knockback_x if target_on_left else knockback_x, knockback_y)
                 target.push_animation("hit")
                 target.set_invincible_for(0.5)
-                target.add_to_hp(-random.uniform(17.0, 20.0) / target.get_incarnation().get_defense())
+                self.remove_hp_to_other(target, random.uniform(17.0, 20.0))
                 self._grabing = None
 
     # MOVES
@@ -329,7 +339,7 @@ class Player(MotionEntity):
         for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player.is_player):
             target = cast(Player, target)
             if target != self and not target.is_invincible():
-                target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
+                self.remove_hp_to_other(target, random.uniform(*damage_range))
                 knockback_x = random.uniform(0.1, 0.2) * knockback_x
                 knockback_y = random.uniform(0.1, 0.3) * knockback_y
                 if (reach < 0 and target.get_x() < self.get_x()) or (reach >= 0 and self.get_turned_to_left()):
@@ -369,6 +379,7 @@ class Player(MotionEntity):
                 self.push_animation("player:mutation")
                 self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
                 self._vel_x = 0
+                self._statistics.add_plants_collected(1)
             except (Exception,):
                 print("Error while constructing incarnation type {}.".format(typ.name))
                 import traceback
@@ -386,6 +397,7 @@ class PlayerStatistics:
         self._plants_collected: int = 0
         self._damage_dealt: int = 0
         self._damage_taken: int = 0
+        self._death_time: float = 0
 
     def get_kos(self) -> int:
         return self._kos
@@ -399,6 +411,9 @@ class PlayerStatistics:
     def get_damage_taken(self) -> int:
         return self._damage_taken
 
+    def get_death_time(self) -> float:
+        return self._death_time
+
     def add_kos(self, ko: int):
         self._kos += ko
 
@@ -410,3 +425,6 @@ class PlayerStatistics:
 
     def add_damage_taken(self, da_ta: int):
         self._damage_taken += da_ta
+
+    def set_death_time(self, death_time: float):
+        self._death_time = death_time
