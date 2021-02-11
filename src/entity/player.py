@@ -41,6 +41,8 @@ class Player(MotionEntity):
     MOVE_VELOCITY = 0.04
     MOVE_AIR_FACTOR = 0.3
     JUMP_VELOCITY = 0.55
+    REGEN_BY_TICK = 0.1
+    MAX_HP = 100.0
 
     INCARNATIONS_CONSTRUCTORS = {
         IncarnationType.POTATO: Potato
@@ -57,14 +59,13 @@ class Player(MotionEntity):
         self._incarnation_type: Optional[IncarnationType] = None
         self._incarnation: Incarnation = Farmer(self)
 
-        self._block_oves_until: float = 0.0
+        self._block_moves_until: float = 0.0
         self._block_action_until: float = 0.0
         self._invincible_until: float = 0.0
         self._sleeping: bool = False
+        self._sliding: bool = False
 
         self._animations_queue: List[str] = []
-
-        self._sliding: bool = False
 
     # GETTERS
 
@@ -86,8 +87,11 @@ class Player(MotionEntity):
     def get_sliding(self) -> bool:
         return self._sliding
 
+    def get_sleeping(self) -> bool:
+        return self._sleeping
+
     def can_move(self) -> bool:
-        return time.monotonic() >= self._block_oves_until
+        return time.monotonic() >= self._block_moves_until and not self._sleeping
 
     def can_act(self) -> bool:
         return time.monotonic() >= self._block_action_until
@@ -116,7 +120,7 @@ class Player(MotionEntity):
         self._sliding = sliding
 
     def block_moves_for(self, duration: float):
-        self._block_oves_until = time.monotonic() + duration
+        self._block_moves_until = time.monotonic() + duration
 
     def block_action_for(self, duration: float):
         self._block_action_until = time.monotonic() + duration
@@ -140,6 +144,8 @@ class Player(MotionEntity):
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
         if self._sliding:
             self._incarnation.heavy_action()
+        elif self._sleeping and self._hp < Player.MAX_HP:
+            self._hp = max(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
 
     # MOVES
 
@@ -158,8 +164,10 @@ class Player(MotionEntity):
         self._move_side(-self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_jump(self) -> None:
-        # TODO: Si en train de dormir, sortir de terre.
-        if self._on_ground and self.can_move():
+        if self._sleeping:
+            self._sleeping = False
+            self._block_moves_until = time.monotonic() + 0.5
+        elif self._on_ground and self.can_move():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
 
@@ -176,8 +184,9 @@ class Player(MotionEntity):
     def do_down_action(self) -> None:
         if (True,)[0]: # TODO: Y-a-t-il un joueur en dessous ?
             pass # TODO: Déterrer le joueur
-        elif self._incarnation is not None:
-            pass # TODO: S'enterrer s'il n'y a pas de joueur trop près
+        if self._incarnation is not None:
+            # TODO: S'enterrer s'il n'y a pas de joueur trop près
+            self._sleeping = True
 
     # ACTIONS FOR INCARNATIONS
 
