@@ -1,4 +1,5 @@
-from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
+from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, \
+    EFFECTS_ANIMATION, CORN_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -7,6 +8,7 @@ from view import View
 
 from entity.player import Player, IncarnationType
 from entity.effect import Effect, EffectType
+from entity.bullet import Bullet
 from entity.item import Item
 from entity import Entity
 
@@ -29,17 +31,20 @@ class EntityDrawer:
     def __init__(self, entity: Entity, view: 'InGameView', size: Tuple[int, int]):
         self.entity = entity
         self.view = view
-        self.offsets = (-int(size[0] / 2), -size[1])
+        self.offsets = self._calc_offsets(size)
 
     @classmethod
     def undefined_drawer(cls, entity: Entity, view: 'InGameView'):
         return cls(entity, view, (0, 0))
 
-    def get_draw_pos(self) -> Tuple[int, int]:
+    def _calc_offsets(self, size: Tuple[int, int]) -> Tuple[int, int]:
+        return -int(size[0] / 2), -size[1]
+
+    def _get_draw_pos(self) -> Tuple[int, int]:
         x, y = self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
         return x + self.offsets[0], y + self.offsets[1]
 
-    def get_bounding_draw_rect(self) -> Tuple[int, int, int, int]:
+    def get_debug_rect(self) -> Tuple[int, int, int, int]:
         hitbox = self.entity.get_hitbox()
         min_x, min_y = self.view.get_screen_pos(hitbox.get_min_x(), hitbox.get_min_y())
         max_x, max_y = self.view.get_screen_pos(hitbox.get_max_x(), hitbox.get_max_y())
@@ -74,6 +79,7 @@ class PlayerDrawer(EntityDrawer):
     STATE_ROLLING = 4
     STATE_MISC_ANIM = 5
     STATE_SLEEPING = 6
+    STATE_SHOOTING = 7
 
     NO_COLOR = 255, 255, 255
 
@@ -108,6 +114,7 @@ class PlayerDrawer(EntityDrawer):
         can_run = player.get_vel_x() != 0 and player.is_on_ground()
         incarnation_type = player.get_incarnation_type()
         is_potato = incarnation_type == IncarnationType.POTATO
+        is_corn = incarnation_type == IncarnationType.CORN
 
         for animation in player.foreach_animation():
             if self.state in (self.STATE_IDLE, self.STATE_RUNNING) and animation in self.MISC_ANIMATIONS:
@@ -120,16 +127,22 @@ class PlayerDrawer(EntityDrawer):
 
         if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
             self.state = self.STATE_UNINIT
-        elif self.state == self.STATE_ROLLING and not player.is_sliding():
+        elif self.state == self.STATE_ROLLING and not player.is_in_special_action():
             self.tracker.set_anim(("attack_roll_end", 14, 1))
+            self.state = self.STATE_MISC_ANIM
+        elif self.state == self.STATE_SHOOTING and not player.is_in_special_action():
+            self.tracker.set_anim(("attack_gun_end", 14, 1))
             self.state = self.STATE_MISC_ANIM
         elif self.state == self.STATE_SLEEPING and not player.is_sleeping():
             self.tracker.set_anim(("unsleep", 14, 1))
             self.state = self.STATE_MISC_ANIM
 
-        if self.state != self.STATE_ROLLING and is_potato and player.is_sliding():
+        if self.state != self.STATE_ROLLING and is_potato and player.is_in_special_action():
             self.tracker.set_anim(("attack_roll_start", 14, 1), ("attack_roll_idle", 14, -1))
             self.state = self.STATE_ROLLING
+        elif self.state != self.STATE_SHOOTING and is_corn and player.is_in_special_action():
+            self.tracker.set_anim(("attack_gun_start", 14, 1), ("attack_gun_idle", 14, -1))
+            self.state = self.STATE_SHOOTING
         elif self.state != self.STATE_SLEEPING and player.is_sleeping() and incarnation_type is not None:
             self.tracker.set_anim(("sleep", 14, 1), pause_at_end=True)
             self.state = self.STATE_SLEEPING
@@ -141,13 +154,16 @@ class PlayerDrawer(EntityDrawer):
             self.state = self.STATE_IDLE
 
         anim_surface = self.view.get_player_anim_surface()
-        if self.state != self.STATE_MUTATING and is_potato:
-            anim_surface = self.view.get_potato_anim_surface()
+        if self.state != self.STATE_MUTATING:
+            if is_potato:
+                anim_surface = self.view.get_potato_anim_surface()
+            elif is_corn:
+                anim_surface = self.view.get_corn_anim_surface()
 
         player_color = self.color
         if unmutating_soon and cosine_rot < 0:
             player_color = self.NO_COLOR
-        anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, player_color)
+        anim_surface.blit_color_on(surface, self._get_draw_pos(), self.tracker, player_color)
 
         health_ratio = player.get_hp_ratio()
         health_color = _lerp_color(self.MIN_HEALTH_COLOR, self.MAX_HEALTH_COLOR, health_ratio)
@@ -182,7 +198,8 @@ class ItemDrawer(EntityDrawer):
     __slots__ = "tile_surface", "anim_phase_shift"
 
     ITEMS_NAMES = {
-        IncarnationType.POTATO: "potato"
+        IncarnationType.POTATO: "potato",
+        IncarnationType.CORN: "corn"
     }
 
     def __init__(self, entity: Item, view: 'InGameView'):
@@ -193,7 +210,7 @@ class ItemDrawer(EntityDrawer):
 
     def draw(self, surface: Surface):
         if self.tile_surface is not None:
-            x, y = self.get_draw_pos()
+            x, y = self._get_draw_pos()
             surface.blit(self.tile_surface, (x, y - max(0.0, math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 4)))
 
 
@@ -219,7 +236,22 @@ class EffectDrawer(EntityDrawer):
             self.tracker.set_anim(*self.EFFECT_ANIMS[self.effect_type])
 
     def draw(self, surface: Surface):
-        self.anim_surface.blit_on(surface, self.get_draw_pos(), self.tracker)
+        self.anim_surface.blit_on(surface, self._get_draw_pos(), self.tracker)
+
+
+class BulletDrawer(EntityDrawer):
+
+    def __init__(self, entity: Entity, view: 'InGameView'):
+        super().__init__(entity, view, (InGameView.EFFECT_SIZE, InGameView.EFFECT_SIZE))
+        self.anim_surface = view.get_effect_anim_surface()
+        self.tracker = NewAnimTracker()
+        self.tracker.set_anim(("corn_bullet", 14, -1))
+
+    def _calc_offsets(self, size: Tuple[int, int]) -> Tuple[int, int]:
+        return -int(size[0] / 2), -int(size[1] / 2)
+
+    def draw(self, surface: Surface):
+        self.anim_surface.blit_on(surface, self._get_draw_pos(), self.tracker)
 
 
 class InGameView(View):
@@ -299,7 +331,8 @@ class InGameView(View):
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
         Player: PlayerDrawer,
         Item: ItemDrawer,
-        Effect: EffectDrawer
+        Effect: EffectDrawer,
+        Bullet: BulletDrawer
     }
 
     TILE_SIZE = 48
@@ -322,6 +355,7 @@ class InGameView(View):
         self._item_tilemap: Optional[TileMap] = None
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
         self._potato_anim_surface: Optional[AnimSurfaceColored] = None
+        self._corn_anim_surface: Optional[AnimSurfaceColored] = None
         self._effect_anim_surface: Optional[AnimSurface] = None
 
         self._stage: Optional[Stage] = None
@@ -347,6 +381,9 @@ class InGameView(View):
     def on_enter(self):
 
         print("Loading stage...")
+
+        self._stop_running_at = None
+        self._entities.clear()
 
         self._background_surface = self._shared_data.get_image("fightbackground.png")
 
@@ -374,7 +411,6 @@ class InGameView(View):
             self._stage.set_add_entity_callback(None)
             self._stage.set_remove_entity_callback(None)
             self._stage = None
-        self._stop_running_at = None
 
     def get_item_tilemap(self) -> TileMap:
         return self._item_tilemap
@@ -384,6 +420,9 @@ class InGameView(View):
 
     def get_potato_anim_surface(self) -> Optional[AnimSurfaceColored]:
         return self._potato_anim_surface
+
+    def get_corn_anim_surface(self) -> Optional[AnimSurfaceColored]:
+        return self._corn_anim_surface
 
     def get_effect_anim_surface(self) -> Optional[AnimSurface]:
         return self._effect_anim_surface
@@ -480,6 +519,9 @@ class InGameView(View):
         self._potato_anim_surface = self._shared_data\
             .new_anim_colored("potato", POTATO_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
 
+        self._corn_anim_surface = self._shared_data\
+            .new_anim_colored("corn", CORN_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
+
         self._effect_anim_surface = AnimSurface(self.EFFECT_SIZE, self.EFFECT_SIZE, [
             self._shared_data.get_anim("effects.png", EFFECTS_ANIMATION)
         ])
@@ -499,7 +541,7 @@ class InGameView(View):
         for entity_drawer in self._entities.values():
             entity_drawer.draw(self._final_surface)
             if entity_drawer.DEBUG_HITBOXES:
-                pygame.draw.rect(self._final_surface, (255, 255, 255, 60), entity_drawer.get_bounding_draw_rect(), 2)
+                pygame.draw.rect(self._final_surface, (255, 255, 255, 60), entity_drawer.get_debug_rect(), 2)
             camera_x = entity_drawer.get_camera_x()
             if camera_x is not None:
                 if camera_range_min is None:

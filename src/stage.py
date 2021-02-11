@@ -164,6 +164,7 @@ class Stage:
     __slots__ = "entities", "_size", "_terrain", \
                 "_running", "_finished", "_winner", \
                 "_spawn_points", "_players", "_living_players_count", \
+                "_items_count", \
                 "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
@@ -180,6 +181,8 @@ class Stage:
         self._spawn_points: List[List[int, int, bool]] = []
         self._players: Dict[int, Tuple[Player, int]] = {}
         self._living_players_count: int = 0
+
+        self._items_count: int = 0
 
         self._add_entity_cb: AddEntityCallback = None
         self._remove_entity_cb: RemoveEntityCallback = None
@@ -358,7 +361,7 @@ class Stage:
         stage.add_spawn_point(17, 5)
         stage.add_spawn_point(35, 5)
 
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(26, 5)
+        stage.add_entity(Item, IncarnationType.CORN).set_position(26, 5)
         stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
         stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 

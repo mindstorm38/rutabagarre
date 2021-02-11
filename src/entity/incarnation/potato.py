@@ -1,5 +1,7 @@
 from entity.incarnation import Incarnation
+from entity.effect import EffectType
 from entity import player
+import random
 
 
 class Potato(Incarnation):
@@ -37,12 +39,12 @@ class Potato(Incarnation):
         self._owner.push_animation("potato:punch")
 
     def heavy_action(self):
-        self._owner.set_sliding(True)
+        self._owner.set_special_action(True, True)
         self._owner.push_animation("potato:roll")
 
-    def sliding(self):
-        self._owner.set_velocity(
-            (0.25, -0.25)[self._owner.get_turned_to_left()],
-            self._owner.get_vel_y()
-        )
+    def special_action(self):
+        self._owner.set_velocity(-0.25 if self._owner.get_turned_to_left() else 0.25, self._owner.get_vel_y())
+        self._owner.block_moves_for(0.5)
         self._owner.front_attack(0, (15.0, 16.0), -2, 2)
+        if random.random() < 0.08:
+            self._owner.get_stage().add_effect(EffectType.BIG_GROUND_DUST, 1, self._owner.get_x(), self._owner.get_y())
