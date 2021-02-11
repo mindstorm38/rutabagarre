@@ -194,7 +194,7 @@ class ItemDrawer(EntityDrawer):
     def draw(self, surface: Surface):
         if self.tile_surface is not None:
             x, y = self.get_draw_pos()
-            surface.blit(self.tile_surface, (x, y + math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 3))
+            surface.blit(self.tile_surface, (x, y - max(0.0, math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 4)))
 
 
 class EffectDrawer(EntityDrawer):
@@ -296,6 +296,8 @@ class InGameView(View):
 
         super().__init__()
 
+        self._background_surface: Optional[Surface] = None
+
         self._terrain_tilemap: Optional[TileMap] = None
         self._item_tilemap: Optional[TileMap] = None
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
@@ -320,12 +322,15 @@ class InGameView(View):
 
         self._entities: Dict[int, EntityDrawer] = {}
 
+        self._stop_running_at: Optional[float] = None
+
     def on_enter(self):
 
         print("Loading stage...")
 
-        pygame.mixer.music.load("../res/music/fightmusic.ogg")
-        pygame.mixer.music.play(1)
+        self._background_surface = self._shared_data.get_image("fightbackground.png")
+
+        self._shared_data.play_music("musics/fightmusic.ogg")
 
         game = self._shared_data.get_game()
         self._stage = game.get_stage()
@@ -384,8 +389,10 @@ class InGameView(View):
 
         self._y_offset = unscaled_size[1] - (((height - old_height) // 2) + 1) * self.TILE_SIZE
 
-        self._terrain_surface = Surface(unscaled_size, 0, self._shared_data.get_game().get_surface())
-        self._final_surface = Surface(unscaled_size, 0, self._shared_data.get_game().get_surface())
+        self._terrain_surface = Surface(unscaled_size, pygame.HWSURFACE, self._background_surface)
+        self._final_surface = Surface(unscaled_size, pygame.HWSURFACE)
+
+        pygame.transform.scale(self._background_surface, unscaled_size, self._terrain_surface)
 
         for x, y, tile_id in self._stage.for_each_tile():
             tile_name = self.TILES_NAMES.get(tile_id)
@@ -416,7 +423,7 @@ class InGameView(View):
             )
 
             if self._scaled_surface is None:
-                self._scaled_surface = Surface(scaled_size, 0, self._shared_data.get_game().get_surface())
+                self._scaled_surface = Surface(scaled_size, pygame.HWSURFACE)
 
             self._scaled_surface_pos = (-scaled_size[0] * start_ratio, (surface_height - scaled_size[1]) / 2)
 
@@ -458,12 +465,10 @@ class InGameView(View):
 
     def _inner_pre_draw(self, surface: Surface):
 
-        surface.fill((0, 0, 0))
-
         if self._stage is None:
+            surface.fill((0, 0, 0))
             return
 
-        self._final_surface.fill((0, 0, 0))
         self._final_surface.blit(self._terrain_surface, (0, 0))
 
         # Camera
@@ -528,6 +533,12 @@ class InGameView(View):
                     elif action == "heavy_action":
                         player_entity.do_heavy_action()
 
+        # Stop running
+        if self._stop_running_at is None:
+            if self._stage.is_finished():
+                self._stop_running_at = time.monotonic() + 5
+        elif time.monotonic() >= self._stop_running_at:
+            self._shared_data.get_game().show_view("end")
 
     def event(self, event: Event):
         super().event(event)

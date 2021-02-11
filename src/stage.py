@@ -122,7 +122,7 @@ class Tile:
 class Stage:
 
     __slots__ = "entities", "_size", "_terrain", \
-                "_finished", "_winner", \
+                "_running", "_finished", "_winner", \
                 "_spawn_points", "_players", "_living_players_count", \
                 "_add_entity_cb", "_remove_entity_cb"
 
@@ -133,6 +133,7 @@ class Stage:
         self._size = (width, height)
         self._terrain = bytearray(width * height)
 
+        self._running = True
         self._finished = False
         self._winner: Optional[Player] = None
 
@@ -144,7 +145,7 @@ class Stage:
         self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
-        if not self._finished:
+        if self._running:
             i = 0
             while i < len(self.entities):
                 entity = self.entities[i]
@@ -155,9 +156,12 @@ class Stage:
                         if player_data is not None:
                             self._spawn_points[player_data[1]][2] = False
                             self._living_players_count -= 1
-                            if self._living_players_count < 1:
+                            if self._living_players_count == 1:
+                                # S'il ne reste qu'un joueur après en avoir tué un, l'autre gagne.
                                 self._finished = True
-                                self._winner = entity
+                                for player, _ in self._players.values():
+                                    if not player.is_dead():
+                                        self._winner = player
                     if self._remove_entity_cb is not None:
                         self._remove_entity_cb(euid)
                 else:
@@ -205,6 +209,9 @@ class Stage:
 
     def get_players(self) -> Dict[int, Player]:
         return {idx: player for idx, (player, _) in self._players.items()}
+
+    def stop_running(self):
+        self._running = False
 
     def is_finished(self) -> bool:
         return self._finished

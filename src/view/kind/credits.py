@@ -68,7 +68,7 @@ class CreditsView(View):
         self.add_child(self._sound_title)
 
         self._music_text = self._shared_data.get_font(25).render("Gautier Bois - PRMNNT", True, self.TEXT_COLOR)
-        self._sound_text = self._shared_data.get_font(25).render("https://mixkit. & https://freesound.org/", True, self.TEXT_COLOR)
+        self._sound_text = self._shared_data.get_font(25).render("https://mixkit.co/ & https://freesound.org/", True, self.TEXT_COLOR)
 
         self._return_button = ViewButton(35, "Return")
         self._return_button.set_size(150, 50)

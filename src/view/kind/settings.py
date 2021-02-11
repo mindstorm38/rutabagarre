@@ -32,7 +32,7 @@ class SettingsView(View):
         self._music_percent_text: Optional[Surface] = None
         self._sound_percent_text: Optional[Surface] = None
 
-        self._music_change = 0.3
+        self._music_change = 0.0
         self._music_vol = 0
 
     def _inner_init(self):
