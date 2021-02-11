@@ -152,7 +152,7 @@ class Player(MotionEntity):
         if self._sliding:
             self._incarnation.heavy_action()
         elif self._sleeping and self._hp < Player.MAX_HP:
-            self._hp = max(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
+            self._hp = min(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
 
     # MOVES
 
