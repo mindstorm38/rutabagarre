@@ -318,7 +318,7 @@ class InGameView(View):
 
         self._background_surface = self._shared_data.get_image("fightbackground.png")
 
-        self._shared_data.play_music("music/fightmusic.ogg")
+        self._shared_data.play_music("musics/fightmusic.ogg")
 
         game = self._shared_data.get_game()
         self._stage = game.get_stage()
