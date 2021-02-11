@@ -50,6 +50,7 @@ class Game:
         print("Starting PyGame...")
 
         pygame.init()
+        pygame.display.set_caption("Rutabagarre")
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 
