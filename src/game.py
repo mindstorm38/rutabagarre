@@ -59,6 +59,8 @@ class Game:
         pygame.init()
         pygame.mixer.init()
         pygame.display.set_caption("Rutabagarre")
+        self._logo = pygame.image.load("../res/menusmisc/favicon32.png")
+        pygame.display.set_icon(self._logo)
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 
