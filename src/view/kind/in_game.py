@@ -194,7 +194,7 @@ class ItemDrawer(EntityDrawer):
     def draw(self, surface: Surface):
         if self.tile_surface is not None:
             x, y = self.get_draw_pos()
-            surface.blit(self.tile_surface, (x, y + math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 3))
+            surface.blit(self.tile_surface, (x, y - max(0.0, math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 4)))
 
 
 class EffectDrawer(EntityDrawer):
@@ -237,24 +237,26 @@ class InGameView(View):
         Tile.TILE_DIRT_8: "TILE_DIRT_8",
         Tile.TILE_DIRT_9: "TILE_DIRT_9",
 
-        Tile.TILE_GRASS_LIGHT_1: "TILE_GRASS_LIGHT_1",
-        Tile.TILE_GRASS_LIGHT_2: "TILE_GRASS_LIGHT_2",
-        Tile.TILE_GRASS_LIGHT_3: "TILE_GRASS_LIGHT_3",
-        Tile.TILE_GRASS_LIGHT_4: "TILE_GRASS_LIGHT_4",
-        Tile.TILE_GRASS_LIGHT_6: "TILE_GRASS_LIGHT_6",
-        Tile.TILE_GRASS_LIGHT_7: "TILE_GRASS_LIGHT_7",
-        Tile.TILE_GRASS_LIGHT_8: "TILE_GRASS_LIGHT_8",
-        Tile.TILE_GRASS_LIGHT_9: "TILE_GRASS_LIGHT_9",
+        Tile.TILE_GRASS_HOLED_1: "TILE_GRASS_HOLED_1",
+        Tile.TILE_GRASS_HOLED_2: "TILE_GRASS_HOLED_2",
+        Tile.TILE_GRASS_HOLED_3: "TILE_GRASS_HOLED_3",
+        Tile.TILE_GRASS_HOLED_4: "TILE_GRASS_HOLED_4",
+        Tile.TILE_GRASS_HOLED_6: "TILE_GRASS_HOLED_6",
+        Tile.TILE_GRASS_HOLED_7: "TILE_GRASS_HOLED_7",
+        Tile.TILE_GRASS_HOLED_8: "TILE_GRASS_HOLED_8",
+        Tile.TILE_GRASS_HOLED_9: "TILE_GRASS_HOLED_9",
 
-        Tile.TILE_GRASS_DARK_1: "TILE_GRASS_DARK_1",
-        Tile.TILE_GRASS_DARK_2: "TILE_GRASS_DARK_2",
-        Tile.TILE_GRASS_DARK_3: "TILE_GRASS_DARK_3",
-        Tile.TILE_GRASS_DARK_4: "TILE_GRASS_DARK_4",
-        Tile.TILE_GRASS_DARK_5: "TILE_GRASS_DARK_5",
-        Tile.TILE_GRASS_DARK_6: "TILE_GRASS_DARK_6",
-        Tile.TILE_GRASS_DARK_7: "TILE_GRASS_DARK_7",
-        Tile.TILE_GRASS_DARK_8: "TILE_GRASS_DARK_8",
-        Tile.TILE_GRASS_DARK_9: "TILE_GRASS_DARK_9",
+        Tile.TILE_GRASS_1: "TILE_GRASS_1",
+        Tile.TILE_GRASS_2: "TILE_GRASS_2",
+        Tile.TILE_GRASS_3: "TILE_GRASS_3",
+        Tile.TILE_GRASS_4: "TILE_GRASS_4",
+        Tile.TILE_GRASS_5: "TILE_GRASS_5",
+        Tile.TILE_GRASS_6: "TILE_GRASS_6",
+        Tile.TILE_GRASS_7: "TILE_GRASS_7",
+        Tile.TILE_GRASS_8: "TILE_GRASS_8",
+        Tile.TILE_GRASS_9: "TILE_GRASS_9",
+
+        Tile.TILE_WHEAT: "TILE_WHEAT",
 
         Tile.TILE_FARMLAND: "TILE_FARMLAND",
 
@@ -262,6 +264,16 @@ class InGameView(View):
         Tile.TILE_PUDDLE_2: "TILE_PUDDLE_2",
         Tile.TILE_PUDDLE_3: "TILE_PUDDLE_3",
         Tile.TILE_PUDDLE_4: "TILE_PUDDLE_4",
+
+        Tile.TILE_STONE_1: "TILE_STONE_1",
+        Tile.TILE_STONE_2: "TILE_STONE_2",
+        Tile.TILE_STONE_3: "TILE_STONE_3",
+        Tile.TILE_STONE_4: "TILE_STONE_4",
+        Tile.TILE_STONE_5: "TILE_STONE_5",
+        Tile.TILE_STONE_6: "TILE_STONE_6",
+        Tile.TILE_STONE_7: "TILE_STONE_7",
+        Tile.TILE_STONE_8: "TILE_STONE_8",
+        Tile.TILE_STONE_9: "TILE_STONE_9"
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
@@ -283,6 +295,8 @@ class InGameView(View):
     def __init__(self):
 
         super().__init__()
+
+        self._background_surface: Optional[Surface] = None
 
         self._terrain_tilemap: Optional[TileMap] = None
         self._item_tilemap: Optional[TileMap] = None
@@ -308,12 +322,15 @@ class InGameView(View):
 
         self._entities: Dict[int, EntityDrawer] = {}
 
+        self._stop_running_at: Optional[float] = None
+
     def on_enter(self):
 
         print("Loading stage...")
 
-        pygame.mixer.music.load("../res/music/fightmusic.ogg")
-        pygame.mixer.music.play(1)
+        self._background_surface = self._shared_data.get_image("fightbackground.png")
+
+        self._shared_data.play_music("musics/fightmusic.ogg")
 
         game = self._shared_data.get_game()
         self._stage = game.get_stage()
@@ -372,8 +389,10 @@ class InGameView(View):
 
         self._y_offset = unscaled_size[1] - (((height - old_height) // 2) + 1) * self.TILE_SIZE
 
-        self._terrain_surface = Surface(unscaled_size, 0, self._shared_data.get_game().get_surface())
-        self._final_surface = Surface(unscaled_size, 0, self._shared_data.get_game().get_surface())
+        self._terrain_surface = Surface(unscaled_size, pygame.HWSURFACE, self._background_surface)
+        self._final_surface = Surface(unscaled_size, pygame.HWSURFACE)
+
+        pygame.transform.scale(self._background_surface, unscaled_size, self._terrain_surface)
 
         for x, y, tile_id in self._stage.for_each_tile():
             tile_name = self.TILES_NAMES.get(tile_id)
@@ -404,7 +423,7 @@ class InGameView(View):
             )
 
             if self._scaled_surface is None:
-                self._scaled_surface = Surface(scaled_size, 0, self._shared_data.get_game().get_surface())
+                self._scaled_surface = Surface(scaled_size, pygame.HWSURFACE)
 
             self._scaled_surface_pos = (-scaled_size[0] * start_ratio, (surface_height - scaled_size[1]) / 2)
 
@@ -446,12 +465,10 @@ class InGameView(View):
 
     def _inner_pre_draw(self, surface: Surface):
 
-        surface.fill((0, 0, 0))
-
         if self._stage is None:
+            surface.fill((0, 0, 0))
             return
 
-        self._final_surface.fill((0, 0, 0))
         self._final_surface.blit(self._terrain_surface, (0, 0))
 
         # Camera
@@ -516,6 +533,12 @@ class InGameView(View):
                     elif action == "heavy_action":
                         player_entity.do_heavy_action()
 
+        # Stop running
+        if self._stop_running_at is None:
+            if self._stage.is_finished():
+                self._stop_running_at = time.monotonic() + 5
+        elif time.monotonic() >= self._stop_running_at:
+            self._shared_data.get_game().show_view("end")
 
     def event(self, event: Event):
         super().event(event)

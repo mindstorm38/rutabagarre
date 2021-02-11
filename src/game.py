@@ -8,6 +8,11 @@ from view import View, SharedViewData
 from view.kind import *
 from view.kind.scenario import ScenarioView
 
+
+# TODO: Ajouter dans le `enter` de la vue `end` :
+#  self._shared_data.play_music("music/menumusic.ogg")
+
+
 class Game:
 
     """
@@ -52,6 +57,7 @@ class Game:
         print("Starting PyGame...")
 
         pygame.init()
+        pygame.mixer.init()
         pygame.display.set_caption("Rutabagarre")
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
@@ -63,12 +69,6 @@ class Game:
             view.init(self._view_data)
 
         self.show_view("title")
-
-        print("Start music...")
-
-        pygame.mixer.music.load("../res/music/menumusic.ogg")
-        pygame.mixer.music.play(1, 6.0)
-        pygame.mixer.music.set_volume(0.0)
 
         print("Start loop...")
 

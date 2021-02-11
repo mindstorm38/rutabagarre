@@ -27,24 +27,24 @@ class Tile:
     TILE_DIRT_8 = ord("H")
     TILE_DIRT_9 = ord("I")
 
-    TILE_GRASS_LIGHT_1 = ord("J")
-    TILE_GRASS_LIGHT_2 = ord("K")
-    TILE_GRASS_LIGHT_3 = ord("L")
-    TILE_GRASS_LIGHT_4 = ord("M")
-    TILE_GRASS_LIGHT_6 = ord("N")
-    TILE_GRASS_LIGHT_7 = ord("O")
-    TILE_GRASS_LIGHT_8 = ord("P")
-    TILE_GRASS_LIGHT_9 = ord("Q")
+    TILE_GRASS_HOLED_1 = ord("J")
+    TILE_GRASS_HOLED_2 = ord("K")
+    TILE_GRASS_HOLED_3 = ord("L")
+    TILE_GRASS_HOLED_4 = ord("M")
+    TILE_GRASS_HOLED_6 = ord("N")
+    TILE_GRASS_HOLED_7 = ord("O")
+    TILE_GRASS_HOLED_8 = ord("P")
+    TILE_GRASS_HOLED_9 = ord("Q")
 
-    TILE_GRASS_DARK_1 = ord("R")
-    TILE_GRASS_DARK_2 = ord("S")
-    TILE_GRASS_DARK_3 = ord("T")
-    TILE_GRASS_DARK_4 = ord("U")
-    TILE_GRASS_DARK_5 = ord("V")
-    TILE_GRASS_DARK_6 = ord("W")
-    TILE_GRASS_DARK_7 = ord("X")
-    TILE_GRASS_DARK_8 = ord("Y")
-    TILE_GRASS_DARK_9 = ord("Z")
+    TILE_GRASS_1 = ord("R")
+    TILE_GRASS_2 = ord("S")
+    TILE_GRASS_3 = ord("T")
+    TILE_GRASS_4 = ord("U")
+    TILE_GRASS_5 = ord("V")
+    TILE_GRASS_6 = ord("W")
+    TILE_GRASS_7 = ord("X")
+    TILE_GRASS_8 = ord("Y")
+    TILE_GRASS_9 = ord("Z")
 
     TILE_FARMLAND = ord("a")
 
@@ -54,6 +54,16 @@ class Tile:
     TILE_PUDDLE_2 = ord("d")
     TILE_PUDDLE_3 = ord("e")
     TILE_PUDDLE_4 = ord("f")
+
+    TILE_STONE_1 = ord("g")
+    TILE_STONE_2 = ord("h")
+    TILE_STONE_3 = ord("i")
+    TILE_STONE_4 = ord("j")
+    TILE_STONE_5 = ord("k")
+    TILE_STONE_6 = ord("l")
+    TILE_STONE_7 = ord("m")
+    TILE_STONE_8 = ord("n")
+    TILE_STONE_9 = ord("o")
 
     VALID_TILES_IDS = {
         TILE_DIRT_1,
@@ -66,24 +76,24 @@ class Tile:
         TILE_DIRT_8,
         TILE_DIRT_9,
 
-        TILE_GRASS_LIGHT_1,
-        TILE_GRASS_LIGHT_2,
-        TILE_GRASS_LIGHT_3,
-        TILE_GRASS_LIGHT_4,
-        TILE_GRASS_LIGHT_6,
-        TILE_GRASS_LIGHT_7,
-        TILE_GRASS_LIGHT_8,
-        TILE_GRASS_LIGHT_9,
+        TILE_GRASS_HOLED_1,
+        TILE_GRASS_HOLED_2,
+        TILE_GRASS_HOLED_3,
+        TILE_GRASS_HOLED_4,
+        TILE_GRASS_HOLED_6,
+        TILE_GRASS_HOLED_7,
+        TILE_GRASS_HOLED_8,
+        TILE_GRASS_HOLED_9,
 
-        TILE_GRASS_DARK_1,
-        TILE_GRASS_DARK_2,
-        TILE_GRASS_DARK_3,
-        TILE_GRASS_DARK_4,
-        TILE_GRASS_DARK_5,
-        TILE_GRASS_DARK_6,
-        TILE_GRASS_DARK_7,
-        TILE_GRASS_DARK_8,
-        TILE_GRASS_DARK_9,
+        TILE_GRASS_1,
+        TILE_GRASS_2,
+        TILE_GRASS_3,
+        TILE_GRASS_4,
+        TILE_GRASS_5,
+        TILE_GRASS_6,
+        TILE_GRASS_7,
+        TILE_GRASS_8,
+        TILE_GRASS_9,
 
         TILE_FARMLAND,
 
@@ -92,7 +102,18 @@ class Tile:
         TILE_PUDDLE_1,
         TILE_PUDDLE_2,
         TILE_PUDDLE_3,
-        TILE_PUDDLE_4
+        TILE_PUDDLE_4,
+
+        TILE_STONE_1,
+        TILE_STONE_2,
+        TILE_STONE_3,
+        TILE_STONE_4,
+        TILE_STONE_5,
+        TILE_STONE_6,
+        TILE_STONE_7,
+        TILE_STONE_8,
+        TILE_STONE_9
+
     }
 
     VALID_TILES = {chr(i) for i in VALID_TILES_IDS}
@@ -101,7 +122,7 @@ class Tile:
 class Stage:
 
     __slots__ = "entities", "_size", "_terrain", \
-                "_finished", "_winner", \
+                "_running", "_finished", "_winner", \
                 "_spawn_points", "_players", "_living_players_count", \
                 "_add_entity_cb", "_remove_entity_cb"
 
@@ -112,6 +133,7 @@ class Stage:
         self._size = (width, height)
         self._terrain = bytearray(width * height)
 
+        self._running = True
         self._finished = False
         self._winner: Optional[Player] = None
 
@@ -123,7 +145,7 @@ class Stage:
         self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
-        if not self._finished:
+        if self._running:
             i = 0
             while i < len(self.entities):
                 entity = self.entities[i]
@@ -134,9 +156,12 @@ class Stage:
                         if player_data is not None:
                             self._spawn_points[player_data[1]][2] = False
                             self._living_players_count -= 1
-                            if self._living_players_count < 1:
+                            if self._living_players_count == 1:
+                                # S'il ne reste qu'un joueur après en avoir tué un, l'autre gagne.
                                 self._finished = True
-                                self._winner = entity
+                                for player, _ in self._players.values():
+                                    if not player.is_dead():
+                                        self._winner = player
                     if self._remove_entity_cb is not None:
                         self._remove_entity_cb(euid)
                 else:
@@ -184,6 +209,9 @@ class Stage:
 
     def get_players(self) -> Dict[int, Player]:
         return {idx: player for idx, (player, _) in self._players.items()}
+
+    def stop_running(self):
+        self._running = False
 
     def is_finished(self) -> bool:
         return self._finished
@@ -254,30 +282,33 @@ class Stage:
 
         stage.set_terrain(
             15, 2,
-            b"RSSSSSSSSSSSSSSSSSSSST",
+            b" b    b         b  b",
+            b"JSSKSKSKKSKKKKSKSKKSKT",
             b"VVVVVVVVVVVVVVVVVVVVVV",
-            b" VVVVVVVVVVVVVVVVVVVV"
+            b" kkkkkkkkkkkkkkkkkkkk"
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(15, 2, 37, 4)
 
         stage.set_terrain(
             18, 8,
-            b"RSST",
+            b"b",
+            b"JSKT",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(18, 7, 22, 8)
 
         stage.set_terrain(
             24, 12,
-            b"RSST",
+            b"RSKT",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(24, 11, 28, 12)
 
         stage.set_terrain(
             30, 8,
-            b"RSST",
+            b"  b",
+            b"RKKT",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(30, 7, 34, 8)

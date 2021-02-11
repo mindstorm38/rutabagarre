@@ -117,3 +117,6 @@ class TitleView(View):
         stage.add_player(2, PlayerColor.RED)
         self._shared_data.get_game().set_stage(stage)
         self._shared_data.get_game().show_view("end")
+
+    def on_enter(self):
+        self._shared_data.play_music("musics/menumusic.ogg")
