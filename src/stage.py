@@ -158,23 +158,40 @@ class Stage:
     @classmethod
     def new_example_stage(cls) -> 'Stage':
 
-        stage = cls(30, 10)
+        stage = cls(50, 15)
 
-        stage.set_terrain(10, 7,
-              b"GGGG",
+        stage.set_terrain(
+            15, 2,
+            b"GGGGGGGGGGGGGGGGGGGGGG",
+            b"DDDDDDDDDDDDDDDDDDDDDD",
+            b" DDDDDDDDDDDDDDDDDDDD"
         )
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(10, 6, 14, 7)
+        floor.get_hitbox().set_positions(15, 2, 37, 4)
 
-        stage.set_terrain(6, 2,
-            b"GGGGGGGGGGGGGGGGGG",
-            b"DDDDDDDDDDDDDDDDDD",
-            b" DDDDDDDDDDDDDDDD "
+        stage.set_terrain(
+            18, 8,
+            b"GGGG",
         )
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(6, 2, 24, 4)
+        floor.get_hitbox().set_positions(18, 7, 22, 8)
 
-        stage.add_spawn_point(8, 5)
+        stage.set_terrain(
+            24, 12,
+            b"GGGG",
+        )
+        floor = stage.add_entity(Floor)
+        floor.get_hitbox().set_positions(24, 11, 28, 12)
+
+        stage.set_terrain(
+            30, 8,
+            b"GGGG",
+        )
+        floor = stage.add_entity(Floor)
+        floor.get_hitbox().set_positions(30, 7, 34, 8)
+
+
+        stage.add_spawn_point(20, 5)
         stage.add_spawn_point(12, 5)
         stage.add_spawn_point(18, 5)
         stage.add_spawn_point(22, 5)
