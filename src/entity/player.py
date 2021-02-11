@@ -199,7 +199,7 @@ class Player(MotionEntity):
             self.block_action_for(self._incarnation.get_action_cooldown())
 
     def do_heavy_action(self) -> None:
-        if self.can_act():
+        if self.can_act_heavy():
             self._incarnation.heavy_action()
             self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
 
