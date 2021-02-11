@@ -43,6 +43,7 @@ class Player(MotionEntity):
     JUMP_VELOCITY = 0.55
     REGEN_BY_TICK = 0.1
     MAX_HP = 100.0
+    JUMP_COOLDOWN = 0.2
 
     INCARNATIONS_CONSTRUCTORS = {
         IncarnationType.POTATO: Potato
@@ -62,6 +63,8 @@ class Player(MotionEntity):
 
         self._block_moves_until: float = 0.0
         self._block_action_until: float = 0.0
+        self._block_heavy_action_until: float = 0.0
+        self._block_jump_until: float = 0.0
         self._invincible_until: float = 0.0
         self._sleeping: bool = False
         self._sliding: bool = False
@@ -106,6 +109,12 @@ class Player(MotionEntity):
     def can_act(self) -> bool:
         return time.monotonic() >= self._block_action_until
 
+    def can_act_heavy(self) -> bool:
+        return time.monotonic() >= self._block_heavy_action_until
+
+    def can_jump(self) -> bool:
+        return time.monotonic() >= self._block_jump_until
+
     def is_invincible(self) -> bool:
         return self._sleeping or time.monotonic() < self._invincible_until
 
@@ -137,6 +146,9 @@ class Player(MotionEntity):
 
     def block_action_for(self, duration: float):
         self._block_action_until = time.monotonic() + duration
+
+    def block_heavy_action_for(self, duration: float):
+        self._block_heavy_action_until = time.monotonic() + duration
 
     def set_invincible_for(self, duration: float):
         self._invincible_until = time.monotonic() + duration
@@ -180,9 +192,10 @@ class Player(MotionEntity):
         if self._sleeping:
             self._sleeping = False
             self.block_moves_for(0.5)
-        elif self._on_ground and self.can_move():
+        elif self._on_ground and self.can_move() and self.can_jump():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
+        self._block_jump_until = time.monotonic() + Player.JUMP_COOLDOWN
 
     def do_action(self) -> None:
         if self.can_act():
@@ -190,9 +203,9 @@ class Player(MotionEntity):
             self.block_action_for(self._incarnation.get_action_cooldown())
 
     def do_heavy_action(self) -> None:
-        if self.can_act():
+        if self.can_act_heavy():
             self._incarnation.heavy_action()
-            self.block_action_for(self._incarnation.get_heavy_action_cooldown())
+            self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
 
     def do_down_action(self) -> None:
 

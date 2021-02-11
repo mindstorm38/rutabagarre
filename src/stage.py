@@ -160,19 +160,26 @@ class Stage:
 
         stage = cls(30, 10)
 
+        stage.set_terrain(10, 7,
+              b"GGGG",
+        )
+        floor = stage.add_entity(Floor)
+        floor.get_hitbox().set_positions(10, 6, 14, 7)
+
         stage.set_terrain(6, 2,
             b"GGGGGGGGGGGGGGGGGG",
             b"DDDDDDDDDDDDDDDDDD",
             b" DDDDDDDDDDDDDDDD "
         )
+        floor = stage.add_entity(Floor)
+        floor.get_hitbox().set_positions(6, 2, 24, 4)
 
         stage.add_spawn_point(8, 5)
         stage.add_spawn_point(12, 5)
         stage.add_spawn_point(18, 5)
         stage.add_spawn_point(22, 5)
 
-        floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(6, 2, 24, 4)
+
 
         stage.add_entity(Item, IncarnationType.POTATO).set_position(15, 5)
 
