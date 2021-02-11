@@ -153,15 +153,15 @@ class Player(MotionEntity):
             self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
 
     def do_down_action(self) -> None:
-        if self._incarnation is None:
-            pass # TODO: Déterrer un éventuel joueur en dessous
-        else:
+        if (True,)[0]: # TODO: Y-a-t-il un joueur en dessous ?
+            pass # TODO: Déterrer le joueur
+        elif self._incarnation is not None:
             pass # TODO: S'enterrer s'il n'y a pas de joueur trop près
 
     # ACTIONS FOR INCARNATIONS
 
-    def push_animation(self, action: str):
-        self._animations_queue.append(action)
+    def push_animation(self, anim: str):
+        self._animations_queue.append(anim)
 
     def foreach_animation(self) -> Iterable[str]:
         for anim in self._animations_queue:

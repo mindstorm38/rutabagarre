@@ -79,7 +79,7 @@ class AnimTracker:
         self._anims_queue = []
         self._last_time = 0
 
-    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True):
+    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True, pause_at_end: bool = False):
 
         """
         Ajoute une animation dans la queue des animation.
@@ -91,17 +91,18 @@ class AnimTracker:
         :param rev: Prendre ou non l'animation renversé sur l'axe X.
         :param ignore_existing: Mettre à `False` si on ne veut pas ajouter l'animation si on a déjà la même
          avant (suivant `name`).
+        :param pause_at_end:  Est-ce que l'animation doit être mise en pause sur la dernière frame.
         """
 
         if ignore_existing or self._last_anim_name != name:
             self._last_anim_name = name
-            self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev])
+            self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev, pause_at_end])
             self._last_time = 0
-            # base name, effective name, repeat count, interval, reversed?
+            # base name, effective name, repeat count, interval, reversed?, pause_at_end?
 
-    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True):
+    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True, pause_at_end: bool = False):
         """ Version raccourci de `push_anim` avec un `repeat_count = 0` (durée indeterminée). """
-        self.push_anim(name, 0, fps, rev=rev, ignore_existing=ignore_existing)
+        self.push_anim(name, 0, fps, rev=rev, ignore_existing=ignore_existing, pause_at_end=pause_at_end)
 
     def stop_last_anim(self, name: str):
 
@@ -120,7 +121,7 @@ class AnimTracker:
         for data in self._anims_queue:
             data[1] = _format_reversed(data[0], rev)
 
-    def get_anim(self) -> Optional[Tuple[str, int, int]]:
+    def get_anim(self) -> Optional[Tuple[str, int, int, bool]]:
 
         if not len(self._anims_queue):
             return None
@@ -133,8 +134,8 @@ class AnimTracker:
                 data[4] += 1
             self._last_time = now
 
-        # tile name, frames count, repeat count
-        return data[1], data[4], data[2]
+        # tile name, frames count, repeat count, pause_at_end?
+        return data[1], data[4], data[2], data[6]
 
     def pop_anim(self):
         if len(self._anims_queue):
@@ -195,10 +196,13 @@ class AnimSurface:
             layer.rescale_lazy(self._width, self._height)
             anim = tracker.get_anim()
             if anim is not None:
-                anim_name, frame, repeat_count = anim
+                anim_name, frame, repeat_count, pause_at_end = anim
                 sub_surfaces = layer.anim.sub_surfaces.get(anim_name)
                 sub_surfaces_count = len(sub_surfaces)
-                sub_surface = sub_surfaces[frame % sub_surfaces_count]
+                if pause_at_end and frame >= sub_surfaces_count:
+                    sub_surface = sub_surfaces[sub_surfaces_count - 1]
+                else:
+                    sub_surface = sub_surfaces[frame % sub_surfaces_count]
                 surface.blit(sub_surface, pos)
                 if repeat_count < 0 or 0 < repeat_count <= (frame // sub_surfaces_count):
                     tracker.pop_anim()
