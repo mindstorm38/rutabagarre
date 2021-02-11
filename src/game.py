@@ -38,6 +38,7 @@ class Game:
         self._add_view("color_select", ColorSelectView())
         self._add_view("in_game", InGameView())
         self._add_view("credits", CreditsView())
+        self._add_view("end", EndView())
         self._add_view("how_to_play", HowToPlayView())
         self._add_view("settings", SettingsView())
 
@@ -50,6 +51,7 @@ class Game:
         print("Starting PyGame...")
 
         pygame.init()
+        pygame.display.set_caption("Rutabagarre")
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 

@@ -5,24 +5,24 @@ from entity.hitbox import Hitbox
 import stage
 
 
-UID_COUNTER = 0
-def new_uid() -> int:
-    global UID_COUNTER
-    UID_COUNTER += 1
-    return UID_COUNTER
+_UID_COUNTER = 0
+def _new_uid() -> int:
+    global _UID_COUNTER
+    _UID_COUNTER += 1
+    return _UID_COUNTER
 
 
 class Entity(ABC):
 
     def __init__(self, entity_stage: 'stage.Stage'):
 
-        self._uid = new_uid()
+        self._uid = _new_uid()
 
         self._stage: 'stage.Stage' = entity_stage
         self._x: float = 0.0
         self._y: float = 0.0
         self._hitbox = Hitbox(0, 0, 0, 0)
-
+        self._dead = False
 
     # GETTERS
 
@@ -41,6 +41,9 @@ class Entity(ABC):
     def get_hitbox(self) -> Hitbox:
         return self._hitbox
 
+    def is_dead(self) -> bool:
+        return self._dead
+
     @classmethod
     def has_hard_hitbox(cls) -> bool:
         return False
@@ -55,6 +58,9 @@ class Entity(ABC):
     def move_position(self, dx: float, dy: float):
         self._hitbox.move(dx, dy)
         self._reset_pos_to_box()
+
+    def set_dead(self):
+        self._dead = True
 
     # Physics
 
@@ -83,11 +89,13 @@ class MotionEntity(Entity, ABC):
 
         self._vel_x: float = 0.0
         self._vel_y: float = 0.0
+        self._no_clip: bool = False
 
         self._cached_hitbox = Hitbox(0, 0, 0, 0)
         self._cached_hitboxes: List[Hitbox] = []
 
-        self._on_ground = False
+        self._on_ground: bool = False
+        self._turned_to_left: bool = False
 
     # GETTERS
 
@@ -97,8 +105,14 @@ class MotionEntity(Entity, ABC):
     def get_vel_y(self) -> float:
         return self._vel_y
 
+    def is_no_clip(self) -> bool:
+        return self._no_clip
+
     def is_on_ground(self) -> bool:
         return self._on_ground
+
+    def get_turned_to_left(self) -> bool:
+        return self._turned_to_left
 
     # SETTERS
 
@@ -109,6 +123,12 @@ class MotionEntity(Entity, ABC):
     def add_velocity(self, ddx: float, ddy: float):
         self._vel_x += ddx
         self._vel_y += ddy
+
+    def set_no_clip(self, no_clip: bool):
+        self._no_clip = no_clip
+
+    def set_turned_to_left(self, turned_to_left: bool) -> None:
+        self._turned_to_left = turned_to_left
 
     # OTHER METHODS
 
@@ -128,10 +148,15 @@ class MotionEntity(Entity, ABC):
         return entity.has_hard_hitbox()
 
     def move_position(self, dx: float, dy: float) -> None:
+
         """
         Moves the entity and its hitbox following its actual velocity,
-        taking care of other hitboxes onto the stage
+        taking care of other hitboxes onto the stage.
         """
+
+        if self._no_clip:
+            super().move_position(dx, dy)
+            return
 
         self._cached_hitbox.set_from(self._hitbox)
         self._cached_hitbox.expand(dx, dy)
@@ -156,8 +181,11 @@ class MotionEntity(Entity, ABC):
         self._cached_hitboxes.clear()
 
         # We cancel moves that are too short to avoid useless processing and then keep fluidity
-        if dx != 0 and abs(dx) < 0.01:
-            dx = 0
+        if dx != 0:
+            if abs(dx) < 0.01:
+                dx = 0
+            else:
+                self._turned_to_left = dx < 0
 
         if dy != 0 and abs(dy) < 0.01:
             dy = 0

@@ -139,7 +139,7 @@ class ViewColorGrid(ViewObject):
 
     def change_player_color(self, player_idx: int, backward: bool) -> bool:
 
-        """ Change la couleur selectionné par un joueur suivant une direction par rapport à la selection actuelle. """
+        """ Change la couleur selectionnée par un joueur suivant une direction par rapport à la selection actuelle. """
 
         if player_idx not in self._players_selections:
             return False
@@ -283,9 +283,10 @@ class ViewPlayerSlot(ViewObject):
 
         self._key_buttons = {}
         for action, key in self._controls.items():
-            self._key_buttons[action] = button = ViewButton(25, pygame.key.name(key).upper())
-            button.set_size(32, 32)
-            button.set_disabled(True)
+            if action in self._KEY_BUTTONS_OFFSETS:
+                self._key_buttons[action] = button = ViewButton(25, pygame.key.name(key).upper())
+                button.set_size(32, 32)
+                button.set_disabled(True)
 
         self._player_anim_surface = player_anim_surface
         self._player_anim_tracker = player_anim_tracker

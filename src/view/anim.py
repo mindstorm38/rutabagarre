@@ -50,13 +50,15 @@ class Anim:
                 for rev in (False, True):
                     self.sub_surfaces[_format_reversed(name, rev)] = sub_surfaces = []
                     for x, y, count in ranges:
+                        if count < 0:
+                            x -= count + 1
                         for _ in range(count):
                             px, py = definition.get_tile_pos(x, y)
                             sub_surface = surface.subsurface(px, py, definition.tile_width, definition.tile_height)
                             if rev:
                                 sub_surface = pygame.transform.flip(sub_surface, True, False)
                             sub_surfaces.append(sub_surface)
-                            x += 1
+                            x += -1 if count < 0 else 1
 
     def copy_scaled(self, width: int, height: int) -> 'Anim':
         new_anim = Anim(self.surface, self.definition, no_init=True)
@@ -79,7 +81,7 @@ class AnimTracker:
         self._anims_queue = []
         self._last_time = 0
 
-    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True):
+    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True, pause_at_end: bool = False):
 
         """
         Ajoute une animation dans la queue des animation.
@@ -91,16 +93,18 @@ class AnimTracker:
         :param rev: Prendre ou non l'animation renversé sur l'axe X.
         :param ignore_existing: Mettre à `False` si on ne veut pas ajouter l'animation si on a déjà la même
          avant (suivant `name`).
+        :param pause_at_end:  Est-ce que l'animation doit être mise en pause sur la dernière frame.
         """
 
         if ignore_existing or self._last_anim_name != name:
             self._last_anim_name = name
-            self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev])
-            # base name, effective name, repeat count, interval, reversed?
+            self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev, pause_at_end])
+            self._last_time = 0
+            # base name, effective name, repeat count, interval, reversed?, pause_at_end?
 
-    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True):
+    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True, pause_at_end: bool = False):
         """ Version raccourci de `push_anim` avec un `repeat_count = 0` (durée indeterminée). """
-        self.push_anim(name, 0, fps, rev=rev, ignore_existing=ignore_existing)
+        self.push_anim(name, 0, fps, rev=rev, ignore_existing=ignore_existing, pause_at_end=pause_at_end)
 
     def stop_last_anim(self, name: str):
 
@@ -112,11 +116,14 @@ class AnimTracker:
         if self._last_anim_name == name:
             self._anims_queue[0][2] = -1
 
+    def is_last_anim(self, *names: str) -> bool:
+        return self._last_anim_name in names
+
     def set_all_reversed(self, rev: bool):
         for data in self._anims_queue:
             data[1] = _format_reversed(data[0], rev)
 
-    def get_anim(self) -> Optional[Tuple[str, int, int]]:
+    def get_anim(self) -> Optional[Tuple[str, int, int, bool]]:
 
         if not len(self._anims_queue):
             return None
@@ -129,8 +136,8 @@ class AnimTracker:
                 data[4] += 1
             self._last_time = now
 
-        # tile name, frames count, repeat count
-        return data[1], data[4], data[2]
+        # tile name, frames count, repeat count, pause_at_end?
+        return data[1], data[4], data[2], data[6]
 
     def pop_anim(self):
         if len(self._anims_queue):
@@ -191,13 +198,18 @@ class AnimSurface:
             layer.rescale_lazy(self._width, self._height)
             anim = tracker.get_anim()
             if anim is not None:
-                anim_name, frame, repeat_count = anim
+                anim_name, frame, repeat_count, pause_at_end = anim
                 sub_surfaces = layer.anim.sub_surfaces.get(anim_name)
-                sub_surfaces_count = len(sub_surfaces)
-                sub_surface = sub_surfaces[frame % sub_surfaces_count]
-                surface.blit(sub_surface, pos)
-                if repeat_count != 0 or 0 < repeat_count < (frame // sub_surfaces_count):
-                    tracker.pop_anim()
+                if sub_surfaces is not None:
+                    sub_surfaces_count = len(sub_surfaces)
+                    if repeat_count < 0 or (not pause_at_end and 0 < repeat_count <= (frame // sub_surfaces_count)):
+                        tracker.pop_anim()
+                    else:
+                        if pause_at_end and frame >= sub_surfaces_count * repeat_count:
+                            sub_surface = sub_surfaces[sub_surfaces_count - 1]
+                        else:
+                            sub_surface = sub_surfaces[frame % sub_surfaces_count]
+                        surface.blit(sub_surface, pos)
 
 
 class _AnimLayerColored(_AnimLayer):
@@ -258,3 +270,25 @@ FARMER_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("air_attack_side", (1, 11, 5))\
     .animation("air_attack_up", (1, 12, 6))\
     .animation("air_attack_down", (1, 13, 9))
+
+
+POTATO_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
+    .animation("idle", (0, 0, 4))\
+    .animation("hit", (6, 0, 3))\
+    .animation("walk", (1, 1, 6))\
+    .animation("jump", (1, 2, 3))\
+    .animation("pick", (5, 2, 5))\
+    .animation("sleep", (8, 3, 7), (8, 4, 2))\
+    .animation("unsleep", (8, 4, -2), (8, 3, -7))\
+    .animation("run", (1, 4, 6))\
+    .animation("grab", (0, 5, 11), (1, 6, 4))\
+    .animation("attack_side", (1, 7, 5))\
+    .animation("attack_roll", (1, 8, 6))
+
+
+EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
+    .animation("smoke", (0, 0, 7))\
+    .animation("small_ground_dust", (0, 1, 3))\
+    .animation("big_ground_dust", (0, 2, 3))\
+    .animation("sleeping_start", (0, 4, 4))\
+    .animation("sleeping_idle", (5, 4, 3))

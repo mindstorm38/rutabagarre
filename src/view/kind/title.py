@@ -47,7 +47,7 @@ class TitleView(View):
 
         self._settings_button = ViewButton(25, "Settings")
         self._settings_button.set_size(200, 35)
-        self._settings_button.set_action_callback(self._shared_data.get_show_view_callback("settings"))
+        self._settings_button.set_action_callback(self._shared_data.get_show_view_callback("end"))
         self.add_child(self._settings_button)
 
         self._credits_button = ViewButton(25, "Credits")

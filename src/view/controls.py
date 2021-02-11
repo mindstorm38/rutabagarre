@@ -6,7 +6,9 @@ PLAYERS_KEYS = [
         "up": pygame.K_z,
         "down": pygame.K_s,
         "left": pygame.K_q,
-        "right": pygame.K_d
+        "right": pygame.K_d,
+        "action": pygame.K_LSHIFT,
+        "heavy_action": pygame.K_LCTRL
     },
     {
         "up": pygame.K_i,
