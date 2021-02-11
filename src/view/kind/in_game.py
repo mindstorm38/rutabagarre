@@ -220,7 +220,8 @@ class InGameView(View):
         Tile.TILE_DIRT: "dirt",
         Tile.TILE_GRASS: "grass",
         Tile.TILE_PUDDLE: "puddle",
-        Tile.TILE_FARMLAND: "farmland"
+        Tile.TILE_FARMLAND: "farmland",
+        Tile.TILE_WHEAT: "wheat"
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
