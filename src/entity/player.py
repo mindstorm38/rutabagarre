@@ -190,11 +190,19 @@ class Player(MotionEntity):
 
         super().update()
 
+        if self._y < -10:
+            self.set_dead()
+            return
+
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 
-        if self._incarnation_type is not None and not self._sleeping and time.monotonic() >= self._incarnation_until:
-            self.unload_incarnation()
+        if self._incarnation_type is not None and self.can_move() and time.monotonic() >= self._incarnation_until:
+            self._incarnation = Farmer(self)
+            self._incarnation_type = None
+            self.complete_stun_for(1)
+            self.push_animation("player:unmutation")
+            self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
 
         if self._sliding:
             self._incarnation.sliding()
@@ -368,14 +376,6 @@ class Player(MotionEntity):
             return True
         else:
             return False
-
-    def unload_incarnation(self):
-        if self._incarnation_type is not None and self.can_move():
-            self._incarnation = Farmer(self)
-            self._incarnation_type = None
-            self.complete_stun_for(1)
-            self.push_animation("player:unmutation")
-            self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
 
 
 class PlayerStatistics:
