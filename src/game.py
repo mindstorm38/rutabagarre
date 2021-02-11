@@ -16,8 +16,8 @@ from view.kind.scenario import ScenarioView
 class Game:
 
     """
-    Classe principale pour le jeu. A le rôle du controlleur et possède les
-    instances du Stage en cours d'execution ainsi que les vues.
+    Classe principale pour le jeu. A le rôle du contrôleur et possède les
+    instances du Stage en cours d'exécution ainsi que les vues.
     """
 
     def __init__(self):
