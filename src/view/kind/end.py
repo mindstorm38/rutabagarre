@@ -213,27 +213,25 @@ class EndView(View):
         for idx, player in players.items():
             if cmpt == 0:
                 self._ko_p1_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_kos()), True, self.TEXT_COLOR)
-                self._plants_collected_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_dealt_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_taken_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+                self._plants_collected_p1_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_plants_collected()), True, self.TEXT_COLOR)
+                self._damage_dealt_p1_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_dealt()), True, self.TEXT_COLOR)
+                self._damage_taken_p1_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_taken()), True, self.TEXT_COLOR)
                 cmpt = cmpt + 1
             elif cmpt == 1:
                 self._ko_p2_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_kos()), True, self.TEXT_COLOR)
-                self._plants_collected_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_dealt_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_taken_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+                self._plants_collected_p2_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_plants_collected()), True, self.TEXT_COLOR)
+                self._damage_dealt_p2_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_dealt()), True, self.TEXT_COLOR)
+                self._damage_taken_p2_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_taken()), True, self.TEXT_COLOR)
                 cmpt = cmpt + 1
             elif cmpt == 2:
                 self._ko_p3_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_kos()), True, self.TEXT_COLOR)
-                self._plants_collected_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_dealt_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_taken_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+                self._plants_collected_p3_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_plants_collected()), True, self.TEXT_COLOR)
+                self._damage_dealt_p3_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_dealt()), True, self.TEXT_COLOR)
+                self._damage_taken_p3_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_taken()), True, self.TEXT_COLOR)
                 cmpt = cmpt + 1
             elif cmpt == 3:
                 self._ko_p4_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_kos()), True, self.TEXT_COLOR)
-                self._plants_collected_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_dealt_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
-                self._damage_taken_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+                self._plants_collected_p4_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_plants_collected()), True, self.TEXT_COLOR)
+                self._damage_dealt_p4_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_dealt()), True, self.TEXT_COLOR)
+                self._damage_taken_p4_text = self._shared_data.get_font(32).render(str(player.get_statistics().get_damage_taken()), True, self.TEXT_COLOR)
                 cmpt = cmpt + 1
-
-            pass
