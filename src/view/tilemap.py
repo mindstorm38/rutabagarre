@@ -64,11 +64,38 @@ class TileMap:
 
 
 TERRAIN_TILEMAP = TileMapDefinition(0, 0, 1, 1, 16, 16)\
-    .tile("farmland", 0, 0)\
-    .tile("puddle", 1, 0)\
-    .tile("dirt", 3, 1)\
-    .tile("grass", 6, 0)\
-    .tile("wheat", 0, 3)
+    .tile("TILE_DIRT_1", 2, 0)\
+    .tile("TILE_DIRT_2", 3, 0)\
+    .tile("TILE_DIRT_3", 4, 0)\
+    .tile("TILE_DIRT_4", 2, 1)\
+    .tile("TILE_DIRT_5", 3, 1)\
+    .tile("TILE_DIRT_6", 4, 1)\
+    .tile("TILE_DIRT_7", 2, 2)\
+    .tile("TILE_DIRT_8", 3, 2)\
+    .tile("TILE_DIRT_9", 4, 2)\
+    .tile("TILE_GRASS_LIGHT_1", 5, 0)\
+    .tile("TILE_GRASS_LIGHT_2", 6, 0)\
+    .tile("TILE_GRASS_LIGHT_3", 7, 0)\
+    .tile("TILE_GRASS_LIGHT_4", 5, 1)\
+    .tile("TILE_GRASS_LIGHT_6", 7, 1)\
+    .tile("TILE_GRASS_LIGHT_7", 5, 2)\
+    .tile("TILE_GRASS_LIGHT_8", 6, 2)\
+    .tile("TILE_GRASS_LIGHT_9", 7, 2)\
+    .tile("TILE_GRASS_DARK_1", 8, 0)\
+    .tile("TILE_GRASS_DARK_2", 9, 0)\
+    .tile("TILE_GRASS_DARK_3", 10, 0)\
+    .tile("TILE_GRASS_DARK_4", 8, 1)\
+    .tile("TILE_GRASS_DARK_5", 9, 1)\
+    .tile("TILE_GRASS_DARK_6", 10, 1)\
+    .tile("TILE_GRASS_DARK_7", 8, 2)\
+    .tile("TILE_GRASS_DARK_8", 9, 2)\
+    .tile("TILE_GRASS_DARK_9", 10, 2)\
+    .tile("TILE_FARMLAND", 0, 0)\
+    .tile("TILE_WHEAT", 0, 3)\
+    .tile("TILE_PUDDLE_1", 1, 0)\
+    .tile("TILE_PUDDLE_2", 0, 1)\
+    .tile("TILE_PUDDLE_3", 1, 1)\
+    .tile("TILE_PUDDLE_4", 2, 0)
 
 ITEMS_TILEMAP = TileMapDefinition(1, 1, 1, 1, 30, 30)\
     .tile("potato", 0, 0)

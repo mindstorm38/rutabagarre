@@ -59,6 +59,7 @@ class ColorSelectView(View):
         self._return_button.set_action_callback(self._shared_data.get_show_view_callback("title"))
         self._how_to_play_button = ViewButton(35, "How To Play")
         self._start_button = ViewButton(35, "Start")
+        self._start_button.set_visible(False)
         self._start_button.set_action_callback(self._on_start_action)
 
         self.add_child(self._return_button)
@@ -82,6 +83,7 @@ class ColorSelectView(View):
 
     def _grid_player_changed(self, player_idx: int, player_color: Optional[PlayerColor]):
         self._players_slots[player_idx][0].set_player_color(player_color)
+        self._start_button.set_visible(self._color_grid.get_selections_count() > 1)
 
     def _on_start_action(self, _button):
         stage = Stage.new_example_stage()
@@ -157,6 +159,9 @@ class ViewColorGrid(ViewObject):
 
     def get_selections(self) -> Dict[int, PlayerColor]:
         return {idx: ORDERED_PLAYER_COLORS[selection.color_index][0] for idx, selection in self._players_selections.items()}
+
+    def get_selections_count(self) -> int:
+        return len(self._players_selections)
 
     def set_size(self, width: float, height: float):
         raise ValueError("Cannot set size for this.")

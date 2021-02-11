@@ -16,19 +16,83 @@ RemoveEntityCallback = Optional[Callable[[int], None]]
 class Tile:
 
     TILE_AIR = ord(" ")
-    TILE_DIRT = ord("D")
-    TILE_GRASS = ord("G")
-    TILE_FARMLAND = ord("F")
-    TILE_WHEAT = ord("W")
-    TILE_PUDDLE = ord("P")
+
+    TILE_DIRT_1 = ord("A")
+    TILE_DIRT_2 = ord("B")
+    TILE_DIRT_3 = ord("C")
+    TILE_DIRT_4 = ord("D")
+    TILE_DIRT_5 = ord("E")
+    TILE_DIRT_6 = ord("F")
+    TILE_DIRT_7 = ord("G")
+    TILE_DIRT_8 = ord("H")
+    TILE_DIRT_9 = ord("I")
+
+    TILE_GRASS_LIGHT_1 = ord("J")
+    TILE_GRASS_LIGHT_2 = ord("K")
+    TILE_GRASS_LIGHT_3 = ord("L")
+    TILE_GRASS_LIGHT_4 = ord("M")
+    TILE_GRASS_LIGHT_6 = ord("N")
+    TILE_GRASS_LIGHT_7 = ord("O")
+    TILE_GRASS_LIGHT_8 = ord("P")
+    TILE_GRASS_LIGHT_9 = ord("Q")
+
+    TILE_GRASS_DARK_1 = ord("R")
+    TILE_GRASS_DARK_2 = ord("S")
+    TILE_GRASS_DARK_3 = ord("T")
+    TILE_GRASS_DARK_4 = ord("U")
+    TILE_GRASS_DARK_5 = ord("V")
+    TILE_GRASS_DARK_6 = ord("W")
+    TILE_GRASS_DARK_7 = ord("X")
+    TILE_GRASS_DARK_8 = ord("Y")
+    TILE_GRASS_DARK_9 = ord("Z")
+
+    TILE_FARMLAND = ord("a")
+
+    TILE_WHEAT = ord("b")
+
+    TILE_PUDDLE_1 = ord("c")
+    TILE_PUDDLE_2 = ord("d")
+    TILE_PUDDLE_3 = ord("e")
+    TILE_PUDDLE_4 = ord("f")
 
     VALID_TILES_IDS = {
-        TILE_AIR,
-        TILE_DIRT,
-        TILE_GRASS,
+        TILE_DIRT_1,
+        TILE_DIRT_2,
+        TILE_DIRT_3,
+        TILE_DIRT_4,
+        TILE_DIRT_5,
+        TILE_DIRT_6,
+        TILE_DIRT_7,
+        TILE_DIRT_8,
+        TILE_DIRT_9,
+
+        TILE_GRASS_LIGHT_1,
+        TILE_GRASS_LIGHT_2,
+        TILE_GRASS_LIGHT_3,
+        TILE_GRASS_LIGHT_4,
+        TILE_GRASS_LIGHT_6,
+        TILE_GRASS_LIGHT_7,
+        TILE_GRASS_LIGHT_8,
+        TILE_GRASS_LIGHT_9,
+
+        TILE_GRASS_DARK_1,
+        TILE_GRASS_DARK_2,
+        TILE_GRASS_DARK_3,
+        TILE_GRASS_DARK_4,
+        TILE_GRASS_DARK_5,
+        TILE_GRASS_DARK_6,
+        TILE_GRASS_DARK_7,
+        TILE_GRASS_DARK_8,
+        TILE_GRASS_DARK_9,
+
         TILE_FARMLAND,
+
         TILE_WHEAT,
-        TILE_PUDDLE
+
+        TILE_PUDDLE_1,
+        TILE_PUDDLE_2,
+        TILE_PUDDLE_3,
+        TILE_PUDDLE_4
     }
 
     VALID_TILES = {chr(i) for i in VALID_TILES_IDS}
@@ -36,7 +100,7 @@ class Tile:
 
 class Stage:
 
-    __slots__ = "entities", "_size", "_terrain", "_spawn_points", "_players", \
+    __slots__ = "entities", "_size", "_terrain", "_finished", "_spawn_points", "_players", \
                 "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
@@ -46,6 +110,8 @@ class Stage:
         self._size = (width, height)
         self._terrain = bytearray(width * height)
 
+        self._finished = False
+
         self._spawn_points: List[List[int, int, bool]] = []
         self._players: Dict[int, Tuple[Player, int]] = {}
 
@@ -53,16 +119,22 @@ class Stage:
         self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
-        i = 0
-        while i < len(self.entities):
-            entity = self.entities[i]
-            if entity.is_dead():
-                euid = self.entities.pop(i).get_uid()
-                if self._remove_entity_cb is not None:
-                    self._remove_entity_cb(euid)
-            else:
-                entity.update()
-                i += 1
+        if not self._finished:
+            living_players = 0
+            i = 0
+            while i < len(self.entities):
+                entity = self.entities[i]
+                if entity.is_dead():
+                    euid = self.entities.pop(i).get_uid()
+                    if self._remove_entity_cb is not None:
+                        self._remove_entity_cb(euid)
+                else:
+                    entity.update()
+                    i += 1
+                if isinstance(entity, Player) and not entity.is_dead():
+                    living_players += 1
+            if living_players <= 1:
+                self._finished = True
 
     def add_entity(self, constructor: Callable[['Stage', Any], E], *args, **kwargs) -> E:
         entity = constructor(self, *args, **kwargs)
@@ -99,6 +171,12 @@ class Stage:
         data = self._players.get(player_idx)
         return None if data is None else data[0]
 
+    def get_players(self) -> Dict[int, Player]:
+        return {idx: player for idx, (player, _) in self._players.items()}
+
+    def is_finished(self) -> bool:
+        return self._finished
+
     # Terrain
 
     def set_terrain(self, left: int, bottom: int, *terrain: Union[bytes, bytearray]):
@@ -112,7 +190,7 @@ class Stage:
     def get_terrain(self) -> bytearray:
         return self._terrain
 
-    def add_spawn_point(self, x: int, y: int):
+    def add_spawn_point(self, x: float, y: float) -> None:
         self._spawn_points.append([x, y, False])
 
     # Tiles
@@ -162,42 +240,41 @@ class Stage:
 
         stage.set_terrain(
             15, 2,
-            b"GGGGGGGGGGGGGGGGGGGGGG",
-            b"DDDDDDDDDDDDDDDDDDDDDD",
-            b" DDDDDDDDDDDDDDDDDDDD"
+            b"RSSSSSSSSSSSSSSSSSSSST",
+            b"VVVVVVVVVVVVVVVVVVVVVV",
+            b" VVVVVVVVVVVVVVVVVVVV"
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(15, 2, 37, 4)
 
         stage.set_terrain(
             18, 8,
-            b"GGGG",
+            b"RSST",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(18, 7, 22, 8)
 
         stage.set_terrain(
             24, 12,
-            b"GGGG",
+            b"RSST",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(24, 11, 28, 12)
 
         stage.set_terrain(
             30, 8,
-            b"GGGG",
+            b"RSST",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(30, 7, 34, 8)
 
+        stage.add_spawn_point(23, 5)
+        stage.add_spawn_point(29, 5)
+        stage.add_spawn_point(17, 5)
+        stage.add_spawn_point(35, 5)
 
-        stage.add_spawn_point(20, 5)
-        stage.add_spawn_point(12, 5)
-        stage.add_spawn_point(18, 5)
-        stage.add_spawn_point(22, 5)
-
-
-
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(15, 5)
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(26, 5)
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 
         return stage

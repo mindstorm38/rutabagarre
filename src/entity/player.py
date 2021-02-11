@@ -58,6 +58,7 @@ class Player(MotionEntity):
 
         self._incarnation_type: Optional[IncarnationType] = None
         self._incarnation: Incarnation = Farmer(self)
+        self._incarnation_until: float = 0.0
 
         self._block_moves_until: float = 0.0
         self._block_action_until: float = 0.0
@@ -71,6 +72,8 @@ class Player(MotionEntity):
         self._grabing: Optional[Tuple['Player', float, float]] = None
 
         self._animations_queue: List[str] = []
+
+        self._statistics = PlayerStatistics()
 
     # GETTERS
 
@@ -94,6 +97,12 @@ class Player(MotionEntity):
 
     def get_incarnation_type(self) -> IncarnationType:
         return self._incarnation_type
+
+    def has_incarnation(self) -> bool:
+        return self._incarnation_type is not None
+
+    def get_incarnation_remaining_duration(self) -> float:
+        return self._incarnation_until - time.monotonic()
 
     def get_sliding(self) -> bool:
         return self._sliding
@@ -124,6 +133,9 @@ class Player(MotionEntity):
 
     def is_sliding(self) -> bool:
         return self._sliding
+
+    def get_statistics(self) -> 'PlayerStatistics':
+        return self._statistics
 
     # SETTERS
 
@@ -164,10 +176,22 @@ class Player(MotionEntity):
         self.block_jump_for(duration)
         self.set_invincible_for(duration)
 
+    def set_dead(self):
+        super().set_dead()
+        self._statistics.set_death_time(time.monotonic())
+
     # ADDERS
 
     def add_to_hp(self, number) -> None:
         self._hp += number
+        if self._hp < 0:
+            self.set_dead()
+
+    def remove_hp_to_other(self, target: 'Player', hp: float):
+        hp /= target.get_incarnation().get_defense()
+        self._statistics.add_damage_dealt(int(hp))
+        target._statistics.add_damage_taken(int(hp))
+        target.add_to_hp(-hp)
 
     def _setup_box_pos(self, x: float, y: float):
         self._hitbox.set_positions(x - 0.5, y, x + 0.5, y + 2)
@@ -178,11 +202,25 @@ class Player(MotionEntity):
 
         super().update()
 
+        if self._y < -10:
+            self.set_hp(0)
+            self.set_dead()
+            return
+
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 
+        if self._incarnation_type is not None and self.can_move() and time.monotonic() >= self._incarnation_until:
+            self._incarnation = Farmer(self)
+            self._incarnation_type = None
+            self.complete_stun_for(1)
+            self.push_animation("player:unmutation")
+            self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
+
         if self._sliding:
             self._incarnation.sliding()
+            if random.random() < 0.08:
+                self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
         elif self._sleeping:
             if random.random() < 0.003:
                 self._stage.add_effect(EffectType.SLEEPING, 5, self._x + random.uniform(-1, 1), self._y + 0.2 + random.random() * 0.6)
@@ -203,7 +241,7 @@ class Player(MotionEntity):
                 target.add_velocity(-knockback_x if target_on_left else knockback_x, knockback_y)
                 target.push_animation("hit")
                 target.set_invincible_for(0.5)
-                target.add_to_hp(-random.uniform(17.0, 20.0) / target.get_incarnation().get_defense())
+                self.remove_hp_to_other(target, random.uniform(17.0, 20.0))
                 self._grabing = None
 
     # MOVES
@@ -226,6 +264,8 @@ class Player(MotionEntity):
         if self._sleeping:
             self._sleeping = False
             self.complete_stun_for(0.7)
+            # On restaure le temps restant
+            self._incarnation_until += time.monotonic()
         elif self._on_ground and self.can_jump():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
@@ -246,8 +286,11 @@ class Player(MotionEntity):
         if not self.can_move() or self._grabing is not None:
             return
 
+        can_sleep = self._incarnation_type is not None
+
         for target in self.foreach_down_sleeping_players():
             target = cast(Player, target)
+            can_sleep = False
             if not target.is_purely_invincible():
                 now = time.monotonic()
                 self._grabing = (target, now + 0.5, now + 1)
@@ -257,8 +300,10 @@ class Player(MotionEntity):
                 self.push_animation("grabing")
                 return
 
-        if self._incarnation_type is not None:
+        if can_sleep:
             self._sleeping = True
+            # Quand on dors, on défini le "until" au temps restant, afin de le restaurer au reveil
+            self._incarnation_until = self.get_incarnation_remaining_duration()
             self.set_invincible_for(2)
 
     # ACTIONS FOR INCARNATIONS
@@ -297,7 +342,7 @@ class Player(MotionEntity):
         for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player.is_player):
             target = cast(Player, target)
             if target != self and not target.is_invincible():
-                target.add_to_hp(-random.uniform(*damage_range) / target.get_incarnation().get_defense())
+                self.remove_hp_to_other(target, random.uniform(*damage_range))
                 knockback_x = random.uniform(0.1, 0.2) * knockback_x
                 knockback_y = random.uniform(0.1, 0.3) * knockback_y
                 if (reach < 0 and target.get_x() < self.get_x()) or (reach >= 0 and self.get_turned_to_left()):
@@ -332,10 +377,12 @@ class Player(MotionEntity):
             try:
                 self._incarnation = constructor(self)
                 self._incarnation_type = typ
+                self._incarnation_until = time.monotonic() + self._incarnation.get_duration()
                 self.complete_stun_for(1)
                 self.push_animation("player:mutation")
                 self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
                 self._vel_x = 0
+                self._statistics.add_plants_collected(1)
             except (Exception,):
                 print("Error while constructing incarnation type {}.".format(typ.name))
                 import traceback
@@ -343,3 +390,44 @@ class Player(MotionEntity):
             return True
         else:
             return False
+
+
+class PlayerStatistics:
+
+    def __init__(self):
+
+        self._kos: int = 0
+        self._plants_collected: int = 0
+        self._damage_dealt: int = 0
+        self._damage_taken: int = 0
+        self._death_time: float = 0
+
+    def get_kos(self) -> int:
+        return self._kos
+
+    def get_plants_collected(self) -> int:
+        return self._plants_collected
+
+    def get_damage_dealt(self) -> int:
+        return self._damage_dealt
+
+    def get_damage_taken(self) -> int:
+        return self._damage_taken
+
+    def get_death_time(self) -> float:
+        return self._death_time
+
+    def add_kos(self, ko: int):
+        self._kos += ko
+
+    def add_plants_collected(self, pl_co: int):
+        self._plants_collected += pl_co
+
+    def add_damage_dealt(self, da_de: int):
+        self._damage_dealt += da_de
+
+    def add_damage_taken(self, da_ta: int):
+        self._damage_taken += da_ta
+
+    def set_death_time(self, death_time: float):
+        self._death_time = death_time

@@ -74,10 +74,11 @@ class ViewButton(ViewObject):
         if event.type == pygame.MOUSEMOTION:
             self._over = self.is_cursor_over(*event.pos)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self._over and not self._disabled and self._action_cb is not None:
-                self._sound = pygame.mixer.Sound("../res/sounds/grassound.ogg")
-                pygame.mixer.Sound.set_volume(self._sound, 0.3)
-                pygame.mixer.Sound.play(self._sound)
+            if self._over and self._visible and not self._disabled and self._action_cb is not None:
+                sound = pygame.mixer.Sound("../res/sounds/grassound.ogg")
+                sound.set_volume(0.3)
+                sound.play()
+                # TODO
                 self._action_cb(self)
 
     def set_view(self, view: View):
