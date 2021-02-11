@@ -12,8 +12,6 @@ class ViewLightButton(ViewButton):
     def _get_color(self):
         return self._view.BACKGROUND_COLOR
 
-
-
 class HowToPlayView(View):
 
     def __init__(self):
@@ -124,7 +122,7 @@ class HowToPlayView(View):
 
     def _next_element_character_list(self, way: int):
         def _cb(_i) :
-            if way is 1 :
+            if way == 1 :
                 self._num = self._num + 1
                 if self._num > 5 :
                     self._num = 0

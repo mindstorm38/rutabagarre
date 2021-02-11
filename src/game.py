@@ -40,6 +40,7 @@ class Game:
         self._add_view("credits", CreditsView())
         self._add_view("end", EndView())
         self._add_view("how_to_play", HowToPlayView())
+        self._add_view("settings", SettingsView())
 
     def start(self):
 
@@ -61,6 +62,12 @@ class Game:
             view.init(self._view_data)
 
         self.show_view("title")
+
+        print("Start music...")
+
+        pygame.mixer.music.load("../res/music/menumusic.ogg")
+        pygame.mixer.music.play(1, 6.0)
+        pygame.mixer.music.set_volume(1)
 
         print("Start loop...")
 

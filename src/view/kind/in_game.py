@@ -242,6 +242,10 @@ class InGameView(View):
 
         print("Loading stage...")
 
+        pygame.mixer.music.load("../res/music/fightmusic.ogg")
+        pygame.mixer.music.play(1)
+        pygame.mixer.music.set_volume(0.0)
+
         game = self._shared_data.get_game()
         self._stage = game.get_stage()
 
