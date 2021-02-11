@@ -199,13 +199,14 @@ class AnimSurface:
                 anim_name, frame, repeat_count, pause_at_end = anim
                 sub_surfaces = layer.anim.sub_surfaces.get(anim_name)
                 sub_surfaces_count = len(sub_surfaces)
-                if pause_at_end and frame >= sub_surfaces_count:
-                    sub_surface = sub_surfaces[sub_surfaces_count - 1]
-                else:
-                    sub_surface = sub_surfaces[frame % sub_surfaces_count]
-                surface.blit(sub_surface, pos)
                 if repeat_count < 0 or 0 < repeat_count <= (frame // sub_surfaces_count):
                     tracker.pop_anim()
+                else:
+                    if pause_at_end and frame >= sub_surfaces_count:
+                        sub_surface = sub_surfaces[sub_surfaces_count - 1]
+                    else:
+                        sub_surface = sub_surfaces[frame % sub_surfaces_count]
+                    surface.blit(sub_surface, pos)
 
 
 class _AnimLayerColored(_AnimLayer):
@@ -266,3 +267,11 @@ FARMER_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("air_attack_side", (1, 11, 5))\
     .animation("air_attack_up", (1, 12, 6))\
     .animation("air_attack_down", (1, 13, 9))
+
+
+EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
+    .animation("smoke", (0, 0, 7))\
+    .animation("small_ground_dust", (0, 1, 3))\
+    .animation("big_ground_dust", (0, 2, 3))\
+    .animation("sleeping_start", (0, 4, 4))\
+    .animation("sleeping_idle", (5, 4, 3))

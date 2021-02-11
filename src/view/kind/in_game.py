@@ -1,4 +1,4 @@
-from view.anim import AnimSurfaceColored, AnimTracker, FARMER_ANIMATION
+from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, FARMER_ANIMATION, EFFECTS_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -6,6 +6,7 @@ from stage import Stage, Tile
 from view import View
 
 from entity.player import Player, IncarnationType
+from entity.effect import Effect, EffectType
 from entity.item import Item
 from entity import Entity
 
@@ -19,6 +20,8 @@ import pygame
 class EntityDrawer:
 
     __slots__ = "entity", "view", "offsets"
+
+    DEBUG_HITBOXES = True
 
     def __init__(self, entity: Entity, view: 'InGameView', size: Tuple[int, int]):
         self.entity = entity
@@ -100,6 +103,32 @@ class ItemDrawer(EntityDrawer):
             surface.blit(self.tile_surface, self.get_draw_pos())
 
 
+class EffectDrawer(EntityDrawer):
+
+    __slots__ = "anim_surface", "tracker", "effect_type"
+
+    DEBUG_HITBOXES = False
+
+    EFFECT_ANIMS = {
+        EffectType.SMOKE: ("smoke", 10),
+        EffectType.SMALL_GROUND_DUST: ("small_ground_dust", 8),
+        EffectType.BIG_GROUND_DUST: ("big_ground_dust", 8),
+        EffectType.SLEEPING: ("sleeping_start", 3)
+    }
+
+    def __init__(self, entity: Effect, view: 'InGameView'):
+        super().__init__(entity, view, (InGameView.EFFECT_SIZE, InGameView.EFFECT_SIZE))
+        self.anim_surface = view.get_effect_anim_surface()
+        self.tracker = AnimTracker()
+        self.effect_type = entity.get_effect_type()
+        if self.effect_type in self.EFFECT_ANIMS:
+            name, fps = self.EFFECT_ANIMS[self.effect_type]
+            self.tracker.push_anim(name, 1, fps)
+
+    def draw(self, surface: Surface):
+        self.anim_surface.blit_on(surface, self.get_draw_pos(), self.tracker)
+
+
 class InGameView(View):
 
     BACKGROUND_COLOR = None
@@ -113,14 +142,14 @@ class InGameView(View):
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
         Player: PlayerDrawer,
-        Item: ItemDrawer
+        Item: ItemDrawer,
+        Effect: EffectDrawer
     }
 
     TILE_SIZE = 64
     PLAYER_SIZE = 128
     ITEM_SIZE = 128
-
-    DEBUG_HITBOXES = True
+    EFFECT_SIZE = 128
 
     def __init__(self):
 
@@ -129,6 +158,7 @@ class InGameView(View):
         self._terrain_tilemap: Optional[TileMap] = None
         self._item_tilemap: Optional[TileMap] = None
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
+        self._effect_anim_surface: Optional[AnimSurface] = None
 
         self._stage: Optional[Stage] = None
         self._stage_size = (0, 0)
@@ -178,6 +208,9 @@ class InGameView(View):
     def get_player_anim_surface(self) -> Optional[AnimSurfaceColored]:
         return self._player_anim_surface
 
+    def get_effect_anim_surface(self) -> Optional[AnimSurface]:
+        return self._effect_anim_surface
+
     def get_screen_pos(self, x: float, y: float) -> Tuple[int, int]:
         return int(x * self.TILE_SIZE), self._unscaled_size[1] - int((y + 1) * self.TILE_SIZE)
 
@@ -217,7 +250,7 @@ class InGameView(View):
             self._scaled_surface_pos = (0, (surface_height - scaled_size[1]) / 2)
 
     def _on_entity_added(self, entity: Entity):
-        print("Entity added to view: {}".format(entity))
+        # print("Entity added to view: {}".format(entity))
         constructor = self.ENTITY_DRAWERS.get(type(entity))
         if constructor is None:
             print("=> This entity has no drawer constructor, using undefined drawer.")
@@ -230,7 +263,7 @@ class InGameView(View):
             traceback.print_exc()
 
     def _on_entity_removed(self, euid: int):
-        print("Entity removed from view: {}".format(euid))
+        # print("Entity removed from view: {}".format(euid))
         if euid in self._entities:
             del self._entities[euid]
 
@@ -244,6 +277,10 @@ class InGameView(View):
 
         self._player_anim_surface = self._shared_data\
             .new_anim_colored("farmer", FARMER_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
+
+        self._effect_anim_surface = AnimSurface(self.EFFECT_SIZE, self.EFFECT_SIZE, [
+            self._shared_data.get_anim("effects.png", EFFECTS_ANIMATION)
+        ])
 
     def _inner_pre_draw(self, surface: Surface):
 
@@ -259,7 +296,7 @@ class InGameView(View):
 
         for entity_drawer in self._entities.values():
             entity_drawer.draw(self._final_surface)
-            if self.DEBUG_HITBOXES:
+            if entity_drawer.DEBUG_HITBOXES:
                 pygame.draw.rect(self._final_surface, (255, 255, 255, 60), entity_drawer.get_bounding_draw_rect(), 2)
 
         pygame.transform.scale(self._final_surface, self._scaled_surface.get_size(), self._scaled_surface)

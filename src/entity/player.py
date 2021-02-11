@@ -1,10 +1,12 @@
-from entity import Entity, MotionEntity
-from entity.incarnation import Incarnation, Farmer, Potato
 from typing import Tuple, cast, Optional, List, Iterable
 from enum import Enum, auto
 import random
-import stage
 import time
+
+from entity.incarnation import Incarnation, Farmer, Potato
+from entity.effect import Effect, EffectType
+from entity import Entity, MotionEntity
+import stage
 
 
 class PlayerColor(Enum):
@@ -124,6 +126,8 @@ class Player(MotionEntity):
 
     def update(self) -> None:
         super().update()
+        if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
+            self._stage.add_entity(Effect, EffectType.SMALL_GROUND_DUST, 1).set_position(self._x, self._y)
 
     # MOVES
 
@@ -141,6 +145,7 @@ class Player(MotionEntity):
         # TODO: Si en train de dormir, sortir de terre.
         if self._on_ground and self.can_move():
             self.add_velocity(0, self.JUMP_VELOCITY)
+            self._stage.add_entity(Effect, EffectType.BIG_GROUND_DUST, 1).set_position(self._x, self._y)
 
     def do_action(self) -> None:
         if time.monotonic() >= self._block_action_until:
