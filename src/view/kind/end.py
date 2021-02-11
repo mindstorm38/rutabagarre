@@ -12,7 +12,6 @@ class EndView(View):
         super().__init__()
         self._winner_button: Optional[ViewButton] = None
         self._play_again_button: Optional[ViewButton] = None
-        self._change_settings_button: Optional[ViewButton] = None
         self._quit_button: Optional[ViewButton] = None
         self._credits_button: Optional[ViewButton] = None
 
@@ -20,8 +19,10 @@ class EndView(View):
         self._player_anim_tracker = AnimTracker()
         self._player_anim_tracker.push_infinite_anim("idle", 4)
 
+        self._nbplay = 2
+
     def _inner_init(self):
-        self._winner_button = ViewButton(45, "P2 wins!", disabled=True)
+        self._winner_button = ViewButton(45, "HARD CODE", disabled=True)
         self._winner_button.set_size(300, 100)
         self.add_child(self._winner_button)
 
@@ -29,11 +30,6 @@ class EndView(View):
         self._play_again_button.set_size(200, 70)
         self._play_again_button.set_action_callback(self._shared_data.get_show_view_callback("color_select"))
         self.add_child(self._play_again_button)
-
-        self._change_settings_button = ViewButton(20, "Change settings")
-        self._change_settings_button.set_size(150, 30)
-        self._change_settings_button.set_action_callback(self._shared_data.get_show_view_callback("color_select"))
-        self.add_child(self._change_settings_button)
 
         self._quit_button = ViewButton(20, "Quit")
         self._quit_button.set_size(100, 30)
@@ -64,7 +60,6 @@ class EndView(View):
 
         self._winner_button.set_position_centered(main_group_x, 75)
         self._play_again_button.set_position_centered(main_group_x, 700)
-        self._change_settings_button.set_position_centered(925, 730)
         self._quit_button.set_position_centered(80, 730)
 
         #tableau 1
