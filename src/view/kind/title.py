@@ -20,6 +20,12 @@ class TitleView(View):
         self._quit_button: Optional[ViewButton] = None
         self._title_surface: Optional[Surface] = None
 
+        self._disc_image: Optional[Surface] = None
+        self._insta_image: Optional[Surface] = None
+        self._twit_image: Optional[Surface] = None
+        self._facebook_image: Optional[Surface] = None
+
+
     def _inner_init(self):
 
         self._start_button = ViewButton(45, "Play Now !")
@@ -49,6 +55,11 @@ class TitleView(View):
 
         self._title_surface = self._shared_data.get_image("title.png")
 
+        self._disc_image = self._shared_data.get_image("menusmisc/discord.png")
+        self._insta_image = self._shared_data.get_image("menusmisc/discord.png")
+        self._twit_image = self._shared_data.get_image("menusmisc/discord.png")
+        self._facebook_image = self._shared_data.get_image("menusmisc/discord.png")
+
     def _inner_pre_draw(self, surface: Surface):
 
         main_group_x = surface.get_width() / 2
@@ -69,3 +80,8 @@ class TitleView(View):
         )
 
         surface.blit(self._title_surface, title_pos)
+
+        surface.blit(self._disc_image, (155, 235))
+        surface.blit(self._insta_image, (155, 235))
+        surface.blit(self._facebook_image, (155, 235))
+        surface.blit(self._twit_image, (155, 235))
