@@ -75,6 +75,16 @@ class Tile:
     TILE_DIRT_STONE_8 = ord("w")
     TILE_DIRT_STONE_9 = ord("x")
 
+    TILE_GRASS_DIRT_STONE_1 = ord("y")
+    TILE_GRASS_DIRT_STONE_2 = ord("z")
+    TILE_GRASS_DIRT_STONE_3 = ord("1")
+    TILE_GRASS_DIRT_STONE_4 = ord("2")
+    TILE_GRASS_DIRT_STONE_5 = ord("3")
+    TILE_GRASS_DIRT_STONE_6 = ord("4")
+    TILE_GRASS_DIRT_STONE_7 = ord("5")
+    TILE_GRASS_DIRT_STONE_8 = ord("6")
+    TILE_GRASS_DIRT_STONE_9 = ord("7")
+
     VALID_TILES_IDS = {
         TILE_DIRT_1,
         TILE_DIRT_2,
@@ -132,7 +142,17 @@ class Tile:
         TILE_DIRT_STONE_6,
         TILE_DIRT_STONE_7,
         TILE_DIRT_STONE_8,
-        TILE_DIRT_STONE_9
+        TILE_DIRT_STONE_9,
+
+        TILE_GRASS_DIRT_STONE_1,
+        TILE_GRASS_DIRT_STONE_2,
+        TILE_GRASS_DIRT_STONE_3,
+        TILE_GRASS_DIRT_STONE_4,
+        TILE_GRASS_DIRT_STONE_5,
+        TILE_GRASS_DIRT_STONE_6,
+        TILE_GRASS_DIRT_STONE_7,
+        TILE_GRASS_DIRT_STONE_8,
+        TILE_GRASS_DIRT_STONE_9
 
     }
 
@@ -305,7 +325,7 @@ class Stage:
             b" b    b         b  b",
             b"JSSKSKSKKSKKKKSKSKKSKT",
             b"qqqqqqqqqqqqqqqqqqqqqq",
-            b" kkkkkkkkkkkkkkkkkkkk"
+            b" mnnnnnnnnnnnnnnnnnno"
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(15, 2, 37, 4)
@@ -313,14 +333,14 @@ class Stage:
         stage.set_terrain(
             18, 8,
             b"b",
-            b"JSKT",
+            b"yzzz",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(18, 7, 22, 8)
 
         stage.set_terrain(
             24, 12,
-            b"RSKT",
+            b"yzz1",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(24, 11, 28, 12)
@@ -328,7 +348,7 @@ class Stage:
         stage.set_terrain(
             30, 8,
             b"  b",
-            b"RKKT",
+            b"yzz1",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(30, 7, 34, 8)
