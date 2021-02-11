@@ -1,5 +1,7 @@
+from select import select
 from typing import Optional
-from view import View
+from view import View, AnimSurfaceColored
+from view.anim import FARMER_ANIMATION, AnimTracker
 from view.button import ViewButton
 from pygame import Surface
 import pygame
@@ -15,7 +17,9 @@ class EndView(View):
         self._quit_button: Optional[ViewButton] = None
         self._credits_button: Optional[ViewButton] = None
 
-        #self._player_one_surface: Optional[Surface] = None
+        self._player_anim_surface: Optional[AnimSurfaceColored] = None
+        self._player_anim_tracker = AnimTracker()
+        self._player_anim_tracker.push_infinite_anim("idle", 4)
 
     def _inner_init(self):
         self._winner_button = ViewButton(45, "P2 wins!", disabled=True)
@@ -37,8 +41,6 @@ class EndView(View):
         self._quit_button.set_action_callback(self._shared_data.get_show_view_callback("title"))
         self.add_child(self._quit_button)
 
-        #self._player_one_surface = self._shared_data.get_image("credits/tete.png")
-
         self._ko_one_text = self._shared_data.get_font(32).render("KOs", True, self.TEXT_COLOR)
         self._plants_collected_one_text = self._shared_data.get_font(32).render("Plants collected", True, self.TEXT_COLOR)
         self._damage_dealt_one_text = self._shared_data.get_font(32).render("Damage dealt", True, self.TEXT_COLOR)
@@ -49,6 +51,13 @@ class EndView(View):
         self._damage_dealt_two_text = self._shared_data.get_font(32).render("Damage dealt", True, self.TEXT_COLOR)
         self._damage_taken_two_text = self._shared_data.get_font(32).render("Damage taken", True, self.TEXT_COLOR)
 
+        self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, 210, 210)
+
+    def on_enter(self):
+        stage = self._shared_data.get_game().get_stage()
+        for idx, player in stage.get_players().items():
+            pass
+
     def _inner_pre_draw(self, surface: Surface):
 
         main_group_x = surface.get_width()/2
@@ -58,12 +67,6 @@ class EndView(View):
         self._play_again_button.set_position_centered(main_group_x, 700)
         self._change_settings_button.set_position_centered(925, 730)
         self._quit_button.set_position_centered(80, 730)
-
-        #player_one_pos = (
-        #    90, 300
-        #)
-
-        #surface.blit(self._player_one_surface, player_one_pos)
 
         #tableau 1
         pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (20, 150, 229, 252))
@@ -120,3 +123,5 @@ class EndView(View):
         surface.blit(self._plants_collected_two_text, (777, 234))
         surface.blit(self._damage_dealt_two_text, (777, 297))
         surface.blit(self._damage_taken_two_text, (777, 360))
+
+        self._player_anim_surface.blit_color_on(surface, (0, 0), self._player_anim_tracker, (255, 0, 0))

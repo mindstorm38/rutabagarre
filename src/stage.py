@@ -84,6 +84,9 @@ class Stage:
         data = self._players.get(player_idx)
         return None if data is None else data[0]
 
+    def get_players(self) -> Dict[int, Player]:
+        return {idx: player for idx, (player, _) in self._players.items()}
+
     # Terrain
 
     def set_terrain(self, left: int, bottom: int, *terrain: Union[bytes, bytearray]):
