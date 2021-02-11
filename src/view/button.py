@@ -42,6 +42,10 @@ class ViewButton(ViewObject):
     def set_disabled(self, disabled: bool):
         self._disabled = disabled
 
+    def set_text(self, text: str):
+        self._text = text
+        self._redraw()
+
     def set_action_callback(self, callback: ActionCallback):
         self._action_cb = callback
 

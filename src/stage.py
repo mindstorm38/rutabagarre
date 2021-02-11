@@ -144,6 +144,7 @@ class Stage:
     __slots__ = "entities", "_size", "_terrain", \
                 "_running", "_finished", "_winner", \
                 "_spawn_points", "_players", "_living_players_count", \
+                "_items_count", \
                 "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
@@ -160,6 +161,8 @@ class Stage:
         self._spawn_points: List[List[int, int, bool]] = []
         self._players: Dict[int, Tuple[Player, int]] = {}
         self._living_players_count: int = 0
+
+        self._items_count: int = 0
 
         self._add_entity_cb: AddEntityCallback = None
         self._remove_entity_cb: RemoveEntityCallback = None
