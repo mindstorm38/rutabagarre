@@ -4,6 +4,7 @@ from view.button import ViewButton
 from typing import Optional
 from pygame import Surface
 import pygame
+from view.player import get_player_color
 
 
 class EndView(View):
@@ -19,10 +20,34 @@ class EndView(View):
         self._player_anim_tracker = AnimTracker()
         self._player_anim_tracker.push_infinite_anim("idle", 4)
 
-        self._nbplay = 2
+        self._ko_text: Optional[Surface] = None
+        self._plants_collected_text: Optional[Surface] = None
+        self._damage_dealt_text: Optional[Surface] = None
+        self._damage_taken_text: Optional[Surface] = None
+
+        self._ko_p1_text: Optional[Surface] = None
+        self._plants_collected_p1_text: Optional[Surface] = None
+        self._damage_dealt_p1_text: Optional[Surface] = None
+        self._damage_taken_p1_text: Optional[Surface] = None
+
+        self._ko_p2_text: Optional[Surface] = None
+        self._plants_collected_p2_text: Optional[Surface] = None
+        self._damage_dealt_p2_text: Optional[Surface] = None
+        self._damage_taken_p2_text: Optional[Surface] = None
+
+        self._ko_p3_text: Optional[Surface] = None
+        self._plants_collected_p3_text: Optional[Surface] = None
+        self._damage_dealt_p3_text: Optional[Surface] = None
+        self._damage_taken_p3_text: Optional[Surface] = None
+
+        self._ko_p4_text: Optional[Surface] = None
+        self._plants_collected_p4_text: Optional[Surface] = None
+        self._damage_dealt_p4_text: Optional[Surface] = None
+        self._damage_taken_p4_text: Optional[Surface] = None
+
 
     def _inner_init(self):
-        self._winner_button = ViewButton(45, "HARD CODE", disabled=True)
+        self._winner_button = ViewButton(45, "P1 Win", disabled=True)
         self._winner_button.set_size(300, 100)
         self.add_child(self._winner_button)
 
@@ -36,24 +61,36 @@ class EndView(View):
         self._quit_button.set_action_callback(self._shared_data.get_show_view_callback("title"))
         self.add_child(self._quit_button)
 
-        self._ko_one_text = self._shared_data.get_font(32).render("KOs", True, self.TEXT_COLOR)
-        self._plants_collected_one_text = self._shared_data.get_font(32).render("Plants collected", True, self.TEXT_COLOR)
-        self._damage_dealt_one_text = self._shared_data.get_font(32).render("Damage dealt", True, self.TEXT_COLOR)
-        self._damage_taken_one_text = self._shared_data.get_font(32).render("Damage taken", True, self.TEXT_COLOR)
+        self._ko_text = self._shared_data.get_font(32).render("KOs", True, self.TEXT_COLOR)
+        self._plants_collected_text = self._shared_data.get_font(32).render("Plants collected", True, self.TEXT_COLOR)
+        self._damage_dealt_text = self._shared_data.get_font(32).render("Damage dealt", True, self.TEXT_COLOR)
+        self._damage_taken_text = self._shared_data.get_font(32).render("Damage taken", True, self.TEXT_COLOR)
 
-        self._ko_two_text = self._shared_data.get_font(32).render("KOs", True, self.TEXT_COLOR)
-        self._plants_collected_two_text = self._shared_data.get_font(32).render("Plants collected", True, self.TEXT_COLOR)
-        self._damage_dealt_two_text = self._shared_data.get_font(32).render("Damage dealt", True, self.TEXT_COLOR)
-        self._damage_taken_two_text = self._shared_data.get_font(32).render("Damage taken", True, self.TEXT_COLOR)
+        self._ko_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._plants_collected_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_dealt_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_taken_p1_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+
+        self._ko_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._plants_collected_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_dealt_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_taken_p2_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+
+        self._ko_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._plants_collected_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_dealt_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_taken_p3_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+
+        self._ko_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._plants_collected_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_dealt_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
+        self._damage_taken_p4_text = self._shared_data.get_font(32).render("0", True, self.TEXT_COLOR)
 
         self._player_anim_surface = self._shared_data.new_anim_colored("farmer", FARMER_ANIMATION, 210, 210)
 
-    def on_enter(self):
-        stage = self._shared_data.get_game().get_stage()
-        for idx, player in stage.get_players().items():
-            pass
-
     def _inner_pre_draw(self, surface: Surface):
+        stage = self._shared_data.get_game().get_stage()
+        players = stage.get_players()
 
         main_group_x = surface.get_width()/2
         surface_width, surface_height = surface.get_size()
@@ -62,60 +99,112 @@ class EndView(View):
         self._play_again_button.set_position_centered(main_group_x, 700)
         self._quit_button.set_position_centered(80, 730)
 
-        #tableau 1
-        pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (20, 150, 229, 252))
+        if len(players) >= 2 :
 
-        pygame.draw.line(surface, self.TEXT_COLOR, (20, 150), (248, 150), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (20, 213), (248, 213), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (20, 276), (248, 276), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (20, 339), (248, 339), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (20, 402), (248, 402), 1)
+            # tableau 1
+            pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (20, 150, 229, 252))
 
-        surface.blit(self._ko_one_text, (27, 171))
-        surface.blit(self._plants_collected_one_text, (27, 234))
-        surface.blit(self._damage_dealt_one_text, (27, 297))
-        surface.blit(self._damage_taken_one_text, (27, 360))
+            pygame.draw.line(surface, self.TEXT_COLOR, (20, 150), (248, 150), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (20, 213), (248, 213), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (20, 276), (248, 276), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (20, 339), (248, 339), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (20, 402), (248, 402), 1)
 
-        #tableau 2
-        pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (270, 150, 229, 252))
+            surface.blit(self._ko_text, (27, 171))
+            surface.blit(self._plants_collected_text, (27, 234))
+            surface.blit(self._damage_dealt_text, (27, 297))
+            surface.blit(self._damage_taken_text, (27, 360))
 
-        pygame.draw.line(surface, self.TEXT_COLOR, (270, 150), (498, 150), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (270, 213), (498, 213), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (270, 276), (498, 276), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (270, 339), (498, 339), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (270, 402), (498, 402), 1)
+            surface.blit(self._ko_p1_text, (227, 171))
+            surface.blit(self._plants_collected_p1_text, (227, 234))
+            surface.blit(self._damage_dealt_p1_text, (227, 297))
+            surface.blit(self._damage_taken_p1_text, (227, 360))
 
-        surface.blit(self._ko_two_text, (277, 171))
-        surface.blit(self._plants_collected_two_text, (277, 234))
-        surface.blit(self._damage_dealt_two_text, (277, 297))
-        surface.blit(self._damage_taken_two_text, (277, 360))
+            self._player_anim_surface.blit_color_on(surface, (25, 425), self._player_anim_tracker, (255, 0, 0))
 
-        # tableau 3
-        pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (520, 150, 229, 252))
+            # tableau 2
+            pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (270, 150, 229, 252))
 
-        pygame.draw.line(surface, self.TEXT_COLOR, (520, 150), (748, 150), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (520, 213), (748, 213), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (520, 276), (748, 276), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (520, 339), (748, 339), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (520, 402), (748, 402), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (270, 150), (498, 150), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (270, 213), (498, 213), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (270, 276), (498, 276), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (270, 339), (498, 339), 1)
+            pygame.draw.line(surface, self.TEXT_COLOR, (270, 402), (498, 402), 1)
 
-        surface.blit(self._ko_two_text, (527, 171))
-        surface.blit(self._plants_collected_two_text, (527, 234))
-        surface.blit(self._damage_dealt_two_text, (527, 297))
-        surface.blit(self._damage_taken_two_text, (527, 360))
+            surface.blit(self._ko_text, (274, 171))
+            surface.blit(self._plants_collected_text, (274, 234))
+            surface.blit(self._damage_dealt_text, (274, 297))
+            surface.blit(self._damage_taken_text, (274, 360))
 
-        # tableau 4
-        pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (770, 150, 229, 252))
+            surface.blit(self._ko_p2_text, (473, 171))
+            surface.blit(self._plants_collected_p2_text, (473, 234))
+            surface.blit(self._damage_dealt_p2_text, (473, 297))
+            surface.blit(self._damage_taken_p2_text, (473, 360))
 
-        pygame.draw.line(surface, self.TEXT_COLOR, (770, 150), (998, 150), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (770, 213), (998, 213), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (770, 276), (998, 276), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (770, 339), (998, 339), 1)
-        pygame.draw.line(surface, self.TEXT_COLOR, (770, 402), (998, 402), 1)
+            self._player_anim_surface.blit_color_on(surface, (280, 425), self._player_anim_tracker, (255, 0, 0))
 
-        surface.blit(self._ko_two_text, (777, 171))
-        surface.blit(self._plants_collected_two_text, (777, 234))
-        surface.blit(self._damage_dealt_two_text, (777, 297))
-        surface.blit(self._damage_taken_two_text, (777, 360))
+            if len(players) >= 3 :
 
-        self._player_anim_surface.blit_color_on(surface, (0, 0), self._player_anim_tracker, (255, 0, 0))
+                # tableau 3
+                pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (520, 150, 229, 252))
+
+                pygame.draw.line(surface, self.TEXT_COLOR, (520, 150), (748, 150), 1)
+                pygame.draw.line(surface, self.TEXT_COLOR, (520, 213), (748, 213), 1)
+                pygame.draw.line(surface, self.TEXT_COLOR, (520, 276), (748, 276), 1)
+                pygame.draw.line(surface, self.TEXT_COLOR, (520, 339), (748, 339), 1)
+                pygame.draw.line(surface, self.TEXT_COLOR, (520, 402), (748, 402), 1)
+
+                surface.blit(self._ko_text, (527, 171))
+                surface.blit(self._plants_collected_text, (527, 234))
+                surface.blit(self._damage_dealt_text, (527, 297))
+                surface.blit(self._damage_taken_text, (527, 360))
+
+                surface.blit(self._ko_p3_text, (730, 171))
+                surface.blit(self._plants_collected_p3_text, (730, 234))
+                surface.blit(self._damage_dealt_p3_text, (730, 297))
+                surface.blit(self._damage_taken_p3_text, (730, 360))
+
+                self._player_anim_surface.blit_color_on(surface, (535, 425), self._player_anim_tracker, (255, 0, 0))
+
+                if len(players) >= 4 :
+
+                    # tableau 4
+                    pygame.draw.rect(surface, self.BUTTON_NORMAL_COLOR, (770, 150, 229, 252))
+
+                    pygame.draw.line(surface, self.TEXT_COLOR, (770, 150), (998, 150), 1)
+                    pygame.draw.line(surface, self.TEXT_COLOR, (770, 213), (998, 213), 1)
+                    pygame.draw.line(surface, self.TEXT_COLOR, (770, 276), (998, 276), 1)
+                    pygame.draw.line(surface, self.TEXT_COLOR, (770, 339), (998, 339), 1)
+                    pygame.draw.line(surface, self.TEXT_COLOR, (770, 402), (998, 402), 1)
+
+                    surface.blit(self._ko_text, (777, 171))
+                    surface.blit(self._plants_collected_text, (777, 234))
+                    surface.blit(self._damage_dealt_text, (777, 297))
+                    surface.blit(self._damage_taken_text, (777, 360))
+
+                    surface.blit(self._ko_p4_text, (980, 171))
+                    surface.blit(self._plants_collected_p4_text, (9830, 234))
+                    surface.blit(self._damage_dealt_p4_text, (980, 297))
+                    surface.blit(self._damage_taken_p4_text, (980, 360))
+
+                    self._player_anim_surface.blit_color_on(surface, (790, 425), self._player_anim_tracker, (255, 0, 0))
+
+            cmpt = 0
+            for idx, player in players.items():
+                if cmpt == 0:
+                    self._player_anim_surface.blit_color_on(surface, (25, 425), self._player_anim_tracker,(get_player_color(player.get_color())))
+                    cmpt = cmpt + 1
+                elif cmpt == 1:
+                    self._player_anim_surface.blit_color_on(surface, (280, 425), self._player_anim_tracker,(get_player_color(player.get_color())))
+                    cmpt = cmpt + 1
+                elif cmpt == 2:
+                    self._player_anim_surface.blit_color_on(surface, (535, 425), self._player_anim_tracker,(get_player_color(player.get_color())))
+                    cmpt = cmpt + 1
+                elif cmpt == 3:
+                    self._player_anim_surface.blit_color_on(surface, (790, 425), self._player_anim_tracker,(get_player_color(player.get_color())))
+                    cmpt = cmpt + 1
+
+                pass
+
+    def on_enter(self):
+        pass
