@@ -1,4 +1,4 @@
-from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
+from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -56,7 +56,7 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "tracker", "rev", "bar_phase_shift", "camera_x"
+    __slots__ = "color", "tracker", "bar_phase_shift", "camera_x", "state"
 
     BAR_WIDTH, BAR_HEIGHT = 150, 10
     BAR_OFFSET = 40
@@ -66,14 +66,28 @@ class PlayerDrawer(EntityDrawer):
     MIN_HEALTH_COLOR = 201, 20, 20
     CAMERA_SPEED = 0.1
 
+    STATE_UNINIT = 0
+    STATE_IDLE = 1
+    STATE_RUNNING = 2
+    STATE_MUTATING = 3
+    STATE_ROLLING = 4
+    STATE_MISC_ANIM = 5
+
+    MISC_ANIMATIONS = {
+        "farmer:rake_attack": (("attack_side", 40, 1),),
+        "farmer:spinning_attack": (("attack_down", 40, 2),),
+        "potato:punch": (("attack_side", 20, 1),),
+        "hit": (("hit", 20, 1),),
+        "player:mutation": (("pick", 10, 1),)
+    }
+
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
         self.color = get_player_color(entity.get_color())
-        self.tracker = AnimTracker()
-        self.tracker.push_infinite_anim("idle", 7)
-        self.rev = False
+        self.tracker = NewAnimTracker()
         self.bar_phase_shift = random.random() * math.pi
         self.camera_x = entity.get_x()
+        self.state = self.STATE_UNINIT
 
     def get_camera_x(self) -> Optional[float]:
         return self.camera_x
@@ -81,39 +95,37 @@ class PlayerDrawer(EntityDrawer):
     def draw(self, surface: Surface):
 
         player = cast(Player, self.entity)
+        self.tracker.set_all_reversed(player.get_turned_to_left())
 
-        if self.rev != player.get_turned_to_left():
-            self.rev = player.get_turned_to_left()
-            self.tracker.set_all_reversed(self.rev)
-
-        mutating = self.tracker.is_last_anim("pick")
+        can_run = player.get_vel_x() != 0 and player.is_on_ground()
+        incarnation_type = player.get_incarnation_type()
+        is_potato = incarnation_type == IncarnationType.POTATO
 
         for animation in player.foreach_animation():
-            if not mutating:
-                if animation == "farmer:rake_attack":
-                    self.tracker.push_anim("attack_side", 1, 40, rev=self.rev, ignore_existing=False)
-                elif animation == "potato:punch":
-                    self.tracker.push_anim("attack_side", 1, 20, rev=self.rev, ignore_existing=False)
-                elif animation == "farmer:spinning_attack":
-                    self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
-                elif animation == "hit":
-                    self.tracker.push_anim("hit", 1, 20, rev=self.rev, ignore_existing=False)
-                elif animation == "player:mutation":
-                    self.tracker.push_anim("pick", 1, 10, rev=self.rev)
-                    mutating = True
+            if self.state in (self.STATE_IDLE, self.STATE_RUNNING) and animation in self.MISC_ANIMATIONS:
+                self.tracker.set_anim(*self.MISC_ANIMATIONS[animation])
+                self.state = self.STATE_MISC_ANIM
+                if animation == "player:mutation":
+                    self.state = self.STATE_MUTATING
 
-        if not mutating and player.get_vel_x() != 0 and player.is_on_ground() and self.tracker.is_last_anim("idle", "run"):
-            self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
-        else:
-            self.tracker.stop_last_anim("run")
+        if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
+            self.state = self.STATE_UNINIT
+        elif self.state == self.STATE_ROLLING and not player.is_sliding():
+            self.state = self.STATE_UNINIT
 
-        anim_surface = None
-        if not mutating:
-            if player.get_incarnation_type() == IncarnationType.POTATO:
-                anim_surface = self.view.get_potato_anim_surface()
+        if self.state != self.STATE_ROLLING and is_potato and player.is_sliding():
+            self.tracker.set_anim(("attack_roll_start", 14, 1), ("attack_roll_idle", 14, -1))
+            self.state = self.STATE_ROLLING
+        elif self.state in (self.STATE_UNINIT, self.STATE_IDLE) and can_run:
+            self.tracker.set_anim(("run", 14, -1))
+            self.state = self.STATE_RUNNING
+        elif self.state in (self.STATE_UNINIT, self.STATE_RUNNING) and not can_run:
+            self.tracker.set_anim(("idle", 7, -1))
+            self.state = self.STATE_IDLE
 
-        if anim_surface is None:
-            anim_surface = self.view.get_player_anim_surface()
+        anim_surface = self.view.get_player_anim_surface()
+        if self.state != self.STATE_MUTATING and is_potato:
+            anim_surface = self.view.get_potato_anim_surface()
 
         anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
 
@@ -143,7 +155,7 @@ class PlayerDrawer(EntityDrawer):
 
 class ItemDrawer(EntityDrawer):
 
-    __slots__ = "tile_surface"
+    __slots__ = "tile_surface", "anim_phase_shift"
 
     ITEMS_NAMES = {
         IncarnationType.POTATO: "potato"
@@ -153,10 +165,12 @@ class ItemDrawer(EntityDrawer):
         super().__init__(entity, view, (InGameView.ITEM_SIZE, InGameView.ITEM_SIZE))
         tile_name = self.ITEMS_NAMES.get(entity.get_incarnation_type())
         self.tile_surface = None if tile_name is None else view.get_item_tilemap().get_tile(tile_name)
+        self.anim_phase_shift = random.random() * math.pi
 
     def draw(self, surface: Surface):
         if self.tile_surface is not None:
-            surface.blit(self.tile_surface, self.get_draw_pos())
+            x, y = self.get_draw_pos()
+            surface.blit(self.tile_surface, (x, y + math.cos(time.monotonic() * 6 + self.anim_phase_shift) * 3))
 
 
 class EffectDrawer(EntityDrawer):
@@ -175,11 +189,11 @@ class EffectDrawer(EntityDrawer):
     def __init__(self, entity: Effect, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.EFFECT_SIZE, InGameView.EFFECT_SIZE))
         self.anim_surface = view.get_effect_anim_surface()
-        self.tracker = AnimTracker()
+        self.tracker = NewAnimTracker()
         self.effect_type = entity.get_effect_type()
         if self.effect_type in self.EFFECT_ANIMS:
             name, fps = self.EFFECT_ANIMS[self.effect_type]
-            self.tracker.push_anim(name, 1, fps)
+            self.tracker.set_anim((name, fps, 1))
 
     def draw(self, surface: Surface):
         self.anim_surface.blit_on(surface, self.get_draw_pos(), self.tracker)

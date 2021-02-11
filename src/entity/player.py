@@ -109,6 +109,9 @@ class Player(MotionEntity):
     def is_sleeping(self) -> bool:
         return self._sleeping
 
+    def is_sliding(self) -> bool:
+        return self._sliding
+
     # SETTERS
 
     def set_number(self, number: int) -> None:
