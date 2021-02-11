@@ -42,7 +42,6 @@ class Player(MotionEntity):
     MOVE_AIR_FACTOR = 0.3
     JUMP_VELOCITY = 0.65
     REGEN_BY_TICK = 0.1
-    MAX_HP = 100.0
 
     INCARNATIONS_CONSTRUCTORS = {
         IncarnationType.POTATO: Potato
@@ -184,8 +183,8 @@ class Player(MotionEntity):
         elif self._sleeping:
             if random.random() < 0.003:
                 self._stage.add_effect(EffectType.SLEEPING, 5, self._x + random.uniform(-1, 1), self._y + 0.2 + random.random() * 0.6)
-            if self._hp < Player.MAX_HP:
-                self._hp = min(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
+            if self._hp < self._max_hp:
+                self._hp = min(self._hp + Player.REGEN_BY_TICK, self._max_hp)
         elif self._grabing is not None:
             player, grab_at, throw_at = self._grabing
             now = time.monotonic()
