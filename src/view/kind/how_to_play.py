@@ -12,8 +12,6 @@ class ViewLightButton(ViewButton):
     def _get_color(self):
         return self._view.BACKGROUND_COLOR
 
-
-
 class HowToPlayView(View):
 
     def __init__(self):

@@ -25,6 +25,11 @@ class TitleView(View):
 
         self._espiria_image: Optional[Surface] = None
 
+        self._insta_image: Optional[Surface] = None
+        self._discord_image: Optional[Surface] = None
+        self._insta_text: Optional[Surface] = None
+        self._discord_text: Optional[Surface] = None
+
 
     def _inner_init(self):
 
@@ -59,6 +64,11 @@ class TitleView(View):
 
         self._espiria_image = self._shared_data.get_image("grouplogo.png")
 
+        self._insta_image = self._shared_data.get_image("menusmisc/instagram.png")
+        self._discord_image = self._shared_data.get_image("menusmisc/discord.png")
+        self._insta_text = self._shared_data.get_font(30).render("@Espiria_game", True, self.TEXT_COLOR)
+        self._discord_text = self._shared_data.get_font(30).render("@Espiria", True, self.TEXT_COLOR)
+
 
     def _inner_pre_draw(self, surface: Surface):
 
@@ -83,5 +93,9 @@ class TitleView(View):
 
         surface.blit(self._title_surface, title_pos)
 
-        surface.blit(self._espiria_image, (10, 690))
+        surface.blit(self._espiria_image, (main_group_x-110, 690))
 
+        surface.blit(self._insta_image, (10, 650))
+        surface.blit(self._discord_image, (10, 710))
+        surface.blit(self._insta_text, (70, 670))
+        surface.blit(self._discord_text, (70, 730))
