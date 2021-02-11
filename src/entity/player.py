@@ -63,6 +63,7 @@ class Player(MotionEntity):
 
         self._block_moves_until: float = 0.0
         self._block_action_until: float = 0.0
+        self._block_heavy_action_until: float = 0.0
         self._block_jump_until: float = 0.0
         self._invincible_until: float = 0.0
         self._sleeping: bool = False
@@ -105,6 +106,9 @@ class Player(MotionEntity):
     def can_act(self) -> bool:
         return time.monotonic() >= self._block_action_until
 
+    def can_act_heavy(self) -> bool:
+        return time.monotonic() >= self._block_heavy_action_until
+
     def can_jump(self) -> bool:
         return time.monotonic() >= self._block_jump_until
 
@@ -139,6 +143,9 @@ class Player(MotionEntity):
 
     def block_action_for(self, duration: float):
         self._block_action_until = time.monotonic() + duration
+
+    def block_heavy_action_for(self, duration: float):
+        self._block_heavy_action_until = time.monotonic() + duration
 
     def set_invincible_for(self, duration: float):
         self._invincible_until = time.monotonic() + duration
@@ -194,7 +201,7 @@ class Player(MotionEntity):
     def do_heavy_action(self) -> None:
         if self.can_act():
             self._incarnation.heavy_action()
-            self.block_action_for(self._incarnation.get_heavy_action_cooldown())
+            self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
 
     def do_down_action(self) -> None:
         if (True,)[0]: # TODO: Y-a-t-il un joueur en dessous ?
