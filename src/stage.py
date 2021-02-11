@@ -16,19 +16,81 @@ RemoveEntityCallback = Optional[Callable[[int], None]]
 class Tile:
 
     TILE_AIR = ord(" ")
-    TILE_DIRT = ord("D")
-    TILE_GRASS = ord("G")
-    TILE_FARMLAND = ord("F")
-    TILE_WHEAT = ord("W")
-    TILE_PUDDLE = ord("P")
+
+    TILE_DIRT_1 = ord("A")
+    TILE_DIRT_2 = ord("B")
+    TILE_DIRT_3 = ord("C")
+    TILE_DIRT_4 = ord("D")
+    TILE_DIRT_5 = ord("E")
+    TILE_DIRT_6 = ord("F")
+    TILE_DIRT_7 = ord("G")
+    TILE_DIRT_8 = ord("H")
+    TILE_DIRT_9 = ord("I")
+
+    TILE_GRASS_LIGHT_1 = ord("J")
+    TILE_GRASS_LIGHT_2 = ord("K")
+    TILE_GRASS_LIGHT_3 = ord("L")
+    TILE_GRASS_LIGHT_4 = ord("M")
+    TILE_GRASS_LIGHT_6 = ord("N")
+    TILE_GRASS_LIGHT_7 = ord("O")
+    TILE_GRASS_LIGHT_8 = ord("P")
+    TILE_GRASS_LIGHT_9 = ord("Q")
+
+    TILE_GRASS_DARK_1 = ord("R")
+    TILE_GRASS_DARK_2 = ord("S")
+    TILE_GRASS_DARK_3 = ord("T")
+    TILE_GRASS_DARK_4 = ord("U")
+    TILE_GRASS_DARK_6 = ord("V")
+    TILE_GRASS_DARK_7 = ord("W")
+    TILE_GRASS_DARK_8 = ord("X")
+    TILE_GRASS_DARK_9 = ord("Y")
+
+    TILE_FARMLAND = ord("Z")
+
+    TILE_WHEAT = ord("a")
+
+    TILE_PUDDLE_1 = ord("b")
+    TILE_PUDDLE_2 = ord("c")
+    TILE_PUDDLE_3 = ord("d")
+    TILE_PUDDLE_4 = ord("e")
 
     VALID_TILES_IDS = {
-        TILE_AIR,
-        TILE_DIRT,
-        TILE_GRASS,
+        TILE_DIRT_1,
+        TILE_DIRT_2,
+        TILE_DIRT_3,
+        TILE_DIRT_4,
+        TILE_DIRT_5,
+        TILE_DIRT_6,
+        TILE_DIRT_7,
+        TILE_DIRT_8,
+        TILE_DIRT_9,
+
+        TILE_GRASS_LIGHT_1,
+        TILE_GRASS_LIGHT_2,
+        TILE_GRASS_LIGHT_3,
+        TILE_GRASS_LIGHT_4,
+        TILE_GRASS_LIGHT_6,
+        TILE_GRASS_LIGHT_7,
+        TILE_GRASS_LIGHT_8,
+        TILE_GRASS_LIGHT_9,
+
+        TILE_GRASS_DARK_1,
+        TILE_GRASS_DARK_2,
+        TILE_GRASS_DARK_3,
+        TILE_GRASS_DARK_4,
+        TILE_GRASS_DARK_6,
+        TILE_GRASS_DARK_7,
+        TILE_GRASS_DARK_8,
+        TILE_GRASS_DARK_9,
+
         TILE_FARMLAND,
+
         TILE_WHEAT,
-        TILE_PUDDLE
+
+        TILE_PUDDLE_1,
+        TILE_PUDDLE_2,
+        TILE_PUDDLE_3,
+        TILE_PUDDLE_4
     }
 
     VALID_TILES = {chr(i) for i in VALID_TILES_IDS}
@@ -112,7 +174,7 @@ class Stage:
     def get_terrain(self) -> bytearray:
         return self._terrain
 
-    def add_spawn_point(self, x: int, y: int):
+    def add_spawn_point(self, x: float, y: float) -> None:
         self._spawn_points.append([x, y, False])
 
     # Tiles
@@ -162,42 +224,41 @@ class Stage:
 
         stage.set_terrain(
             15, 2,
-            b"GGGGGGGGGGGGGGGGGGGGGG",
-            b"DDDDDDDDDDDDDDDDDDDDDD",
-            b" DDDDDDDDDDDDDDDDDDDD"
+            b"JKKKKKKKKKKKKKKKKKKKKL",
+            b"EEEEEEEEEEEEEEEEEEEEEE",
+            b" EEEEEEEEEEEEEEEEEEEE"
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(15, 2, 37, 4)
 
         stage.set_terrain(
             18, 8,
-            b"GGGG",
+            b"JKKL",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(18, 7, 22, 8)
 
         stage.set_terrain(
             24, 12,
-            b"GGGG",
+            b"JKKL",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(24, 11, 28, 12)
 
         stage.set_terrain(
             30, 8,
-            b"GGGG",
+            b"JKKL",
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(30, 7, 34, 8)
 
+        stage.add_spawn_point(23, 5)
+        stage.add_spawn_point(29, 5)
+        stage.add_spawn_point(17, 5)
+        stage.add_spawn_point(35, 5)
 
-        stage.add_spawn_point(20, 5)
-        stage.add_spawn_point(12, 5)
-        stage.add_spawn_point(18, 5)
-        stage.add_spawn_point(22, 5)
-
-
-
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(15, 5)
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(26, 5)
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
+        stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 
         return stage

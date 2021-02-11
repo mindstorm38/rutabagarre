@@ -217,11 +217,40 @@ class InGameView(View):
     BACKGROUND_COLOR = None
 
     TILES_NAMES = {
-        Tile.TILE_DIRT: "dirt",
-        Tile.TILE_GRASS: "grass",
-        Tile.TILE_PUDDLE: "puddle",
-        Tile.TILE_FARMLAND: "farmland",
-        Tile.TILE_WHEAT: "wheat"
+        Tile.TILE_DIRT_1: "TILE_DIRT_1",
+        Tile.TILE_DIRT_2: "TILE_DIRT_2",
+        Tile.TILE_DIRT_3: "TILE_DIRT_3",
+        Tile.TILE_DIRT_4: "TILE_DIRT_4",
+        Tile.TILE_DIRT_5: "TILE_DIRT_5",
+        Tile.TILE_DIRT_6: "TILE_DIRT_6",
+        Tile.TILE_DIRT_7: "TILE_DIRT_7",
+        Tile.TILE_DIRT_8: "TILE_DIRT_8",
+        Tile.TILE_DIRT_9: "TILE_DIRT_9",
+
+        Tile.TILE_GRASS_LIGHT_1: "TILE_GRASS_LIGHT_1",
+        Tile.TILE_GRASS_LIGHT_2: "TILE_GRASS_LIGHT_2",
+        Tile.TILE_GRASS_LIGHT_3: "TILE_GRASS_LIGHT_3",
+        Tile.TILE_GRASS_LIGHT_4: "TILE_GRASS_LIGHT_4",
+        Tile.TILE_GRASS_LIGHT_6: "TILE_GRASS_LIGHT_6",
+        Tile.TILE_GRASS_LIGHT_7: "TILE_GRASS_LIGHT_7",
+        Tile.TILE_GRASS_LIGHT_8: "TILE_GRASS_LIGHT_8",
+        Tile.TILE_GRASS_LIGHT_9: "TILE_GRASS_LIGHT_9",
+
+        Tile.TILE_GRASS_DARK_1: "TILE_GRASS_DARK_1",
+        Tile.TILE_GRASS_DARK_2: "TILE_GRASS_DARK_2",
+        Tile.TILE_GRASS_DARK_3: "TILE_GRASS_DARK_3",
+        Tile.TILE_GRASS_DARK_4: "TILE_GRASS_DARK_4",
+        Tile.TILE_GRASS_DARK_6: "TILE_GRASS_DARK_6",
+        Tile.TILE_GRASS_DARK_7: "TILE_GRASS_DARK_7",
+        Tile.TILE_GRASS_DARK_8: "TILE_GRASS_DARK_8",
+        Tile.TILE_GRASS_DARK_9: "TILE_GRASS_DARK_9",
+
+        Tile.TILE_FARMLAND: "TILE_FARMLAND",
+
+        Tile.TILE_PUDDLE_1: "TILE_PUDDLE_1",
+        Tile.TILE_PUDDLE_2: "TILE_PUDDLE_2",
+        Tile.TILE_PUDDLE_3: "TILE_PUDDLE_3",
+        Tile.TILE_PUDDLE_4: "TILE_PUDDLE_4",
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
