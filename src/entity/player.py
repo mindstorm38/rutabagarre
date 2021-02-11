@@ -47,11 +47,11 @@ class Player(MotionEntity):
         IncarnationType.POTATO: Potato
     }
 
-    def __init__(self, entity_stage: 'stage.Stage', number: int, color: PlayerColor, hp: float = 100.0) -> None:
+    def __init__(self, entity_stage: 'stage.Stage', player_index: int, color: PlayerColor, hp: float = 100.0) -> None:
 
         super().__init__(entity_stage)
 
-        self._number: int = number
+        self._player_index: int = player_index
         self._color: PlayerColor = color
         self._max_hp: float = hp
         self._hp: float = hp
@@ -77,8 +77,8 @@ class Player(MotionEntity):
 
     # GETTERS
 
-    def get_number(self) -> int:
-        return self._number
+    def get_player_index(self) -> int:
+        return self._player_index
 
     def get_max_hp(self) -> float:
         return self._max_hp
@@ -140,7 +140,7 @@ class Player(MotionEntity):
     # SETTERS
 
     def set_number(self, number: int) -> None:
-        self._number = number
+        self._player_index = number
 
     def set_hp(self, hp: float) -> None:
         self._hp = hp
@@ -175,10 +175,6 @@ class Player(MotionEntity):
         self.block_heavy_action_for(duration)
         self.block_jump_for(duration)
         self.set_invincible_for(duration)
-
-    def set_dead(self):
-        super().set_dead()
-        self._statistics.set_death_time(time.monotonic())
 
     # ADDERS
 
@@ -400,7 +396,6 @@ class PlayerStatistics:
         self._plants_collected: int = 0
         self._damage_dealt: int = 0
         self._damage_taken: int = 0
-        self._death_time: float = 0
 
     def get_kos(self) -> int:
         return self._kos
@@ -414,9 +409,6 @@ class PlayerStatistics:
     def get_damage_taken(self) -> int:
         return self._damage_taken
 
-    def get_death_time(self) -> float:
-        return self._death_time
-
     def add_kos(self, ko: int):
         self._kos += ko
 
@@ -428,6 +420,3 @@ class PlayerStatistics:
 
     def add_damage_taken(self, da_ta: int):
         self._damage_taken += da_ta
-
-    def set_death_time(self, death_time: float):
-        self._death_time = death_time
