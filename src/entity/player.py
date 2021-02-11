@@ -222,7 +222,6 @@ class Player(MotionEntity):
                 self._incarnation_type = typ
                 self.block_moves_for(1)
                 self.block_action_for(1)
-                self.block_heavy_action_for(1)
                 self.set_invincible_for(1)
                 self.push_animation("player:mutation")
                 self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
