@@ -66,6 +66,9 @@ class Player(MotionEntity):
         self._sleeping: bool = False
         self._sliding: bool = False
 
+        # (grabed player, grab at, throw at)
+        self._grabing: Optional[Tuple['Player', float, float]] = None
+
         self._animations_queue: List[str] = []
 
     # GETTERS
@@ -176,7 +179,7 @@ class Player(MotionEntity):
     def move_jump(self) -> None:
         if self._sleeping:
             self._sleeping = False
-            self._block_moves_until = time.monotonic() + 0.5
+            self.block_moves_for(0.5)
         elif self._on_ground and self.can_move():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
@@ -192,11 +195,13 @@ class Player(MotionEntity):
             self.block_action_for(self._incarnation.get_heavy_action_cooldown())
 
     def do_down_action(self) -> None:
-        if (True,)[0]: # TODO: Y-a-t-il un joueur en dessous ?
-            pass # TODO: Déterrer le joueur
+
+        for target in self.foreach_down_sleeping_players():
+            return
+
         if self._incarnation is not None:
-            # TODO: S'enterrer s'il n'y a pas de joueur trop près
             self._sleeping = True
+            self.set_invincible_for(2)
 
     # ACTIONS FOR INCARNATIONS
 
@@ -243,9 +248,23 @@ class Player(MotionEntity):
                 target.push_animation("hit")
                 target.set_invincible_for(0.5)
 
+    def foreach_down_sleeping_players(self):
+
+        # On réduit la boit de collision en haut du joueur pour ne pas pouvoir
+        # dormir ou déterrer qqun si on est un peu plus haut que le joueur
+        self._cached_hitbox.set_from(self._hitbox)
+        self._cached_hitbox.set_min_y(self._cached_hitbox.get_max_y() - 0.2)
+
+        for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player.is_sleeping_player):
+            yield target
+
     @staticmethod
     def is_player(entity: Entity) -> bool:
         return isinstance(entity, Player)
+
+    @staticmethod
+    def is_sleeping_player(entity: Entity) -> bool:
+        return isinstance(entity, Player) and entity.is_sleeping()
 
     # INCARNATION
 
