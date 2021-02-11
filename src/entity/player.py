@@ -40,10 +40,9 @@ class Player(MotionEntity):
 
     MOVE_VELOCITY = 0.04
     MOVE_AIR_FACTOR = 0.3
-    JUMP_VELOCITY = 0.55
+    JUMP_VELOCITY = 0.65
     REGEN_BY_TICK = 0.1
     MAX_HP = 100.0
-    JUMP_COOLDOWN = 0.2
 
     INCARNATIONS_CONSTRUCTORS = {
         IncarnationType.POTATO: Potato
@@ -104,7 +103,7 @@ class Player(MotionEntity):
         return self._sleeping
 
     def can_move(self) -> bool:
-        return time.monotonic() >= self._block_moves_until and not self._sleeping
+        return time.monotonic() >= self._block_moves_until and not self._sleeping and not self._sliding
 
     def can_act(self) -> bool:
         return time.monotonic() >= self._block_action_until
@@ -113,7 +112,7 @@ class Player(MotionEntity):
         return time.monotonic() >= self._block_heavy_action_until
 
     def can_jump(self) -> bool:
-        return time.monotonic() >= self._block_jump_until
+        return time.monotonic() >= self._block_jump_until and not self._sleeping
 
     def is_invincible(self) -> bool:
         return self._sleeping or time.monotonic() < self._invincible_until
@@ -150,8 +149,18 @@ class Player(MotionEntity):
     def block_heavy_action_for(self, duration: float):
         self._block_heavy_action_until = time.monotonic() + duration
 
+    def block_jump_for(self, duration: float):
+        self._block_jump_until = time.monotonic() + duration
+
     def set_invincible_for(self, duration: float):
         self._invincible_until = time.monotonic() + duration
+
+    def complete_stun_for(self, duration: float):
+        self.block_moves_for(duration)
+        self.block_action_for(duration)
+        self.block_heavy_action_for(duration)
+        self.block_jump_for(duration)
+        self.set_invincible_for(duration)
 
     # ADDERS
 
@@ -164,13 +173,31 @@ class Player(MotionEntity):
     # OTHER METHODS
 
     def update(self) -> None:
+
         super().update()
+
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
+
         if self._sliding:
             self._incarnation.sliding()
-        elif self._sleeping and self._hp < Player.MAX_HP:
-            self._hp = min(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
+        elif self._sleeping:
+            if random.random() < 0.003:
+                self._stage.add_effect(EffectType.SLEEPING, 5, self._x + random.uniform(-1, 1), self._y + 0.2 + random.random() * 0.6)
+            if self._hp < Player.MAX_HP:
+                self._hp = min(self._hp + Player.REGEN_BY_TICK, Player.MAX_HP)
+        elif self._grabing is not None:
+            player, grab_at, throw_at = self._grabing
+            now = time.monotonic()
+            if grab_at != 0:
+                if now >= grab_at:
+                    player.add_velocity(0, 0.7)
+                    self._grabing = player, 0, throw_at
+            elif now >= throw_at:
+                knockback_x = random.uniform(0.1, 0.2)
+                knockback_y = random.uniform(0.1, 0.2)
+                player.add_velocity(-knockback_x if self.get_turned_to_left() else knockback_x, knockback_y)
+                self._grabing = None
 
     # MOVES
 
@@ -191,11 +218,11 @@ class Player(MotionEntity):
     def move_jump(self) -> None:
         if self._sleeping:
             self._sleeping = False
-            self.block_moves_for(0.5)
-        elif self._on_ground and self.can_move() and self.can_jump():
+            self.block_jump_for(0.5)
+        elif self._on_ground and self.can_jump():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
-        self._block_jump_until = time.monotonic() + Player.JUMP_COOLDOWN
+            self.block_jump_for(0.05)
 
     def do_action(self) -> None:
         if self.can_act():
@@ -209,7 +236,17 @@ class Player(MotionEntity):
 
     def do_down_action(self) -> None:
 
+        if not self.can_move() or self._grabing is not None:
+            return
+
         for target in self.foreach_down_sleeping_players():
+            target = cast(Player, target)
+            now = time.monotonic()
+            self._grabing = (target, now + 0.5, now + 1)
+            self.complete_stun_for(2)
+            target.complete_stun_for(2)
+            target.push_animation("hit")
+            self.push_animation("grabing")
             return
 
         if self._incarnation is not None:
@@ -287,9 +324,7 @@ class Player(MotionEntity):
             try:
                 self._incarnation = constructor(self)
                 self._incarnation_type = typ
-                self.block_moves_for(1)
-                self.block_action_for(1)
-                self.set_invincible_for(1)
+                self.complete_stun_for(1)
                 self.push_animation("player:mutation")
                 self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
                 self._vel_x = 0

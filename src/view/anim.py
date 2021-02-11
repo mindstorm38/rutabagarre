@@ -52,7 +52,7 @@ class Anim:
                     for x, y, count in ranges:
                         if count < 0:
                             x -= count + 1
-                        for _ in range(count):
+                        for _ in range(-count if count < 0 else count):
                             px, py = definition.get_tile_pos(x, y)
                             sub_surface = surface.subsurface(px, py, definition.tile_width, definition.tile_height)
                             if rev:
@@ -270,7 +270,7 @@ class AnimSurface:
                 sub_surfaces = layer.anim.sub_surfaces.get(anim_name)
                 if sub_surfaces is not None:
                     sub_surfaces_count = len(sub_surfaces)
-                    if not pause_at_end and 0 <= repeat_count <= (frame // sub_surfaces_count):
+                    if sub_surfaces_count == 0 or (not pause_at_end and 0 <= repeat_count <= (frame // sub_surfaces_count)):
                         tracker.pop_anim()
                     else:
                         if pause_at_end and frame >= sub_surfaces_count * repeat_count:
