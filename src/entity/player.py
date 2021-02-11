@@ -59,7 +59,6 @@ class Player(MotionEntity):
 
         self._block_oves_until: float = 0.0
         self._block_action_until: float = 0.0
-        self._block_heavy_action_until: float = 0.0
         self._invincible_until: float = 0.0
         self._sleeping: bool = False
 
@@ -84,6 +83,9 @@ class Player(MotionEntity):
 
     def can_move(self) -> bool:
         return time.monotonic() >= self._block_oves_until
+
+    def can_act(self) -> bool:
+        return time.monotonic() >= self._block_action_until
 
     def is_invincible(self) -> bool:
         return self._sleeping or time.monotonic() < self._invincible_until
@@ -110,9 +112,6 @@ class Player(MotionEntity):
 
     def block_action_for(self, duration: float):
         self._block_action_until = time.monotonic() + duration
-
-    def block_heavy_action_for(self, duration: float):
-        self._block_heavy_action_until = time.monotonic() + duration
 
     def set_invincible_for(self, duration: float):
         self._invincible_until = time.monotonic() + duration
@@ -151,14 +150,14 @@ class Player(MotionEntity):
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
 
     def do_action(self) -> None:
-        if time.monotonic() >= self._block_action_until:
+        if self.can_act():
             self._incarnation.action()
             self.block_action_for(self._incarnation.get_action_cooldown())
 
     def do_heavy_action(self) -> None:
-        if time.monotonic() >= self._block_heavy_action_until:
+        if self.can_act():
             self._incarnation.heavy_action()
-            self.block_heavy_action_for(self._incarnation.get_heavy_action_cooldown())
+            self.block_action_for(self._incarnation.get_heavy_action_cooldown())
 
     def do_down_action(self) -> None:
         if (True,)[0]: # TODO: Y-a-t-il un joueur en dessous ?
