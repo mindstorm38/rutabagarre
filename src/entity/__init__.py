@@ -141,11 +141,13 @@ class MotionEntity(Entity, ABC):
 
     def update_natural_velocity(self) -> None:
         self._vel_x *= self.GROUND_FRICTION if self._on_ground else self.AIR_FRICTION
-        self._vel_y = self._vel_y * self.AIR_FRICTION - MotionEntity.NATURAL_GRAVITY
+        self._vel_y = self._vel_y * self.AIR_FRICTION - self.NATURAL_GRAVITY
 
-    @staticmethod
-    def _has_entity_hard_box(entity: Entity) -> bool:
+    def _entity_bound_box_predicate(self, entity: Entity) -> bool:
         return entity.has_hard_hitbox()
+
+    def _entity_bound_box_post_predicate(self, entity: Entity) -> bool:
+        return True
 
     def move_position(self, dx: float, dy: float) -> None:
 
@@ -163,8 +165,9 @@ class MotionEntity(Entity, ABC):
 
         self._cached_hitboxes.clear()
 
-        for entity in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=self._has_entity_hard_box):
-            self._cached_hitboxes.append(entity._hitbox)
+        for entity in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=self._entity_bound_box_predicate):
+            if self._entity_bound_box_post_predicate(entity):
+                self._cached_hitboxes.append(entity._hitbox)
 
         if dx != 0:
             for box in self._cached_hitboxes:

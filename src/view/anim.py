@@ -356,9 +356,25 @@ POTATO_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("attack_roll_end", (6, 8, 1))
 
 
+CORN_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
+    .animation("idle", (0, 0, 5))\
+    .animation("hit", (6, 0, 3))\
+    .animation("walk", (1, 1, 6))\
+    .animation("jump", (1, 2, 3))\
+    .animation("sleep", (8, 3, 7), (8, 4, 2))\
+    .animation("unsleep", (8, 4, -2), (8, 3, -7))\
+    .animation("run", (1, 4, 6))\
+    .animation("grab", (1, 5, 10), (1, 6, 8))\
+    .animation("attack_side", (1, 7, 5))\
+    .animation("attack_gun_start", (1, 8, 2))\
+    .animation("attack_gun_idle", (3, 8, 4))\
+    .animation("attack_gun_end", (1, 8, -2))
+
+
 EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("smoke", (0, 0, 7))\
     .animation("small_ground_dust", (0, 1, 3))\
     .animation("big_ground_dust", (0, 2, 3))\
     .animation("sleeping_start", (0, 4, 4))\
-    .animation("sleeping_idle", (5, 4, 3))
+    .animation("sleeping_idle", (5, 4, 3))\
+    .animation("corn_bullet", (0, 5, 6))

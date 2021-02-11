@@ -10,15 +10,11 @@ class Incarnation(ABC):
 
     def __init__(self, owner_player: 'player.Player') -> None:
         self._owner = owner_player
-        self._end_time: float = monotonic() + self.get_duration()
 
     # GETTERS
     @staticmethod
     def get_duration() -> float:
-        return 10.0
-
-    def get_end_time(self) -> float:
-        return self._end_time
+        return 15.0
 
     @staticmethod
     def get_defense() -> float:
@@ -45,6 +41,9 @@ class Incarnation(ABC):
 
     @abstractmethod
     def heavy_action(self): ...
+
+    def special_action(self):
+        pass
 
     def sliding(self):
         pass

@@ -3,7 +3,7 @@ from enum import Enum, auto
 import random
 import time
 
-from entity.incarnation import Incarnation, Farmer, Potato
+from entity.incarnation import Incarnation, Farmer, Potato, Corn
 from entity import Entity, MotionEntity
 from entity.effect import EffectType
 import stage
@@ -30,6 +30,7 @@ class PlayerColor(Enum):
 class IncarnationType(Enum):
     """ Enumeration des """
     POTATO = auto()
+    CORN = auto()
 
 
 class Player(MotionEntity):
@@ -44,7 +45,8 @@ class Player(MotionEntity):
     REGEN_BY_TICK = 0.1
 
     INCARNATIONS_CONSTRUCTORS = {
-        IncarnationType.POTATO: Potato
+        IncarnationType.POTATO: Potato,
+        IncarnationType.CORN: Corn
     }
 
     def __init__(self, entity_stage: 'stage.Stage', player_index: int, color: PlayerColor, hp: float = 100.0) -> None:
@@ -66,7 +68,9 @@ class Player(MotionEntity):
         self._block_jump_until: float = 0.0
         self._invincible_until: float = 0.0
         self._sleeping: bool = False
-        self._sliding: bool = False
+
+        self._special_action: bool = False
+        self._special_action_reset_by_key: bool = False
 
         # (grabed player, grab at, throw at)
         self._grabing: Optional[Tuple['Player', float, float]] = None
@@ -104,20 +108,17 @@ class Player(MotionEntity):
     def get_incarnation_remaining_duration(self) -> float:
         return self._incarnation_until - time.monotonic()
 
-    def get_sliding(self) -> bool:
-        return self._sliding
-
     def get_sleeping(self) -> bool:
         return self._sleeping
 
     def can_move(self) -> bool:
-        return time.monotonic() >= self._block_moves_until and not self._sleeping and not self._sliding
+        return time.monotonic() >= self._block_moves_until and not self._sleeping
 
     def can_act(self) -> bool:
-        return time.monotonic() >= self._block_action_until
+        return time.monotonic() >= self._block_action_until and not self._special_action
 
     def can_act_heavy(self) -> bool:
-        return time.monotonic() >= self._block_heavy_action_until
+        return time.monotonic() >= self._block_heavy_action_until and not self._special_action
 
     def can_jump(self) -> bool:
         return time.monotonic() >= self._block_jump_until and not self._sleeping
@@ -131,8 +132,8 @@ class Player(MotionEntity):
     def is_sleeping(self) -> bool:
         return self._sleeping
 
-    def is_sliding(self) -> bool:
-        return self._sliding
+    def is_in_special_action(self) -> bool:
+        return self._special_action
 
     def get_statistics(self) -> 'PlayerStatistics':
         return self._statistics
@@ -150,9 +151,6 @@ class Player(MotionEntity):
 
     def set_incarnation(self, incarnation: Incarnation) -> None:
         self._incarnation = incarnation
-
-    def set_sliding(self, sliding: bool) -> None:
-        self._sliding = sliding
 
     def block_moves_for(self, duration: float):
         self._block_moves_until = time.monotonic() + duration
@@ -175,6 +173,10 @@ class Player(MotionEntity):
         self.block_heavy_action_for(duration)
         self.block_jump_for(duration)
         self.set_invincible_for(duration)
+
+    def set_special_action(self, special: bool, reset_by_key: bool = False):
+        self._special_action = special
+        self._special_action_reset_by_key = special and reset_by_key
 
     # ADDERS
 
@@ -213,10 +215,8 @@ class Player(MotionEntity):
             self.push_animation("player:unmutation")
             self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
 
-        if self._sliding:
-            self._incarnation.sliding()
-            if random.random() < 0.08:
-                self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
+        if self._special_action:
+            self._incarnation.special_action()
         elif self._sleeping:
             if random.random() < 0.003:
                 self._stage.add_effect(EffectType.SLEEPING, 5, self._x + random.uniform(-1, 1), self._y + 0.2 + random.random() * 0.6)
@@ -247,13 +247,13 @@ class Player(MotionEntity):
             self.add_velocity(vel if self._on_ground else vel * self.MOVE_AIR_FACTOR, 0)
 
     def move_right(self) -> None:
-        if self.get_turned_to_left() and self._sliding:
-            self._sliding = False
+        if self.get_turned_to_left() and self._special_action_reset_by_key:
+            self.set_special_action(False)
         self._move_side(self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_left(self) -> None:
-        if not self.get_turned_to_left() and self._sliding:
-            self._sliding = False
+        if not self.get_turned_to_left() and self._special_action_reset_by_key:
+            self.set_special_action(False)
         self._move_side(-self.MOVE_VELOCITY * self._incarnation.get_speed_multiplier())
 
     def move_jump(self) -> None:
@@ -374,6 +374,7 @@ class Player(MotionEntity):
                 self._incarnation = constructor(self)
                 self._incarnation_type = typ
                 self._incarnation_until = time.monotonic() + self._incarnation.get_duration()
+                self.set_special_action(False)
                 self.complete_stun_for(1)
                 self.push_animation("player:mutation")
                 self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)

@@ -65,6 +65,16 @@ class Tile:
     TILE_STONE_8 = ord("n")
     TILE_STONE_9 = ord("o")
 
+    TILE_DIRT_STONE_1 = ord("p")
+    TILE_DIRT_STONE_2 = ord("q")
+    TILE_DIRT_STONE_3 = ord("r")
+    TILE_DIRT_STONE_4 = ord("s")
+    TILE_DIRT_STONE_5 = ord("t")
+    TILE_DIRT_STONE_6 = ord("u")
+    TILE_DIRT_STONE_7 = ord("v")
+    TILE_DIRT_STONE_8 = ord("w")
+    TILE_DIRT_STONE_9 = ord("x")
+
     VALID_TILES_IDS = {
         TILE_DIRT_1,
         TILE_DIRT_2,
@@ -112,7 +122,17 @@ class Tile:
         TILE_STONE_6,
         TILE_STONE_7,
         TILE_STONE_8,
-        TILE_STONE_9
+        TILE_STONE_9,
+
+        TILE_DIRT_STONE_1,
+        TILE_DIRT_STONE_2,
+        TILE_DIRT_STONE_3,
+        TILE_DIRT_STONE_4,
+        TILE_DIRT_STONE_5,
+        TILE_DIRT_STONE_6,
+        TILE_DIRT_STONE_7,
+        TILE_DIRT_STONE_8,
+        TILE_DIRT_STONE_9
 
     }
 
@@ -284,7 +304,7 @@ class Stage:
             15, 2,
             b" b    b         b  b",
             b"JSSKSKSKKSKKKKSKSKKSKT",
-            b"VVVVVVVVVVVVVVVVVVVVVV",
+            b"qqqqqqqqqqqqqqqqqqqqqq",
             b" kkkkkkkkkkkkkkkkkkkk"
         )
         floor = stage.add_entity(Floor)
@@ -318,7 +338,7 @@ class Stage:
         stage.add_spawn_point(17, 5)
         stage.add_spawn_point(35, 5)
 
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(26, 5)
+        stage.add_entity(Item, IncarnationType.CORN).set_position(26, 5)
         stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
         stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 
