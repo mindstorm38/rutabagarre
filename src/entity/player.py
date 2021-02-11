@@ -184,6 +184,8 @@ class Player(MotionEntity):
 
     def add_to_hp(self, number) -> None:
         self._hp += number
+        if self._hp < 0:
+            self.set_dead()
 
     def remove_hp_to_other(self, target: 'Player', hp: float):
         hp /= target.get_incarnation().get_defense()
@@ -201,6 +203,7 @@ class Player(MotionEntity):
         super().update()
 
         if self._y < -10:
+            self.set_hp(0)
             self.set_dead()
             return
 

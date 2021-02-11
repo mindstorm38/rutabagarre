@@ -25,6 +25,6 @@ class Farmer(Incarnation):
         self._owner.push_animation("farmer:rake_attack")
 
     def heavy_action(self):
-        self._owner.front_attack(-0.5, (10.0, 12.0), 2.0, 2.0)
+        self._owner.front_attack(-0.5, (15.0, 17.0), 2.0, 2.0)
         self._owner.push_animation("farmer:spinning_attack")
         self._owner.block_moves_for(0.4)

@@ -45,7 +45,8 @@ class View(ABC):
             surface.fill(self.BACKGROUND_COLOR)
         self._inner_pre_draw(surface)
         for child in self._children:
-            child.draw(surface)
+            if child.is_visible():
+                child.draw(surface)
 
     def on_enter(self): ...
     def on_quit(self): ...
@@ -141,6 +142,7 @@ class ViewObject(ABC):
         self._view: Optional[View] = None
         self._pos = (0, 0)
         self._size = (width, height)
+        self._visible = True
 
     @abstractmethod
     def draw(self, surface: Surface):
@@ -178,6 +180,12 @@ class ViewObject(ABC):
 
     def get_height(self) -> float:
         return self._size[1]
+
+    def set_visible(self, visible: bool):
+        self._visible = visible
+
+    def is_visible(self) -> bool:
+        return self._visible
 
     # Private / Protected #
 
