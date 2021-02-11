@@ -56,7 +56,7 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "tracker", "bar_phase_shift", "camera_x", "state"
+    __slots__ = "color", "tracker", "phase_shift", "camera_x", "state"
 
     BAR_WIDTH, BAR_HEIGHT = 150, 10
     BAR_OFFSET = 40
@@ -75,6 +75,8 @@ class PlayerDrawer(EntityDrawer):
     STATE_MISC_ANIM = 5
     STATE_SLEEPING = 6
 
+    NO_COLOR = 255, 255, 255
+
     MISC_ANIMATIONS = {
         "farmer:rake_attack": (("attack_side", 40, 1),),
         "farmer:spinning_attack": (("attack_down", 40, 2),),
@@ -88,7 +90,7 @@ class PlayerDrawer(EntityDrawer):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
         self.color = get_player_color(entity.get_color())
         self.tracker = NewAnimTracker()
-        self.bar_phase_shift = random.random() * math.pi
+        self.phase_shift = random.random() * math.pi
         self.camera_x = entity.get_x()
         self.state = self.STATE_UNINIT
 
@@ -100,8 +102,8 @@ class PlayerDrawer(EntityDrawer):
         player = cast(Player, self.entity)
         self.tracker.set_all_reversed(player.get_turned_to_left())
 
-        # TODO
-        unmutating_soon = player.get_incarnation_remaining_duration() < 2.0
+        cosine_rot = math.cos(time.monotonic() * 5 + self.phase_shift)
+        unmutating_soon = player.has_incarnation() and player.get_incarnation_remaining_duration() < 4.0
 
         can_run = player.get_vel_x() != 0 and player.is_on_ground()
         incarnation_type = player.get_incarnation_type()
@@ -142,7 +144,10 @@ class PlayerDrawer(EntityDrawer):
         if self.state != self.STATE_MUTATING and is_potato:
             anim_surface = self.view.get_potato_anim_surface()
 
-        anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
+        player_color = self.color
+        if unmutating_soon and cosine_rot < 0:
+            player_color = self.NO_COLOR
+        anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, player_color)
 
         health_ratio = player.get_hp_ratio()
         health_color = _lerp_color(self.MIN_HEALTH_COLOR, self.MAX_HEALTH_COLOR, health_ratio)
@@ -152,7 +157,7 @@ class PlayerDrawer(EntityDrawer):
             health_bar_y -= InGameView.PLAYER_SIZE + self.BAR_OFFSET
         else:
             health_bar_y += self.BAR_SLEEPING_OFFSET
-        health_bar_y -= math.cos(time.monotonic() * 6 + self.bar_phase_shift) * 4
+        health_bar_y -= cosine_rot * 4
         health_bar_width = int(self.BAR_WIDTH * health_ratio)
 
         pygame.draw.rect(surface, self.HEALTH_BACKGROUND_COLOR, (

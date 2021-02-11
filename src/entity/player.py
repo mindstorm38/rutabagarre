@@ -98,6 +98,9 @@ class Player(MotionEntity):
     def get_incarnation_type(self) -> IncarnationType:
         return self._incarnation_type
 
+    def has_incarnation(self) -> bool:
+        return self._incarnation_type is not None
+
     def get_incarnation_remaining_duration(self) -> float:
         return self._incarnation_until - time.monotonic()
 
