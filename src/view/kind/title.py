@@ -32,9 +32,6 @@ class TitleView(View):
         self._insta_text: Optional[Surface] = None
         self._discord_text: Optional[Surface] = None
 
-        # TODO
-        self._tmp_end_button: Optional[ViewButton] = None
-
     def _inner_init(self):
 
         self._background_image = self._shared_data.get_image("menusmisc/gamebackground.png")
@@ -73,11 +70,6 @@ class TitleView(View):
         self._insta_text = self._shared_data.get_font(30).render("@Espiria_game", True, self.TEXT_COLOR)
         self._discord_text = self._shared_data.get_font(30).render("@Espiria", True, self.TEXT_COLOR)
 
-        self._tmp_end_button = ViewButton(25, "Temp: End")
-        self._tmp_end_button.set_size(200, 35)
-        self._tmp_end_button.set_action_callback(self._load_tmp_end)
-        self.add_child(self._tmp_end_button)
-
     def _inner_pre_draw(self, surface: Surface):
 
         main_group_x = surface.get_width() / 2
@@ -107,16 +99,6 @@ class TitleView(View):
         surface.blit(self._discord_image, (10, 710))
         surface.blit(self._insta_text, (70, 670))
         surface.blit(self._discord_text, (70, 730))
-
-        self._tmp_end_button.set_position(10, 10)
-
-    def _load_tmp_end(self, _button):
-        stage = Stage.new_example_stage()
-        stage.add_player(0, PlayerColor.PINK)
-        stage.add_player(1, PlayerColor.VIOLET)
-        stage.add_player(2, PlayerColor.RED)
-        self._shared_data.get_game().set_stage(stage)
-        self._shared_data.get_game().show_view("end")
 
     def on_enter(self):
         self._shared_data.play_music("musics/menumusic.ogg")
