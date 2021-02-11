@@ -251,8 +251,11 @@ class Player(MotionEntity):
         if not self.can_move() or self._grabing is not None:
             return
 
+        can_sleep = self._incarnation_type is not None
+
         for target in self.foreach_down_sleeping_players():
             target = cast(Player, target)
+            can_sleep = False
             if not target.is_purely_invincible():
                 now = time.monotonic()
                 self._grabing = (target, now + 0.5, now + 1)
@@ -262,7 +265,7 @@ class Player(MotionEntity):
                 self.push_animation("grabing")
                 return
 
-        if self._incarnation_type is not None:
+        if can_sleep:
             self._sleeping = True
             self.set_invincible_for(2)
 
