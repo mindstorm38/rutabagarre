@@ -46,6 +46,9 @@ class Incarnation(ABC):
     @abstractmethod
     def heavy_action(self): ...
 
+    def special_action(self):
+        pass
+
     def sliding(self):
         pass
 

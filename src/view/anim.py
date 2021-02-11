@@ -374,4 +374,5 @@ EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("small_ground_dust", (0, 1, 3))\
     .animation("big_ground_dust", (0, 2, 3))\
     .animation("sleeping_start", (0, 4, 4))\
-    .animation("sleeping_idle", (5, 4, 3))
+    .animation("sleeping_idle", (5, 4, 3))\
+    .animation("corn_bullet", (0, 5, 6))

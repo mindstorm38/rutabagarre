@@ -8,6 +8,7 @@ from view import View
 
 from entity.player import Player, IncarnationType
 from entity.effect import Effect, EffectType
+from entity.bullet import Bullet
 from entity.item import Item
 from entity import Entity
 
@@ -122,14 +123,14 @@ class PlayerDrawer(EntityDrawer):
 
         if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
             self.state = self.STATE_UNINIT
-        elif self.state == self.STATE_ROLLING and not player.is_sliding():
+        elif self.state == self.STATE_ROLLING and not player.is_in_special_action():
             self.tracker.set_anim(("attack_roll_end", 14, 1))
             self.state = self.STATE_MISC_ANIM
         elif self.state == self.STATE_SLEEPING and not player.is_sleeping():
             self.tracker.set_anim(("unsleep", 14, 1))
             self.state = self.STATE_MISC_ANIM
 
-        if self.state != self.STATE_ROLLING and is_potato and player.is_sliding():
+        if self.state != self.STATE_ROLLING and is_potato and player.is_in_special_action():
             self.tracker.set_anim(("attack_roll_start", 14, 1), ("attack_roll_idle", 14, -1))
             self.state = self.STATE_ROLLING
         elif self.state != self.STATE_SLEEPING and player.is_sleeping() and incarnation_type is not None:
@@ -226,6 +227,19 @@ class EffectDrawer(EntityDrawer):
 
     def draw(self, surface: Surface):
         self.anim_surface.blit_on(surface, self.get_draw_pos(), self.tracker)
+
+
+class BulletDrawer(EntityDrawer):
+
+    def __init__(self, entity: Entity, view: 'InGameView'):
+        super().__init__(entity, view, (InGameView.EFFECT_SIZE, InGameView.EFFECT_SIZE))
+        self.anim_surface = view.get_effect_anim_surface()
+        self.tracker = NewAnimTracker()
+        self.tracker.set_anim(("corn_bullet", 14, -1))
+
+    def draw(self, surface: Surface):
+        self
+        super().draw(surface)
 
 
 class InGameView(View):
