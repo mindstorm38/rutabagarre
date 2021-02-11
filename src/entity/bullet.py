@@ -6,8 +6,8 @@ import stage
 class Bullet(MotionEntity):
 
     NATURAL_GRAVITY = 0
-    GROUND_FRICTION = 0
-    AIR_FRICTION = 0
+    GROUND_FRICTION = 1
+    AIR_FRICTION = 1
 
     def __init__(self, entity_stage: 'stage.Stage', owner: 'player.Player', damage: float, dx: float):
         super().__init__(entity_stage)
@@ -21,7 +21,7 @@ class Bullet(MotionEntity):
             self.set_dead()
 
     def _entity_bound_box_predicate(self, entity: Entity) -> bool:
-        return super()._entity_bound_box_predicate(entity) or isinstance(entity, player.Player)
+        return (super()._entity_bound_box_predicate(entity) or isinstance(entity, player.Player)) and entity != self._owner
 
     def _entity_bound_box_post_predicate(self, entity: Entity) -> bool:
         if isinstance(entity, player.Player):

@@ -366,7 +366,9 @@ CORN_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("run", (1, 4, 6))\
     .animation("grab", (1, 5, 10), (1, 6, 8))\
     .animation("attack_side", (1, 7, 5))\
-    .animation("attack_gun", (1, 8, 6))
+    .animation("attack_gun_start", (1, 8, 2))\
+    .animation("attack_gun_idle", (3, 8, 4))\
+    .animation("attack_gun_end", (1, 8, -2))
 
 
 EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
