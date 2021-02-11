@@ -50,13 +50,15 @@ class Anim:
                 for rev in (False, True):
                     self.sub_surfaces[_format_reversed(name, rev)] = sub_surfaces = []
                     for x, y, count in ranges:
+                        if count < 0:
+                            x -= count + 1
                         for _ in range(count):
                             px, py = definition.get_tile_pos(x, y)
                             sub_surface = surface.subsurface(px, py, definition.tile_width, definition.tile_height)
                             if rev:
                                 sub_surface = pygame.transform.flip(sub_surface, True, False)
                             sub_surfaces.append(sub_surface)
-                            x += 1
+                            x += -1 if count < 0 else 1
 
     def copy_scaled(self, width: int, height: int) -> 'Anim':
         new_anim = Anim(self.surface, self.definition, no_init=True)
@@ -198,15 +200,16 @@ class AnimSurface:
             if anim is not None:
                 anim_name, frame, repeat_count, pause_at_end = anim
                 sub_surfaces = layer.anim.sub_surfaces.get(anim_name)
-                sub_surfaces_count = len(sub_surfaces)
-                if repeat_count < 0 or 0 < repeat_count <= (frame // sub_surfaces_count):
-                    tracker.pop_anim()
-                else:
-                    if pause_at_end and frame >= sub_surfaces_count:
-                        sub_surface = sub_surfaces[sub_surfaces_count - 1]
+                if sub_surfaces is not None:
+                    sub_surfaces_count = len(sub_surfaces)
+                    if repeat_count < 0 or (not pause_at_end and 0 < repeat_count <= (frame // sub_surfaces_count)):
+                        tracker.pop_anim()
                     else:
-                        sub_surface = sub_surfaces[frame % sub_surfaces_count]
-                    surface.blit(sub_surface, pos)
+                        if pause_at_end and frame >= sub_surfaces_count * repeat_count:
+                            sub_surface = sub_surfaces[sub_surfaces_count - 1]
+                        else:
+                            sub_surface = sub_surfaces[frame % sub_surfaces_count]
+                        surface.blit(sub_surface, pos)
 
 
 class _AnimLayerColored(_AnimLayer):
@@ -267,6 +270,20 @@ FARMER_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("air_attack_side", (1, 11, 5))\
     .animation("air_attack_up", (1, 12, 6))\
     .animation("air_attack_down", (1, 13, 9))
+
+
+POTATO_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
+    .animation("idle", (0, 0, 4))\
+    .animation("hit", (6, 0, 3))\
+    .animation("walk", (1, 1, 6))\
+    .animation("jump", (1, 2, 3))\
+    .animation("pick", (5, 2, 5))\
+    .animation("sleep", (8, 3, 7), (8, 4, 2))\
+    .animation("unsleep", (8, 4, -2), (8, 3, -7))\
+    .animation("run", (1, 4, 6))\
+    .animation("grab", (0, 5, 11), (1, 6, 4))\
+    .animation("attack_side", (1, 7, 5))\
+    .animation("attack_roll", (1, 8, 6))
 
 
 EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\

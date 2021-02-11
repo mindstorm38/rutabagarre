@@ -4,8 +4,8 @@ import random
 import time
 
 from entity.incarnation import Incarnation, Farmer, Potato
-from entity.effect import Effect, EffectType
 from entity import Entity, MotionEntity
+from entity.effect import EffectType
 import stage
 
 
@@ -79,6 +79,9 @@ class Player(MotionEntity):
     def get_incarnation(self) -> Incarnation:
         return self._incarnation
 
+    def get_incarnation_type(self) -> IncarnationType:
+        return self._incarnation_type
+
     def can_move(self) -> bool:
         return time.monotonic() >= self._block_oves_until
 
@@ -127,7 +130,7 @@ class Player(MotionEntity):
     def update(self) -> None:
         super().update()
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
-            self._stage.add_entity(Effect, EffectType.SMALL_GROUND_DUST, 1).set_position(self._x, self._y)
+            self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 
     # MOVES
 
@@ -145,7 +148,7 @@ class Player(MotionEntity):
         # TODO: Si en train de dormir, sortir de terre.
         if self._on_ground and self.can_move():
             self.add_velocity(0, self.JUMP_VELOCITY)
-            self._stage.add_entity(Effect, EffectType.BIG_GROUND_DUST, 1).set_position(self._x, self._y)
+            self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
 
     def do_action(self) -> None:
         if time.monotonic() >= self._block_action_until:
@@ -191,7 +194,7 @@ class Player(MotionEntity):
             self._cached_hitbox.expand(-reach, 0)
         else:
             reach_offset = self._hitbox.get_width() / 2
-            reach -= reach_offset
+            reach = max(0, reach - reach_offset)
             self._cached_hitbox.expand(-reach if self.get_turned_to_left() else reach, 0)
             self._cached_hitbox.move(-reach_offset if self.get_turned_to_left() else reach_offset, 0)
 
@@ -204,6 +207,7 @@ class Player(MotionEntity):
                 if (reach < 0 and target.get_x() < self.get_x()) or (reach >= 0 and self.get_turned_to_left()):
                     knockback_x = -knockback_x
                 target.add_velocity(knockback_x, knockback_y)
+                target.push_animation("hit")
 
     @staticmethod
     def is_player(entity: Entity) -> bool:
@@ -221,7 +225,9 @@ class Player(MotionEntity):
                 self.block_action_for(1)
                 self.block_heavy_action_for(1)
                 self.set_invincible_for(1)
-                self.push_animation("mutation")
+                self.push_animation("player:mutation")
+                self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
+                self._vel_x = 0
             except (Exception,):
                 print("Error while constructing incarnation type {}.".format(typ.name))
                 import traceback

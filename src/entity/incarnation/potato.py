@@ -24,8 +24,13 @@ class Potato(Incarnation):
     def get_speed_multiplier() -> float:
         return 0.7
 
+    @staticmethod
+    def get_action_cooldown() -> float:
+        return 1.0
+
     def action(self):
-        pass
+        self._owner.front_attack(0, (5.0, 6.0), 0.6)
+        self._owner.push_animation("potato:punch")
 
     def heavy_action(self):
         pass

@@ -1,4 +1,4 @@
-from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, FARMER_ANIMATION, EFFECTS_ANIMATION
+from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, EFFECTS_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -50,15 +50,11 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "anim_surface", "tracker", "rev", "last_action"
+    __slots__ = "color", "tracker", "rev", "last_action"
 
     def __init__(self, entity: Player, view: 'InGameView'):
-
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
-
         self.color = get_player_color(entity.get_color())
-        self.anim_surface = view.get_player_anim_surface()
-
         self.tracker = AnimTracker()
         self.tracker.push_infinite_anim("idle", 7)
         self.rev = False
@@ -71,18 +67,36 @@ class PlayerDrawer(EntityDrawer):
             self.rev = player.get_turned_to_left()
             self.tracker.set_all_reversed(self.rev)
 
-        for animation in player.foreach_animation():
-            if animation == "rake_attack":
-                self.tracker.push_anim("attack_side", 1, 40, rev=self.rev, ignore_existing=False)
-            elif animation == "spining_attack":
-                self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
+        mutating = self.tracker.is_last_anim("pick")
 
-        if player.get_vel_x() != 0 and player.is_on_ground() and self.tracker.is_last_anim("idle", "run"):
+        for animation in player.foreach_animation():
+            if not mutating:
+                if animation == "farmer:rake_attack":
+                    self.tracker.push_anim("attack_side", 1, 40, rev=self.rev, ignore_existing=False)
+                elif animation == "potato:punch":
+                    self.tracker.push_anim("attack_side", 1, 20, rev=self.rev, ignore_existing=False)
+                elif animation == "farmer:spining_attack":
+                    self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
+                elif animation == "hit":
+                    self.tracker.push_anim("hit", 1, 20, rev=self.rev, ignore_existing=False)
+                elif animation == "player:mutation":
+                    self.tracker.push_anim("pick", 1, 10, rev=self.rev)
+                    mutating = True
+
+        if not mutating and player.get_vel_x() != 0 and player.is_on_ground() and self.tracker.is_last_anim("idle", "run"):
             self.tracker.push_infinite_anim("run", 14, rev=self.rev, ignore_existing=False)
         else:
             self.tracker.stop_last_anim("run")
 
-        self.anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
+        anim_surface = None
+        if not mutating:
+            if player.get_incarnation_type() == IncarnationType.POTATO:
+                anim_surface = self.view.get_potato_anim_surface()
+
+        if anim_surface is None:
+            anim_surface = self.view.get_player_anim_surface()
+
+        anim_surface.blit_color_on(surface, self.get_draw_pos(), self.tracker, self.color)
 
 
 class ItemDrawer(EntityDrawer):
@@ -110,7 +124,7 @@ class EffectDrawer(EntityDrawer):
     DEBUG_HITBOXES = False
 
     EFFECT_ANIMS = {
-        EffectType.SMOKE: ("smoke", 10),
+        EffectType.SMOKE: ("smoke", 6),
         EffectType.SMALL_GROUND_DUST: ("small_ground_dust", 8),
         EffectType.BIG_GROUND_DUST: ("big_ground_dust", 8),
         EffectType.SLEEPING: ("sleeping_start", 3)
@@ -158,6 +172,7 @@ class InGameView(View):
         self._terrain_tilemap: Optional[TileMap] = None
         self._item_tilemap: Optional[TileMap] = None
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
+        self._potato_anim_surface: Optional[AnimSurfaceColored] = None
         self._effect_anim_surface: Optional[AnimSurface] = None
 
         self._stage: Optional[Stage] = None
@@ -207,6 +222,9 @@ class InGameView(View):
 
     def get_player_anim_surface(self) -> Optional[AnimSurfaceColored]:
         return self._player_anim_surface
+
+    def get_potato_anim_surface(self) -> Optional[AnimSurfaceColored]:
+        return self._potato_anim_surface
 
     def get_effect_anim_surface(self) -> Optional[AnimSurface]:
         return self._effect_anim_surface
@@ -277,6 +295,9 @@ class InGameView(View):
 
         self._player_anim_surface = self._shared_data\
             .new_anim_colored("farmer", FARMER_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
+
+        self._potato_anim_surface = self._shared_data\
+            .new_anim_colored("potato", POTATO_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
 
         self._effect_anim_surface = AnimSurface(self.EFFECT_SIZE, self.EFFECT_SIZE, [
             self._shared_data.get_anim("effects.png", EFFECTS_ANIMATION)

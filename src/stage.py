@@ -1,6 +1,7 @@
 from typing import List, Union, Tuple, Generator, Dict, TypeVar, Callable, Any, Optional
 
 from entity.player import Player, PlayerColor, IncarnationType
+from entity.effect import Effect, EffectType
 from entity.hitbox import Hitbox
 from entity.floor import Floor
 from entity.item import Item
@@ -81,6 +82,9 @@ class Stage:
         player = self.add_entity(Player, player_idx, color)
         player.set_position(x, y)
         self._players[player_idx] = (player, index)
+
+    def add_effect(self, effect_type: EffectType, duration: float, x: float, y: float):
+        self.add_entity(Effect, effect_type, duration).set_position(x, y)
 
     def get_entities(self) -> List[Entity]:
         return self.entities
