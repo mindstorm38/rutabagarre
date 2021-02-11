@@ -127,7 +127,7 @@ class Player(MotionEntity):
     def is_sliding(self) -> bool:
         return self._sliding
 
-    def get_statistics(self) -> Statistics:
+    def get_statistics(self) -> 'PlayerStatistics':
         return self._statistics
 
     # SETTERS
