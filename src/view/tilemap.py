@@ -104,7 +104,15 @@ TERRAIN_TILEMAP = TileMapDefinition(0, 0, 1, 1, 16, 16)\
     .tile("TILE_STONE_6", 4, 4)\
     .tile("TILE_STONE_7", 2, 5)\
     .tile("TILE_STONE_8", 3, 5)\
-    .tile("TILE_STONE_9", 4, 5)
+    .tile("TILE_STONE_9", 4, 5)\
+    .tile("TILE_DIRT_STONE_1", 8, 6)\
+    .tile("TILE_DIRT_STONE_2", 9, 6)\
+    .tile("TILE_DIRT_STONE_3", 10, 6)\
+    .tile("TILE_DIRT_STONE_4", 8, 7)\
+    .tile("TILE_DIRT_STONE_6", 10, 7)\
+    .tile("TILE_DIRT_STONE_7", 8, 8)\
+    .tile("TILE_DIRT_STONE_8", 9, 8)\
+    .tile("TILE_DIRT_STONE_9", 10, 8)
 
 ITEMS_TILEMAP = TileMapDefinition(1, 1, 1, 1, 30, 30)\
     .tile("potato", 0, 0)

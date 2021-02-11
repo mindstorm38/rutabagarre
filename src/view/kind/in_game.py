@@ -273,7 +273,17 @@ class InGameView(View):
         Tile.TILE_STONE_6: "TILE_STONE_6",
         Tile.TILE_STONE_7: "TILE_STONE_7",
         Tile.TILE_STONE_8: "TILE_STONE_8",
-        Tile.TILE_STONE_9: "TILE_STONE_9"
+        Tile.TILE_STONE_9: "TILE_STONE_9",
+
+        Tile.TILE_DIRT_STONE_1: "TILE_DIRT_STONE_1",
+        Tile.TILE_DIRT_STONE_2: "TILE_DIRT_STONE_2",
+        Tile.TILE_DIRT_STONE_3: "TILE_DIRT_STONE_3",
+        Tile.TILE_DIRT_STONE_4: "TILE_DIRT_STONE_4",
+        Tile.TILE_DIRT_STONE_5: "TILE_DIRT_STONE_5",
+        Tile.TILE_DIRT_STONE_6: "TILE_DIRT_STONE_6",
+        Tile.TILE_DIRT_STONE_7: "TILE_DIRT_STONE_7",
+        Tile.TILE_DIRT_STONE_8: "TILE_DIRT_STONE_8",
+        Tile.TILE_DIRT_STONE_9: "TILE_DIRT_STONE_9"
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
