@@ -134,9 +134,12 @@ class Stage:
                         if player_data is not None:
                             self._spawn_points[player_data[1]][2] = False
                             self._living_players_count -= 1
-                            if self._living_players_count < 1:
+                            if self._living_players_count == 1:
+                                # S'il ne reste qu'un joueur après en avoir tué un, l'autre gagne.
                                 self._finished = True
-                                self._winner = entity
+                                for player, _ in self._players.values():
+                                    if not player.is_dead():
+                                        self._winner = player
                     if self._remove_entity_cb is not None:
                         self._remove_entity_cb(euid)
                 else:
