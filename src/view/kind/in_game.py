@@ -75,7 +75,7 @@ class PlayerDrawer(EntityDrawer):
                     self.tracker.push_anim("attack_side", 1, 40, rev=self.rev, ignore_existing=False)
                 elif animation == "potato:punch":
                     self.tracker.push_anim("attack_side", 1, 20, rev=self.rev, ignore_existing=False)
-                elif animation == "farmer:spining_attack":
+                elif animation == "farmer:spinning_attack":
                     self.tracker.push_anim("attack_down", 2, 40, rev=self.rev, ignore_existing=False)
                 elif animation == "hit":
                     self.tracker.push_anim("hit", 1, 20, rev=self.rev, ignore_existing=False)
