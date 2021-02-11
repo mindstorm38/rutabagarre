@@ -206,7 +206,9 @@ class InGameView(View):
     PLAYER_SIZE = 128
     ITEM_SIZE = 128
     EFFECT_SIZE = 128
-    CAMERA_MARGIN = 8
+
+    CAMERA_WIDTH_MIN = 20
+    CAMERA_WIDTH_MARGIN = 8
 
     CAMERA_UPDATE_THRESHOLD = 0.02
 
@@ -229,7 +231,7 @@ class InGameView(View):
         self._final_surface: Optional[Surface] = None
         self._y_offset: int = 0
 
-        self._camera_range = (0, 0, 0)
+        self._camera_range = (0, 0, 0)  # (start, width, mid)
         self._camera_dirty_pos = False
         self._camera_last_next_update: float = 0
 
@@ -322,7 +324,7 @@ class InGameView(View):
 
         if self._camera_dirty_pos:
 
-            range_width = self._camera_range[2]
+            range_width = self._camera_range[1]
             range_invert_ratio = self._stage_size[0] / range_width
 
             start_ratio = self._camera_range[0] / self._stage_size[0]
@@ -403,18 +405,22 @@ class InGameView(View):
                     camera_range_max = camera_x
 
         if camera_range_min is None:
-            camera_range_max = camera_range_min = self._stage_size[0] / 2
+            camera_range_width = self.CAMERA_WIDTH_MIN
+            camera_range_mid = self._stage_size[0]
+        else:
+            camera_range_width = max(cast(float, self.CAMERA_WIDTH_MIN), min(
+                cast(float, self._stage_size[0]),
+                camera_range_max - camera_range_min + self.CAMERA_WIDTH_MARGIN
+            ))
+            camera_range_mid = min(cast(float, self._stage_size[0]), max(
+                0.0, (camera_range_min + camera_range_max) / 2
+            ))
 
-        camera_range_min = min(self._stage_size[0], max(0, camera_range_min)) - self.CAMERA_MARGIN
-        camera_range_max = min(self._stage_size[0], max(0, camera_range_max)) + self.CAMERA_MARGIN
-
-        if abs(self._camera_range[0] - camera_range_min) >= self.CAMERA_UPDATE_THRESHOLD or \
-           abs(self._camera_range[1] - camera_range_max) >= self.CAMERA_UPDATE_THRESHOLD:
-            range_width = camera_range_max - camera_range_min
-            if abs(self._camera_range[2] - range_width) >= self.CAMERA_UPDATE_THRESHOLD:
+        if abs(self._camera_range[2] - camera_range_mid) >= self.CAMERA_UPDATE_THRESHOLD:
+            if abs(self._camera_range[1] - camera_range_width) >= self.CAMERA_UPDATE_THRESHOLD:
                 self._scaled_surface = None
             self._camera_dirty_pos = True
-            self._camera_range = (camera_range_min, camera_range_max, camera_range_max - camera_range_min)
+            self._camera_range = (camera_range_mid - (camera_range_width / 2), camera_range_width, camera_range_mid)
 
         # Recompute camera (only if self._scaled_surface = None)
         self._recompute_camera_scale(surface)
