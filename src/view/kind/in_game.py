@@ -45,6 +45,9 @@ class EntityDrawer:
         max_x, max_y = self.view.get_screen_pos(hitbox.get_max_x(), hitbox.get_max_y())
         return min_x, max_y, max_x - min_x, min_y - max_y
 
+    def get_camera_x(self) -> Optional[float]:
+        return None
+
     def draw(self, surface: Surface): ...
 
     def __str__(self):
@@ -53,7 +56,7 @@ class EntityDrawer:
 
 class PlayerDrawer(EntityDrawer):
 
-    __slots__ = "color", "tracker", "rev", "bar_phase_shift"
+    __slots__ = "color", "tracker", "rev", "bar_phase_shift", "camera_x"
 
     BAR_WIDTH, BAR_HEIGHT = 150, 10
     BAR_OFFSET = 40
@@ -61,6 +64,7 @@ class PlayerDrawer(EntityDrawer):
     HEALTH_BACKGROUND_COLOR = 16, 26, 11
     MAX_HEALTH_COLOR = 74, 201, 20
     MIN_HEALTH_COLOR = 201, 20, 20
+    CAMERA_SPEED = 0.5
 
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
@@ -69,6 +73,10 @@ class PlayerDrawer(EntityDrawer):
         self.tracker.push_infinite_anim("idle", 7)
         self.rev = False
         self.bar_phase_shift = random.random() * math.pi
+        self.camera_x = entity.get_x()
+
+    def get_camera_x(self) -> Optional[float]:
+        return self.camera_x
 
     def draw(self, surface: Surface):
 
@@ -129,6 +137,8 @@ class PlayerDrawer(EntityDrawer):
             health_bar_width,
             self.BAR_HEIGHT
         ))
+
+        self.camera_x += (player.get_x() - self.camera_x) * self.CAMERA_SPEED
 
 
 class ItemDrawer(EntityDrawer):
@@ -196,6 +206,7 @@ class InGameView(View):
     PLAYER_SIZE = 128
     ITEM_SIZE = 128
     EFFECT_SIZE = 128
+    CAMERA_MARGIN = 5
 
     def __init__(self):
 
@@ -216,9 +227,9 @@ class InGameView(View):
         self._final_surface: Optional[Surface] = None
         self._y_offset: int = 0
 
+        self._camera_range = (0, 0)
         self._scaled_surface: Optional[Surface] = None
         self._scaled_surface_pos = (0, 0)
-
 
         self._entities: Dict[int, EntityDrawer] = {}
 
@@ -299,11 +310,23 @@ class InGameView(View):
         print("=> Stage terrain drawn!")
 
     def _recompute_camera_scale(self, surface: Surface):
+
         if self._scaled_surface is None:
+
+            range_width = self._camera_range[1] - self._camera_range[0]
+            range_invert_ratio = self._stage_size[0] / range_width
+
+            start_ratio = self._camera_range[0] / self._stage_size[0]
+
             surface_width, surface_height = surface.get_size()
-            scaled_size = (surface_width, surface_width * self._stage_ratio)
+
+            scaled_size = (
+                surface_width * range_invert_ratio,
+                surface_width * range_invert_ratio * self._stage_ratio
+            )
+
             self._scaled_surface = Surface(scaled_size, 0, self._shared_data.get_game().get_surface())
-            self._scaled_surface_pos = (0, (surface_height - scaled_size[1]) / 2)
+            self._scaled_surface_pos = (-scaled_size[0] * start_ratio, (surface_height - scaled_size[1]) / 2)
 
     def _on_entity_added(self, entity: Entity):
         # print("Entity added to view: {}".format(entity))
@@ -348,19 +371,43 @@ class InGameView(View):
         if self._stage is None:
             return
 
-        self._recompute_camera_scale(surface)
-
         self._final_surface.fill((0, 0, 0))
         self._final_surface.blit(self._terrain_surface, (0, 0))
+
+        # Camera
+        camera_range_min = None
+        camera_range_max = None
 
         for entity_drawer in self._entities.values():
             entity_drawer.draw(self._final_surface)
             if entity_drawer.DEBUG_HITBOXES:
                 pygame.draw.rect(self._final_surface, (255, 255, 255, 60), entity_drawer.get_bounding_draw_rect(), 2)
+            camera_x = entity_drawer.get_camera_x()
+            if camera_x is not None:
+                if camera_range_min is None:
+                    camera_range_min = camera_range_max = camera_x
+                elif camera_range_min > camera_x:
+                    camera_range_min = camera_x
+                elif camera_range_max < camera_x:
+                    camera_range_max = camera_x
 
+        if camera_range_min is None:
+            camera_range_max = camera_range_min = self._stage_size[0] / 2
+
+        new_camera_range = camera_range_min - self.CAMERA_MARGIN, camera_range_max + self.CAMERA_MARGIN
+        if self._camera_range != new_camera_range:
+            self._camera_range = new_camera_range
+            self._scaled_surface = None
+
+        # Recompute camera (only if self._scaled_surface = None)
+        self._recompute_camera_scale(surface)
+        assert self._scaled_surface is not None
+
+        # Render scaled
         pygame.transform.scale(self._final_surface, self._scaled_surface.get_size(), self._scaled_surface)
         surface.blit(self._scaled_surface, self._scaled_surface_pos)
 
+        # Actions keys
         pressed_keys = pygame.key.get_pressed()
         for (key, (player_idx, action)) in KEYS_PLAYERS.items():
             if pressed_keys[key]:
