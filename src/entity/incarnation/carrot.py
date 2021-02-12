@@ -47,14 +47,14 @@ class Carrot(Incarnation):
     def special_action(self):
         if self._remaining_thrusts > 0 and self._next_thrust_time <= monotonic():
             if self._remaining_thrusts == 1:
-                self._owner.front_attack(2, (13, 15), 3, 3, given_imune=0.0)
+                self._owner.front_attack(1.7, (13, 15), 3, 3, given_imune=0.0)
                 self._owner.get_stage().add_effect(
                     EffectType.SMOKE,
                     1,
                     self._owner.get_x(), self._owner.get_y(),
                 )
             else:
-                self._owner.front_attack(2, (8, 10), 0, 0, given_imune=0.0)
+                self._owner.front_attack(1.7, (8, 10), 0, 0, given_imune=0.0)
                 self._next_thrust_time = monotonic() + Carrot.COOLDOWN_THRUST
             self._remaining_thrusts -= 1
 
