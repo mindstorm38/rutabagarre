@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from entity import player
-from time import monotonic
 
 
-__all__ = ["Incarnation", "Farmer", "Potato", "Corn"]
+__all__ = ["Incarnation", "Farmer", "Potato", "Corn", "Carrot"]
 
 
 class Incarnation(ABC):
@@ -52,3 +51,4 @@ class Incarnation(ABC):
 from .farmer import Farmer
 from .potato import Potato
 from .corn import Corn
+from .carrot import Carrot

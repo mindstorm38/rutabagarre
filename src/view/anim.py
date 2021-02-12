@@ -371,6 +371,19 @@ CORN_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("attack_gun_end", (1, 8, -2))
 
 
+CARROT_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
+    .animation("idle", (0, 0, 5))\
+    .animation("hit", (6, 0, 3))\
+    .animation("sleep", (8, 3, 7), (8, 4, 2))\
+    .animation("unsleep", (8, 4, -2), (8, 3, -7))\
+    .animation("run", (1, 4, 5))\
+    .animation("grab", (1, 5, 10), (1, 6, 2))\
+    .animation("attack_side", (1, 7, 5))\
+    .animation("attack_sword_start", (1, 8, 2))\
+    .animation("attack_sword_idle", (3, 8, 3))\
+    .animation("attack_sword_end", (6, 8, 1))
+
+
 EFFECTS_ANIMATION = AnimDefinition(1, 1, 1, 1, 30, 30)\
     .animation("smoke", (0, 0, 7))\
     .animation("small_ground_dust", (0, 1, 3))\

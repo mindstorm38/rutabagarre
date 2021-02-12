@@ -124,4 +124,5 @@ TERRAIN_TILEMAP = TileMapDefinition(0, 0, 1, 1, 16, 16)\
 
 ITEMS_TILEMAP = TileMapDefinition(1, 1, 1, 1, 30, 30)\
     .tile("potato", 0, 0)\
-    .tile("corn", 1, 0)
+    .tile("corn", 1, 0)\
+    .tile("carrot", 2, 0)
