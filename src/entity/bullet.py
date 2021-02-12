@@ -21,11 +21,14 @@ class Bullet(MotionEntity):
             self.set_dead()
 
     def _entity_bound_box_predicate(self, entity: Entity) -> bool:
-        return (super()._entity_bound_box_predicate(entity) or isinstance(entity, player.Player)) and entity != self._owner
+        return super()._entity_bound_box_predicate(entity) or (
+                isinstance(entity, player.Player) and entity != self._owner and self._owner.is_sleeping()
+        )
 
     def _entity_bound_box_post_predicate(self, entity: Entity) -> bool:
         if isinstance(entity, player.Player):
-            self._owner.remove_hp_to_other(entity, self._damage)
+            if not entity.is_invincible():
+                self._owner.remove_hp_to_other(entity, self._damage)
             self.set_dead()
             return False
         return True
