@@ -183,6 +183,7 @@ class Player(MotionEntity):
     def add_to_hp(self, number) -> bool:
         self._hp += number
         if self._hp < 0:
+            self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
             self.set_dead()
             return True
         else:
