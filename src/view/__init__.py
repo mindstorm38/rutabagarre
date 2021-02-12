@@ -146,7 +146,7 @@ class SharedViewData:
         if channel is not None:
             channel.set_volume(self._sound_volume)
 
-    def play_music(self, res_path: str, loops=-1, maxtime=0, fade_ms=500):
+    def play_music(self, res_path: str, loops=-1, maxtime=0, fade_ms=1000):
         pygame.mixer.music.load(res.get_res(res_path))
         pygame.mixer.music.play(loops, maxtime, fade_ms)
         pygame.mixer.music.set_volume(self._music_volume)

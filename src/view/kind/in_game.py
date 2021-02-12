@@ -98,6 +98,18 @@ class PlayerDrawer(EntityDrawer):
         "player:mutation": (("pick", 10, 1),)
     }
 
+    MISC_SOUNDS = {
+        "farmer:rake_attack": "sounds/farmerpunch.ogg",
+        "farmer:spinning_attack": "sounds/farmerspin.ogg",
+        "hit": "sounds/hit.ogg",
+        "potato:punch": "sounds/potatopunch.ogg",
+        "potato:roll": "sounds/potatoroll.ogg",
+        "corn:shot": "sounds/cornshot.ogg",
+        "corn:gatling": "sounds/corngatling.ogg",
+        "carrot:strike": "sounds/carrotstrike.ogg",
+        "carrot:thrust": "sounds/carrotthrust.ogg"
+    }
+
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
         self.color = get_player_color(entity.get_color())
@@ -121,6 +133,7 @@ class PlayerDrawer(EntityDrawer):
         is_carrot = incarnation_type == IncarnationType.CARROT
 
         for animation in player.foreach_animation():
+
             if self.state in (self.STATE_IDLE, self.STATE_RUNNING) and animation in self.MISC_ANIMATIONS:
                 self.tracker.set_anim(*self.MISC_ANIMATIONS[animation])
                 self.state = self.STATE_MISC_ANIM
@@ -128,6 +141,9 @@ class PlayerDrawer(EntityDrawer):
                     self.state = self.STATE_MUTATING
             elif animation == "player:unmutation":
                 self.state = self.STATE_UNINIT
+
+            if animation in self.MISC_SOUNDS:
+                self.view.get_shared_data().play_sound(self.MISC_SOUNDS[animation])
 
         if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
             self.state = self.STATE_UNINIT
@@ -609,6 +625,7 @@ class InGameView(View):
         # Stop running
         if self._stop_running_at is None:
             if self._stage.is_finished():
+                self._shared_data.play_sound("sounds/victory.ogg")
                 self._stop_running_at = time.monotonic() + 5
         elif time.monotonic() >= self._stop_running_at:
             self._shared_data.get_game().show_view("end")

@@ -183,16 +183,20 @@ class Player(MotionEntity):
 
     # ADDERS
 
-    def add_to_hp(self, number) -> None:
+    def add_to_hp(self, number) -> bool:
         self._hp += number
         if self._hp < 0:
             self.set_dead()
+            return True
+        else:
+            return False
 
     def remove_hp_to_other(self, target: 'Player', hp: float):
         hp /= target.get_incarnation().get_defense()
         self._statistics.add_damage_dealt(int(hp))
         target._statistics.add_damage_taken(int(hp))
-        target.add_to_hp(-hp)
+        if target.add_to_hp(-hp):
+            self._statistics.add_kos(1)
 
     def _setup_box_pos(self, x: float, y: float):
         self._hitbox.set_positions(x - 0.5, y, x + 0.5, y + 2)

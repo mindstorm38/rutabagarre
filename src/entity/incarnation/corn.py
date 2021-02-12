@@ -48,7 +48,7 @@ class Corn(Incarnation):
         self._owner.push_animation("corn:shot")
 
     def heavy_action(self):
-        # self._owner.push_animation("corn:shot")
+        self._owner.push_animation("corn:gatling")
         self._remaining_bullets = 30
         self._next_shot_time = time.monotonic() + 0.4
         self._shot_interval = 0.05
