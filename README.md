@@ -2,6 +2,14 @@
 
 A Python game made for a GameJam with the themes "fruits and vegetables" and "to fall asleep and wake up". We got the obligation to use Pygame and a 1024 x 768 window, so don't juge us please.
 
+![Playable](https://img.shields.io/badge/playable-yes-success)
+![Game jam winner](https://img.shields.io/badge/Game%20jam%20winner-yes-success)
+![Available incarnations](https://img.shields.io/badge/available%20incarnations-3-informational)
+![GitHub all releases](https://img.shields.io/github/downloads/mindstorm38/rutabagarre/total)
+![GitHub all stars](https://img.shields.io/github/stars/mindstorm38/rutabagarre)
+![License](https://img.shields.io/github/license/mindstorm38/rutabagarre)
+
+
 
 ## What is it?
 An awesome ~~realistic, SSBU-killer~~ local-multiplayer fighting game where the player embodies a farmer that can take control of plants to fight other players.
