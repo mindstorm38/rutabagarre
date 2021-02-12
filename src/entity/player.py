@@ -317,7 +317,7 @@ class Player(MotionEntity):
     def poll_animation(self) -> Optional[str]:
         return self._animations_queue.pop(0) if len(self._animations_queue) else None
 
-    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback_x: float, knockback_y: float):
+    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback_x: float, knockback_y: float, *, given_imune: float = 0.5):
 
         """
         Attack player in the reach range.
@@ -325,6 +325,7 @@ class Player(MotionEntity):
         :param damage_range: Range of damage to pick.
         :param knockback_x: Knockback multiplier x-axis
         :param knockback_y: Knockback multiplier y-axis
+        :param given_imune: Invincibility to add to target.
         """
 
         self._cached_hitbox.set_from(self._hitbox)
@@ -347,7 +348,7 @@ class Player(MotionEntity):
                     knockback_x = -knockback_x
                 target.add_velocity(knockback_x, knockback_y)
                 target.push_animation("hit")
-                target.set_invincible_for(0.5)
+                target.set_invincible_for(given_imune)
 
     def foreach_down_sleeping_players(self):
 
