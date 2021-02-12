@@ -22,7 +22,7 @@ class Bullet(MotionEntity):
 
     def _entity_bound_box_predicate(self, entity: Entity) -> bool:
         return super()._entity_bound_box_predicate(entity) or (
-                isinstance(entity, player.Player) and entity != self._owner and self._owner.is_sleeping()
+                isinstance(entity, player.Player) and entity != self._owner and not self._owner.is_sleeping()
         )
 
     def _entity_bound_box_post_predicate(self, entity: Entity) -> bool:
