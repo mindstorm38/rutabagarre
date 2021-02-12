@@ -3,7 +3,7 @@ from enum import Enum, auto
 import random
 import time
 
-from entity.incarnation import Incarnation, Farmer, Potato, Corn
+from entity.incarnation import Incarnation, Farmer, Potato, Corn, Carrot
 from entity import Entity, MotionEntity
 from entity.effect import EffectType
 import stage
@@ -31,6 +31,7 @@ class IncarnationType(Enum):
     """ Enumeration des """
     POTATO = auto()
     CORN = auto()
+    CARROT = auto()
 
 
 class Player(MotionEntity):
@@ -46,7 +47,8 @@ class Player(MotionEntity):
 
     INCARNATIONS_CONSTRUCTORS = {
         IncarnationType.POTATO: Potato,
-        IncarnationType.CORN: Corn
+        IncarnationType.CORN: Corn,
+        IncarnationType.CARROT: Carrot
     }
 
     def __init__(self, entity_stage: 'stage.Stage', player_index: int, color: PlayerColor, hp: float = 100.0) -> None:
@@ -279,7 +281,7 @@ class Player(MotionEntity):
 
     def do_down_action(self) -> None:
 
-        if not self.can_move() or self._grabing is not None:
+        if not self.can_move() or self._grabing is not None or not self._on_ground:
             return
 
         can_sleep = self._incarnation_type is not None
@@ -315,7 +317,7 @@ class Player(MotionEntity):
     def poll_animation(self) -> Optional[str]:
         return self._animations_queue.pop(0) if len(self._animations_queue) else None
 
-    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback_x: float, knockback_y: float):
+    def front_attack(self, reach: float, damage_range: Tuple[float, float], knockback_x: float, knockback_y: float, *, given_imune: float = 0.5):
 
         """
         Attack player in the reach range.
@@ -323,6 +325,7 @@ class Player(MotionEntity):
         :param damage_range: Range of damage to pick.
         :param knockback_x: Knockback multiplier x-axis
         :param knockback_y: Knockback multiplier y-axis
+        :param given_imune: Invincibility to add to target.
         """
 
         self._cached_hitbox.set_from(self._hitbox)
@@ -345,7 +348,7 @@ class Player(MotionEntity):
                     knockback_x = -knockback_x
                 target.add_velocity(knockback_x, knockback_y)
                 target.push_animation("hit")
-                target.set_invincible_for(0.5)
+                target.set_invincible_for(given_imune)
 
     def foreach_down_sleeping_players(self):
 

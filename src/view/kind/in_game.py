@@ -1,5 +1,5 @@
 from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, \
-    EFFECTS_ANIMATION, CORN_ANIMATION
+    EFFECTS_ANIMATION, CORN_ANIMATION, CARROT_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
 from view.controls import KEYS_PLAYERS
@@ -80,6 +80,7 @@ class PlayerDrawer(EntityDrawer):
     STATE_MISC_ANIM = 5
     STATE_SLEEPING = 6
     STATE_SHOOTING = 7
+    STATE_SPECIAL = 8
 
     NO_COLOR = 255, 255, 255
 
@@ -87,6 +88,8 @@ class PlayerDrawer(EntityDrawer):
         "farmer:rake_attack": (("attack_side", 40, 1),),
         "farmer:spinning_attack": (("attack_down", 40, 2),),
         "potato:punch": (("attack_side", 20, 1),),
+        "corn:shot": (("attack_side", 20, 1),),
+        "carrot:strike": (("attack_side", 20, 1),),
         "hit": (("hit", 20, 1),),
         "grabing": (("grab", 20, 1),),
         "player:mutation": (("pick", 10, 1),)
@@ -115,6 +118,7 @@ class PlayerDrawer(EntityDrawer):
         incarnation_type = player.get_incarnation_type()
         is_potato = incarnation_type == IncarnationType.POTATO
         is_corn = incarnation_type == IncarnationType.CORN
+        is_carrot = incarnation_type == IncarnationType.CARROT
 
         for animation in player.foreach_animation():
             if self.state in (self.STATE_IDLE, self.STATE_RUNNING) and animation in self.MISC_ANIMATIONS:
@@ -127,22 +131,26 @@ class PlayerDrawer(EntityDrawer):
 
         if self.state in (self.STATE_MUTATING, self.STATE_MISC_ANIM) and self.tracker.get_anim_name() is None:
             self.state = self.STATE_UNINIT
-        elif self.state == self.STATE_ROLLING and not player.is_in_special_action():
-            self.tracker.set_anim(("attack_roll_end", 14, 1))
-            self.state = self.STATE_MISC_ANIM
-        elif self.state == self.STATE_SHOOTING and not player.is_in_special_action():
-            self.tracker.set_anim(("attack_gun_end", 14, 1))
+        elif self.state == self.STATE_SPECIAL and not player.is_in_special_action():
+            if is_potato:
+                self.tracker.set_anim(("attack_roll_end", 14, 1))
+            elif is_corn:
+                self.tracker.set_anim(("attack_gun_end", 14, 1))
+            elif is_carrot:
+                self.tracker.set_anim(("attack_sword_end", 14, 1))
             self.state = self.STATE_MISC_ANIM
         elif self.state == self.STATE_SLEEPING and not player.is_sleeping():
             self.tracker.set_anim(("unsleep", 14, 1))
             self.state = self.STATE_MISC_ANIM
 
-        if self.state != self.STATE_ROLLING and is_potato and player.is_in_special_action():
-            self.tracker.set_anim(("attack_roll_start", 14, 1), ("attack_roll_idle", 14, -1))
-            self.state = self.STATE_ROLLING
-        elif self.state != self.STATE_SHOOTING and is_corn and player.is_in_special_action():
-            self.tracker.set_anim(("attack_gun_start", 14, 1), ("attack_gun_idle", 14, -1))
-            self.state = self.STATE_SHOOTING
+        if self.state != self.STATE_SPECIAL and player.is_in_special_action():
+            if is_potato:
+                self.tracker.set_anim(("attack_roll_start", 14, 1), ("attack_roll_idle", 14, -1))
+            elif is_corn:
+                self.tracker.set_anim(("attack_gun_start", 14, 1), ("attack_gun_idle", 14, -1))
+            elif is_carrot:
+                self.tracker.set_anim(("attack_sword_start", 14, 1), ("attack_sword_idle", 14, -1))
+            self.state = self.STATE_SPECIAL
         elif self.state != self.STATE_SLEEPING and player.is_sleeping() and incarnation_type is not None:
             self.tracker.set_anim(("sleep", 14, 1), pause_at_end=True)
             self.state = self.STATE_SLEEPING
@@ -159,6 +167,8 @@ class PlayerDrawer(EntityDrawer):
                 anim_surface = self.view.get_potato_anim_surface()
             elif is_corn:
                 anim_surface = self.view.get_corn_anim_surface()
+            elif is_carrot:
+                anim_surface = self.view.get_carrot_anim_surface()
 
         player_color = self.color
         if unmutating_soon and cosine_rot < 0:
@@ -199,7 +209,8 @@ class ItemDrawer(EntityDrawer):
 
     ITEMS_NAMES = {
         IncarnationType.POTATO: "potato",
-        IncarnationType.CORN: "corn"
+        IncarnationType.CORN: "corn",
+        IncarnationType.CARROT: "carrot"
     }
 
     def __init__(self, entity: Item, view: 'InGameView'):
@@ -356,6 +367,7 @@ class InGameView(View):
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
         self._potato_anim_surface: Optional[AnimSurfaceColored] = None
         self._corn_anim_surface: Optional[AnimSurfaceColored] = None
+        self._carrot_anim_surface: Optional[AnimSurfaceColored] = None
         self._effect_anim_surface: Optional[AnimSurface] = None
 
         self._stage: Optional[Stage] = None
@@ -423,6 +435,9 @@ class InGameView(View):
 
     def get_corn_anim_surface(self) -> Optional[AnimSurfaceColored]:
         return self._corn_anim_surface
+
+    def get_carrot_anim_surface(self) -> Optional[AnimSurfaceColored]:
+        return self._carrot_anim_surface
 
     def get_effect_anim_surface(self) -> Optional[AnimSurface]:
         return self._effect_anim_surface
@@ -521,6 +536,9 @@ class InGameView(View):
 
         self._corn_anim_surface = self._shared_data\
             .new_anim_colored("corn", CORN_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
+
+        self._carrot_anim_surface = self._shared_data\
+            .new_anim_colored("carrot", CARROT_ANIMATION, self.PLAYER_SIZE, self.PLAYER_SIZE)
 
         self._effect_anim_surface = AnimSurface(self.EFFECT_SIZE, self.EFFECT_SIZE, [
             self._shared_data.get_anim("effects.png", EFFECTS_ANIMATION)

@@ -1,4 +1,6 @@
 from typing import List, Union, Tuple, Generator, Dict, TypeVar, Callable, Any, Optional
+import random
+import time
 
 from entity.player import Player, PlayerColor, IncarnationType
 from entity.effect import Effect, EffectType
@@ -161,15 +163,15 @@ class Tile:
 
 class Stage:
 
-    __slots__ = "entities", "_size", "_terrain", \
+    __slots__ = "_entities", "_size", "_terrain", \
                 "_running", "_finished", "_winner", \
                 "_spawn_points", "_players", "_living_players_count", \
-                "_items_count", \
+                "_items_count", "_next_item_spawn", \
                 "_add_entity_cb", "_remove_entity_cb"
 
     def __init__(self, width: int, height: int):
 
-        self.entities: List[Entity] = []
+        self._entities: List[Entity] = []
 
         self._size = (width, height)
         self._terrain = bytearray(width * height)
@@ -183,18 +185,26 @@ class Stage:
         self._living_players_count: int = 0
 
         self._items_count: int = 0
+        self._next_item_spawn: float = 0
 
         self._add_entity_cb: AddEntityCallback = None
         self._remove_entity_cb: RemoveEntityCallback = None
 
     def update(self):
+
         if self._running:
+
             i = 0
-            while i < len(self.entities):
-                entity = self.entities[i]
+            while i < len(self._entities):
+
+                entity = self._entities[i]
+
                 if entity.is_dead():
-                    euid = self.entities.pop(i).get_uid()
+
+                    euid = self._entities.pop(i).get_uid()
+
                     if isinstance(entity, Player):
+
                         player_data = self._players.get(entity.get_player_index())
                         if player_data is not None:
                             self._spawn_points[player_data[1]][2] = False
@@ -205,15 +215,26 @@ class Stage:
                                 for player, _ in self._players.values():
                                     if not player.is_dead():
                                         self._winner = player
+
+                    elif isinstance(entity, Item):
+                        self._items_count -= 1
+
                     if self._remove_entity_cb is not None:
                         self._remove_entity_cb(euid)
+
                 else:
+                    
                     entity.update()
                     i += 1
 
+            if self._next_item_spawn == 0 or time.monotonic() >= self._next_item_spawn:
+                self._try_spawn_random_item()
+
     def add_entity(self, constructor: Callable[['Stage', Any], E], *args, **kwargs) -> E:
         entity = constructor(self, *args, **kwargs)
-        self.entities.append(entity)
+        self._entities.append(entity)
+        if isinstance(entity, Item):
+            self._items_count += 1
         if self._add_entity_cb is not None:
             self._add_entity_cb(entity)
         return entity
@@ -237,11 +258,30 @@ class Stage:
     def add_effect(self, effect_type: EffectType, duration: float, x: float, y: float):
         self.add_entity(Effect, effect_type, duration).set_position(x, y)
 
+    def _try_spawn_random_item(self):
+        floors = [entity for entity in self._entities if isinstance(entity, Floor)]
+        floors_count = len(floors)
+        items_limit = floors_count * self._living_players_count
+        if floors_count and self._items_count < items_limit:
+            floor = random.choice(floors)
+            hitbox = floor.get_hitbox()
+            x_pos = random.uniform(hitbox.get_min_x(), hitbox.get_max_x())
+            y_pos = hitbox.get_max_y() + 1.0
+            incarnation_type = random.choice(list(IncarnationType))
+            self.add_entity(Item, incarnation_type).set_position(x_pos, y_pos)
+            if self._items_count < self._living_players_count:
+                next_in = 1
+            else:
+                next_in = 8
+        else:
+            next_in = 5
+        self._next_item_spawn = time.monotonic() + random.uniform(next_in, next_in + 3.0)
+
     def get_entities(self) -> List[Entity]:
-        return self.entities
+        return self._entities
 
     def foreach_colliding_entity(self, box: Hitbox, *, predicate: Optional[Callable[[Entity], bool]] = None) -> Generator[Entity, None, None]:
-        for entity in self.entities:
+        for entity in self._entities:
             if predicate is None or predicate(entity):
                 if entity.get_hitbox().intersects(box):
                     yield entity
@@ -361,8 +401,8 @@ class Stage:
         stage.add_spawn_point(17, 5)
         stage.add_spawn_point(35, 5)
 
-        stage.add_entity(Item, IncarnationType.CORN).set_position(26, 5)
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
-        stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
+        #stage.add_entity(Item, IncarnationType.CORN).set_position(26, 5)
+        #stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
+        #stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 
         return stage

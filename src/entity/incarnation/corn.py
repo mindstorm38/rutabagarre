@@ -37,18 +37,15 @@ class Corn(Incarnation):
 
     @staticmethod
     def get_action_cooldown() -> float:
-        return 5.0
+        return 1.0
 
     @staticmethod
     def get_heavy_action_cooldown() -> float:
         return 10.0
 
     def action(self):
-        # self._owner.push_animation("corn:shot")
-        self._remaining_bullets = 10
-        self._next_shot_time = time.monotonic() + 0.4
-        self._shot_interval = 0.2
-        self._owner.set_special_action(True)
+        self._shot_bullet(random.uniform(5.0, 8.0))
+        self._owner.push_animation("corn:shot")
 
     def heavy_action(self):
         # self._owner.push_animation("corn:shot")
@@ -61,13 +58,16 @@ class Corn(Incarnation):
 
         if self._remaining_bullets > 0:
             if self._next_shot_time == 0 or time.monotonic() >= self._next_shot_time:
-                dx = -0.4 if self._owner.get_turned_to_left() else 0.4
-                pos_x = -0.5 if self._owner.get_turned_to_left() else 0.5
-                bullet = self._owner.get_stage().add_entity(Bullet, self._owner, random.uniform(1.0, 1.2), dx)
-                bullet.set_position(self._owner.get_x() + pos_x, self._owner.get_y() + 0.8)
+                self._shot_bullet(random.uniform(1.0, 1.2))
                 self._remaining_bullets -= 1
                 self._next_shot_time = time.monotonic() + self._shot_interval
 
         if self._remaining_bullets <= 0:
             self._owner.set_special_action(False)
 
+    def _shot_bullet(self, damage: float):
+
+        dx = -0.4 if self._owner.get_turned_to_left() else 0.4
+        pos_x = -0.5 if self._owner.get_turned_to_left() else 0.5
+        bullet = self._owner.get_stage().add_entity(Bullet, self._owner, damage, dx)
+        bullet.set_position(self._owner.get_x() + pos_x, self._owner.get_y() + 0.8)
