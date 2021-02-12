@@ -8,6 +8,8 @@ class Carrot(Incarnation):
     """
     Implementation of the incarnation Carrot, the epeeist. Inherits from incarnation
     """
+    COOLDOWN_THRUST = 0.4
+    NUMBER_THRUST = 9
 
     def __init__(self, owner_player: 'player.Player'):
         Incarnation.__init__(self, owner_player)
@@ -36,9 +38,10 @@ class Carrot(Incarnation):
         self._owner.push_animation("carrot:strike")
 
     def heavy_action(self):
-        self._remaining_thrusts = 9
+        self._remaining_thrusts = Carrot.NUMBER_THRUST
         self._next_thrust_time = monotonic() + 0.4
         self._owner.set_special_action(True, False)
+        self._owner.block_moves_for(Carrot.COOLDOWN_THRUST * Carrot.NUMBER_THRUST)
 
     def special_action(self):
         if self._remaining_thrusts > 0 and self._next_thrust_time <= monotonic():
@@ -46,7 +49,7 @@ class Carrot(Incarnation):
                 self._owner.front_attack(0.5, (15, 17), 2, 2)
             else:
                 self._owner.front_attack(0.5, (10, 12), 0, 0)
-                self._next_thrust_time = monotonic() + 0.4
+                self._next_thrust_time = monotonic() + Carrot.COOLDOWN_THRUST
             self._remaining_thrusts -= 1
 
         if self._remaining_thrusts <= 0:
