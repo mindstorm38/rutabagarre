@@ -210,9 +210,10 @@ class Player(MotionEntity):
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 
-        if self._incarnation_type is not None and self.can_move() and time.monotonic() >= self._incarnation_until:
+        if self._incarnation_type is not None and time.monotonic() >= self._incarnation_until:
             self._incarnation = Farmer(self)
             self._incarnation_type = None
+            self.set_special_action(False)
             self.complete_stun_for(1)
             self.push_animation("player:unmutation")
             self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
