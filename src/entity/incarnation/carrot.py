@@ -52,7 +52,6 @@ class Carrot(Incarnation):
                     EffectType.SMOKE,
                     1,
                     self._owner.get_x(), self._owner.get_y(),
-                    given_imune = 0.0
                 )
             else:
                 self._owner.front_attack(0.5, (6, 8), 0, 0)
