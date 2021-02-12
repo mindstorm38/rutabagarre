@@ -29,6 +29,7 @@ class Bullet(MotionEntity):
         if isinstance(entity, player.Player):
             if not entity.is_invincible():
                 self._owner.remove_hp_to_other(entity, self._damage)
+                entity.push_animation("hit")
             self.set_dead()
             return False
         return True
