@@ -117,10 +117,10 @@ class EndView(View):
             surface.blit(self._damage_dealt_text, (27, 297))
             surface.blit(self._damage_taken_text, (27, 360))
 
-            surface.blit(self._ko_p1_text, (217, 171))
-            surface.blit(self._plants_collected_p1_text, (217, 234))
-            surface.blit(self._damage_dealt_p1_text, (217, 297))
-            surface.blit(self._damage_taken_p1_text, (217, 360))
+            surface.blit(self._ko_p1_text, (210, 171))
+            surface.blit(self._plants_collected_p1_text, (210, 234))
+            surface.blit(self._damage_dealt_p1_text, (210, 297))
+            surface.blit(self._damage_taken_p1_text, (210, 360))
 
             self._player_anim_surface.blit_color_on(surface, (25, 425), self._player_anim_tracker, (255, 0, 0))
 
@@ -138,10 +138,10 @@ class EndView(View):
             surface.blit(self._damage_dealt_text, (274, 297))
             surface.blit(self._damage_taken_text, (274, 360))
 
-            surface.blit(self._ko_p2_text, (463, 171))
-            surface.blit(self._plants_collected_p2_text, (463, 234))
-            surface.blit(self._damage_dealt_p2_text, (463, 297))
-            surface.blit(self._damage_taken_p2_text, (463, 360))
+            surface.blit(self._ko_p2_text, (454, 171))
+            surface.blit(self._plants_collected_p2_text, (454, 234))
+            surface.blit(self._damage_dealt_p2_text, (454, 297))
+            surface.blit(self._damage_taken_p2_text, (454, 360))
 
             self._player_anim_surface.blit_color_on(surface, (280, 425), self._player_anim_tracker, (255, 0, 0))
 
@@ -161,10 +161,10 @@ class EndView(View):
                 surface.blit(self._damage_dealt_text, (527, 297))
                 surface.blit(self._damage_taken_text, (527, 360))
 
-                surface.blit(self._ko_p3_text, (720, 171))
-                surface.blit(self._plants_collected_p3_text, (720, 234))
-                surface.blit(self._damage_dealt_p3_text, (720, 297))
-                surface.blit(self._damage_taken_p3_text, (720, 360))
+                surface.blit(self._ko_p3_text, (713, 171))
+                surface.blit(self._plants_collected_p3_text, (713, 234))
+                surface.blit(self._damage_dealt_p3_text, (713, 297))
+                surface.blit(self._damage_taken_p3_text, (713, 360))
 
                 self._player_anim_surface.blit_color_on(surface, (535, 425), self._player_anim_tracker, (255, 0, 0))
 
@@ -184,10 +184,10 @@ class EndView(View):
                     surface.blit(self._damage_dealt_text, (777, 297))
                     surface.blit(self._damage_taken_text, (777, 360))
 
-                    surface.blit(self._ko_p4_text, (970, 171))
-                    surface.blit(self._plants_collected_p4_text, (970, 234))
-                    surface.blit(self._damage_dealt_p4_text, (970, 297))
-                    surface.blit(self._damage_taken_p4_text, (970, 360))
+                    surface.blit(self._ko_p4_text, (963, 171))
+                    surface.blit(self._plants_collected_p4_text, (963, 234))
+                    surface.blit(self._damage_dealt_p4_text, (963, 297))
+                    surface.blit(self._damage_taken_p4_text, (963, 360))
 
                     self._player_anim_surface.blit_color_on(surface, (790, 425), self._player_anim_tracker, (255, 0, 0))
 
