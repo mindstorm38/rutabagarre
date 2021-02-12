@@ -30,8 +30,7 @@ An awesome ~~realistic, SSBU-killer~~ local-multiplayer fighting game where the 
 
 
 ## LANGUAGE:
-User interface, code and comments are in english.
-If we have time, a French version of the UI will be available.
+User interface, code and the majority of comments are in english. The reminding part are in Frech.
 ![Title screen](res/readme/title_screen.png)
 
 
