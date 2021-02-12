@@ -57,7 +57,8 @@ class Game:
         Point d'entrée pour le jeu.
         """
 
-        print("Starting PyGame...")
+        print()
+        print("[GAME] Starting PyGame...")
 
         pygame.init()
         pygame.mixer.init()
@@ -67,7 +68,7 @@ class Game:
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 
-        print("Initializing views...")
+        print("[GAME] Initializing views...")
 
         self._view_data.init()
         for view in self._views.values():
@@ -75,7 +76,7 @@ class Game:
 
         self.show_view("scenario")
 
-        print("Start loop...")
+        print("[GAME] Start loop...")
 
         clock = Clock()
 
@@ -92,7 +93,7 @@ class Game:
             pygame.display.flip()
             clock.tick(60)
 
-        print("Cleanup...")
+        print("[GAME] Cleanup...")
 
         self._view_data.cleanup()
         self._surface = None
@@ -100,7 +101,7 @@ class Game:
         self._active_view = None
         pygame.quit()
 
-        print("Game stopped.")
+        print("[GAME] Stopped.")
 
     def _update(self):
 
@@ -148,7 +149,7 @@ class Game:
         if self._active_view is not None:
             self._active_view.on_quit()
 
-        print("Show view: {}".format(view_name))
+        print("[GAME] Show view: {}".format(view_name))
         self._active_view = view
         view.on_enter()
 

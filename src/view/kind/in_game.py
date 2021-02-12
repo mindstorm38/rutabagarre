@@ -404,7 +404,7 @@ class InGameView(View):
 
     def on_enter(self):
 
-        print("Loading stage...")
+        print("[DRAW] Loading stage...")
 
         self._stop_running_at = None
         self._entities.clear()
@@ -417,7 +417,7 @@ class InGameView(View):
         self._stage = game.get_stage()
 
         if self._stage is None:
-            print("=> No stage ready in the game.")
+            print("[DRAW] No stage ready in the game.")
         else:
 
             self._stage.set_add_entity_callback(self._on_entity_added)
@@ -428,7 +428,7 @@ class InGameView(View):
 
             self._redraw_terrain()
 
-            print("=> Stage loaded.")
+            print("[DRAW] Stage loaded.")
 
     def on_quit(self):
         if self._stage is not None:
@@ -461,7 +461,7 @@ class InGameView(View):
 
     def _redraw_terrain(self):
 
-        print("Drawing stage terrain...")
+        print("[DRAW] Drawing stage terrain...")
 
         width, height = self._stage.get_size()
 
@@ -491,7 +491,7 @@ class InGameView(View):
         self._stage_size = (width, height)
         self._stage_ratio = height / width
 
-        print("=> Stage terrain drawn!")
+        print("[DRAW] Stage terrain drawn!")
 
     def _recompute_camera_scale(self, surface: Surface):
 
@@ -518,13 +518,13 @@ class InGameView(View):
         # print("Entity added to view: {}".format(entity))
         constructor = self.ENTITY_DRAWERS.get(type(entity))
         if constructor is None:
-            print("=> This entity has no drawer constructor, using undefined drawer.")
+            print("[DRAW] This entity has no drawer constructor, using undefined drawer.")
             constructor = EntityDrawer.undefined_drawer
         try:
             drawer = constructor(entity, self)
             self._entities[entity.get_uid()] = drawer
         except (Exception,) as e:
-            print("Failed to construct {}: {}".format(constructor, e))
+            print("[DRAW] Failed to construct {}: {}".format(constructor, e))
             traceback.print_exc()
 
     def _on_entity_removed(self, euid: int):

@@ -109,6 +109,7 @@ class SharedViewData:
         if image is None:
             image = pygame.image.load(res.get_res(res_path))
             self._images[res_path] = image
+            print("[RES] Cached image: {}".format(res_path))
         return image
 
     def get_anim(self, res_path: str, anim_def: AnimDefinition) -> Anim:
@@ -116,6 +117,7 @@ class SharedViewData:
         if animation is None:
             animation = Anim(self.get_image(res_path), anim_def)
             self._animations[res_path] = animation
+            print("[RES] Cached animation: {}".format(res_path))
         elif animation.definition != anim_def:
             raise ValueError("The animation for '{}' is already set but not of this type.".format(res_path))
         return animation
@@ -125,6 +127,7 @@ class SharedViewData:
         if tm is None:
             tm = TileMap(self.get_image(res_path), map_def)
             self._tilemaps[res_path] = tm
+            print("[RES] Cached tilemap: {}".format(res_path))
         elif tm.definition != map_def:
             raise ValueError("The tile map for '{}' is already set but not of this type.".format(res_path))
         return tm
@@ -134,6 +137,7 @@ class SharedViewData:
         if sound is None:
             sound = Sound(res.get_res(res_path))
             self._sounds[res_path] = sound
+            print("[RES] Cached sound: {}".format(res_path))
         return sound
 
     def new_anim_colored(self, anim_name, anim_def: AnimDefinition, width: int, height: int) -> AnimSurfaceColored:
