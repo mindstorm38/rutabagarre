@@ -74,109 +74,23 @@ class Anim:
 
 class AnimTracker:
 
-    __slots__ = "_anims_queue", "_last_time", "_last_anim_name"
+    __slots__ = "_anims", "_pause_at_end", "_rev", "_last_time"
 
     def __init__(self):
-
-        self._last_anim_name: Optional[str] = None
-        self._anims_queue = []
-        self._last_time = 0
-
-    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True, pause_at_end: bool = False):
-
-        """
-        Ajoute une animation dans la queue des animation.
-
-        :param name: Nom de l'animation à jouer.
-        :param repeat_count: Si == 0 l'animation va être stoppé instantanément, si < -1 la durée est indéfini,
-         sinon c'est le nombre de fois qu'il faut jouer l'animation.
-        :param fps: Nombre d'image par secondes.
-        :param rev: Prendre ou non l'animation renversé sur l'axe X.
-        :param ignore_existing: Mettre à `False` si on ne veut pas ajouter l'animation si on a déjà la même
-         avant (suivant `name`).
-        :param pause_at_end:  Est-ce que l'animation doit être mise en pause sur la dernière frame.
-        """
-
-        if ignore_existing or self._last_anim_name != name:
-            self._last_anim_name = name
-            self._anims_queue.insert(0, [name, _format_reversed(name, rev), repeat_count, 1 / fps, 0, rev, pause_at_end])
-            self._last_time = 0
-            # base name, effective name, repeat count, interval, reversed?, pause_at_end?
-
-    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True, pause_at_end: bool = False):
-        """ Version raccourci de `push_anim` avec un `repeat_count = 0` (durée indeterminée). """
-        self.push_anim(name, -1, fps, rev=rev, ignore_existing=ignore_existing, pause_at_end=pause_at_end)
-
-    def stop_last_anim(self, name: str):
-
-        """
-        Défini le `repeat_count = 0` (arrêt de l'animation) de la dernière anim demandée si
-        celle-ci est bien nommée `name`.
-        """
-
-        if self._last_anim_name == name:
-            self._anims_queue[0][2] = 0
-
-    def is_last_anim(self, *names: str) -> bool:
-        return self._last_anim_name in names
-
-    def set_all_reversed(self, rev: bool):
-        for data in self._anims_queue:
-            data[1] = _format_reversed(data[0], rev)
-
-    def get_anim(self) -> Optional[Tuple[str, int, int, bool]]:
-
-        if not len(self._anims_queue):
-            return None
-
-        data = self._anims_queue[0]
-
-        now = time.monotonic()
-        if now - self._last_time >= data[3]:
-            if self._last_time != 0:
-                data[4] += 1
-            self._last_time = now
-
-        # tile name, frames count, repeat count, pause_at_end?
-        return data[1], data[4], data[2], data[6]
-
-    def pop_anim(self):
-        if len(self._anims_queue):
-            self._anims_queue.pop(0)
-        self._last_anim_name = self._anims_queue[0][0] if len(self._anims_queue) else None
-
-
-class NewAnimTracker(AnimTracker):
-
-    __slots__ = "_anims", "_pause_at_end", "_rev"
-
-    def __init__(self):
-
-        super().__init__()
 
         # Tuple: (raw_name, real_name, interval, repeat_count, frame)
         self._anims: List = []
         self._pause_at_end: bool = False
         self._rev: bool = False
+        self._last_time: float = 0
 
-    def set_anim(self, *anims: Tuple[str, int, int], pause_at_end: bool = False, ):
+    def set_anim(self, *anims: Tuple[str, int, int], pause_at_end: bool = False):
         """ Animation tuple: (name, fps, repeat_count) """
         self._anims.clear()
         for raw_name, fps, repeat_count in anims:
             self._anims.append([raw_name, _format_reversed(raw_name, self._rev), 1 / fps, repeat_count, 0])
         self._pause_at_end = pause_at_end
         self._last_time = 0
-
-    def push_anim(self, name: str, repeat_count: int, fps: float, *, rev: bool = False, ignore_existing: bool = True,
-                  pause_at_end: bool = False):
-        raise NotImplementedError()
-
-    def push_infinite_anim(self, name: str, fps: float, *, rev: bool = False, ignore_existing: bool = True,
-                           pause_at_end: bool = False):
-        raise NotImplementedError()
-
-    def stop_last_anim(self, name: str):
-        raise NotImplementedError()
 
     def get_anim_name(self) -> Optional[str]:
         return self._anims[0][0] if len(self._anims) else None

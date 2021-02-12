@@ -26,7 +26,7 @@ class ColorSelectView(View):
 
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
         self._player_anim_tracker = AnimTracker()
-        self._player_anim_tracker.push_infinite_anim("idle", 4)
+        self._player_anim_tracker.set_anim(("idle", 4, -1))
 
         self._title: Optional[ViewButton] = None
         self._color_grid: Optional['ViewColorGrid'] = None

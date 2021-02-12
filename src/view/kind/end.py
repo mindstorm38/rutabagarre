@@ -1,11 +1,10 @@
-from view.anim import FARMER_ANIMATION, AnimTracker
+from view.anim import AnimTracker, FARMER_ANIMATION
 from view import View, AnimSurfaceColored
 from view.button import ViewButton
 from typing import Optional
 from pygame import Surface
 import pygame
 from view.player import get_player_color
-from stage import Stage
 
 
 class EndView(View):
@@ -19,7 +18,7 @@ class EndView(View):
 
         self._player_anim_surface: Optional[AnimSurfaceColored] = None
         self._player_anim_tracker = AnimTracker()
-        self._player_anim_tracker.push_infinite_anim("idle", 4)
+        self._player_anim_tracker.set_anim(("idle", 4, -1))
 
         self._ko_text: Optional[Surface] = None
         self._plants_collected_text: Optional[Surface] = None

@@ -1,4 +1,4 @@
-from view.anim import AnimSurfaceColored, AnimSurface, NewAnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, \
+from view.anim import AnimSurfaceColored, AnimSurface, AnimTracker, FARMER_ANIMATION, POTATO_ANIMATION, \
     EFFECTS_ANIMATION, CORN_ANIMATION, CARROT_ANIMATION
 from view.tilemap import TileMap, TERRAIN_TILEMAP, ITEMS_TILEMAP
 from view.player import get_player_color
@@ -113,7 +113,7 @@ class PlayerDrawer(EntityDrawer):
     def __init__(self, entity: Player, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.PLAYER_SIZE, InGameView.PLAYER_SIZE))
         self.color = get_player_color(entity.get_color())
-        self.tracker = NewAnimTracker()
+        self.tracker = AnimTracker()
         self.phase_shift = random.random() * math.pi
         self.camera_x = entity.get_x()
         self.state = self.STATE_UNINIT
@@ -249,7 +249,7 @@ class EffectDrawer(EntityDrawer):
     def __init__(self, entity: Effect, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.EFFECT_SIZE, InGameView.EFFECT_SIZE))
         self.anim_surface = view.get_effect_anim_surface()
-        self.tracker = NewAnimTracker()
+        self.tracker = AnimTracker()
         self.effect_type = entity.get_effect_type()
         if self.effect_type in self.EFFECT_ANIMS:
             self.tracker.set_anim(*self.EFFECT_ANIMS[self.effect_type])
@@ -263,7 +263,7 @@ class BulletDrawer(EntityDrawer):
     def __init__(self, entity: Entity, view: 'InGameView'):
         super().__init__(entity, view, (InGameView.EFFECT_SIZE, InGameView.EFFECT_SIZE))
         self.anim_surface = view.get_effect_anim_surface()
-        self.tracker = NewAnimTracker()
+        self.tracker = AnimTracker()
         self.tracker.set_anim(("corn_bullet", 14, -1))
 
     def _calc_offsets(self, size: Tuple[int, int]) -> Tuple[int, int]:
