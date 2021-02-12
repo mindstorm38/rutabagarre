@@ -279,7 +279,7 @@ class Player(MotionEntity):
 
     def do_down_action(self) -> None:
 
-        if not self.can_move() or self._grabing is not None:
+        if not self.can_move() or self._grabing is not None or not self._on_ground:
             return
 
         can_sleep = self._incarnation_type is not None
