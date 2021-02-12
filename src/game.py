@@ -2,6 +2,7 @@ from typing import Optional, Dict
 from pygame.time import Clock
 from pygame import Surface
 import pygame
+import time
 
 from stage import Stage
 from view import View, SharedViewData
@@ -16,6 +17,8 @@ class Game:
     instances du Stage en cours d'exécution ainsi que les vues.
     """
 
+    DEBUG_PERFS = False
+
     def __init__(self):
 
         self._surface: Optional[Surface] = None
@@ -26,6 +29,10 @@ class Game:
         self._view_data = SharedViewData(self)
 
         self._stage: Optional[Stage] = None
+
+        self._perf_update: float = 0
+        self._perf_draw: float = 0
+        self._next_perf_print: float = 0
 
         self._init_views()
 
@@ -102,10 +109,18 @@ class Game:
         """
 
         if self._stage is not None:
+            start = time.perf_counter_ns()
             self._stage.update()
+            self._perf_update = time.perf_counter_ns() - start
 
         if self._active_view is not None:
+            start = time.perf_counter_ns()
             self._active_view.draw(self._surface)
+            self._perf_draw = time.perf_counter_ns() - start
+
+        if self.DEBUG_PERFS and time.monotonic() >= self._next_perf_print:
+            self._next_perf_print = time.monotonic() + 2.0
+            print("Timings: Update: {}ns, Draw: {}ns".format(self._perf_update, self._perf_draw))
 
     def _add_view(self, name: str, view: View):
 
