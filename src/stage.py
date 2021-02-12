@@ -261,16 +261,21 @@ class Stage:
     def _try_spawn_random_item(self):
         floors = [entity for entity in self._entities if isinstance(entity, Floor)]
         floors_count = len(floors)
-        if floors_count and self._items_count < floors_count:
+        items_limit = floors_count * self._living_players_count
+        if floors_count and self._items_count < items_limit:
             floor = random.choice(floors)
             hitbox = floor.get_hitbox()
             x_pos = random.uniform(hitbox.get_min_x(), hitbox.get_max_x())
             y_pos = hitbox.get_max_y() + 1.0
             incarnation_type = random.choice(list(IncarnationType))
             self.add_entity(Item, incarnation_type).set_position(x_pos, y_pos)
-            self._next_item_spawn = time.monotonic() + random.uniform(10.0, 15.0)
+            if self._items_count < self._living_players_count:
+                next_in = 1
+            else:
+                next_in = 8
         else:
-            self._next_item_spawn = time.monotonic() + random.uniform(5.0, 10.0)
+            next_in = 5
+        self._next_item_spawn = time.monotonic() + random.uniform(next_in, next_in + 3.0)
 
     def get_entities(self) -> List[Entity]:
         return self._entities
