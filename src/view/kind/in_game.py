@@ -87,6 +87,7 @@ class PlayerDrawer(EntityDrawer):
         "farmer:rake_attack": (("attack_side", 40, 1),),
         "farmer:spinning_attack": (("attack_down", 40, 2),),
         "potato:punch": (("attack_side", 20, 1),),
+        "corn:shot": (("attack_side", 20, 1),),
         "hit": (("hit", 20, 1),),
         "grabing": (("grab", 20, 1),),
         "player:mutation": (("pick", 10, 1),)
