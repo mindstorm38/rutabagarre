@@ -63,13 +63,16 @@ class PlayerDrawer(EntityDrawer):
 
     __slots__ = "color", "tracker", "phase_shift", "camera_x", "state"
 
-    BAR_WIDTH, BAR_HEIGHT = 150, 10
+    BAR_WIDTH, BAR_HEIGHT = 100, 10
     BAR_OFFSET = 40
     BAR_SLEEPING_OFFSET = 25
     HALF_BAR_WIDTH = BAR_WIDTH // 2
-    HEALTH_BACKGROUND_COLOR = 16, 26, 11
+    HEALTH_BACKG_COLOR = 16, 26, 11
     MAX_HEALTH_COLOR = 74, 201, 20
     MIN_HEALTH_COLOR = 201, 20, 20
+    INCARNATION_COLOR = 47, 82, 212
+    INCARNATION_BACK_COLOR = 23, 34, 74
+
     CAMERA_SPEED = 0.1
 
     STATE_UNINIT = 0
@@ -110,9 +113,6 @@ class PlayerDrawer(EntityDrawer):
 
         player = cast(Player, self.entity)
         self.tracker.set_all_reversed(player.get_turned_to_left())
-
-        cosine_rot = math.cos(time.monotonic() * 5 + self.phase_shift)
-        unmutating_soon = player.has_incarnation() and player.get_incarnation_remaining_duration() < 4.0
 
         can_run = player.get_vel_x() != 0 and player.is_on_ground()
         incarnation_type = player.get_incarnation_type()
@@ -170,37 +170,29 @@ class PlayerDrawer(EntityDrawer):
             elif is_carrot:
                 anim_surface = self.view.get_carrot_anim_surface()
 
-        player_color = self.color
-        if unmutating_soon and cosine_rot < 0:
-            player_color = self.NO_COLOR
-        anim_surface.blit_color_on(surface, self._get_draw_pos(), self.tracker, player_color)
+        anim_surface.blit_color_on(surface, self._get_draw_pos(), self.tracker, self.color)
 
         health_ratio = player.get_hp_ratio()
         health_color = _lerp_color(self.MIN_HEALTH_COLOR, self.MAX_HEALTH_COLOR, health_ratio)
         health_bar_x, health_bar_y = self.view.get_screen_pos(self.entity.get_x(), self.entity.get_y())
-        health_bar_x -= self.HALF_BAR_WIDTH
         if not player.is_sleeping():
             health_bar_y -= InGameView.PLAYER_SIZE + self.BAR_OFFSET
         else:
             health_bar_y += self.BAR_SLEEPING_OFFSET
-        health_bar_y -= cosine_rot * 4
-        health_bar_width = int(self.BAR_WIDTH * health_ratio)
+        health_bar_y -= math.cos(time.monotonic() * 5 + self.phase_shift) * 4
 
-        pygame.draw.rect(surface, self.HEALTH_BACKGROUND_COLOR, (
-            health_bar_x + health_bar_width,
-            health_bar_y,
-            self.BAR_WIDTH - health_bar_width,
-            self.BAR_HEIGHT
-        ))
-
-        pygame.draw.rect(surface, health_color, (
-            health_bar_x,
-            health_bar_y,
-            health_bar_width,
-            self.BAR_HEIGHT
-        ))
+        self._draw_bar(surface, health_bar_x, health_bar_y, health_ratio, health_color, self.HEALTH_BACKG_COLOR)
+        if incarnation_type is not None:
+            ratio = player.get_incarnation_duration_ratio()
+            self._draw_bar(surface, health_bar_x, health_bar_y + self.BAR_HEIGHT, ratio, self.INCARNATION_COLOR, self.INCARNATION_BACK_COLOR)
 
         self.camera_x += (player.get_x() - self.camera_x) * self.CAMERA_SPEED
+
+    def _draw_bar(self, surface: Surface, x: int, y: int, ratio: float, color: Tuple[int, int, int], back_color: Tuple[int, int, int]):
+        x -= self.HALF_BAR_WIDTH
+        health_bar_width = int(self.BAR_WIDTH * ratio)
+        pygame.draw.rect(surface, back_color, (x + health_bar_width, y, self.BAR_WIDTH - health_bar_width, self.BAR_HEIGHT))
+        pygame.draw.rect(surface, color, (x, y, health_bar_width, self.BAR_HEIGHT))
 
 
 class ItemDrawer(EntityDrawer):
