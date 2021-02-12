@@ -43,6 +43,7 @@ class Carrot(Incarnation):
         self._next_thrust_time = monotonic() + 0.4
         self._owner.set_special_action(True, False)
         self._owner.block_moves_for(Carrot.COOLDOWN_THRUST * Carrot.NUMBER_THRUST)
+        self._owner.push_animation("carrot:thrust")
 
     def special_action(self):
         if self._remaining_thrusts > 0 and self._next_thrust_time <= monotonic():

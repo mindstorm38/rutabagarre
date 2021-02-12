@@ -47,34 +47,38 @@ class SettingsView(View):
 
         self._left_music = ViewButton(35, "<")
         self._left_music .set_size(50, 50)
-        self._left_music .set_action_callback(self._change_music_vol(1))
-        self.add_child(self._left_music )
+        self._left_music .set_action_callback(self._change_vol(-1, "music"))
+        self.add_child(self._left_music)
 
         self._right_music = ViewButton(35, ">")
         self._right_music.set_size(50, 50)
-        self._right_music.set_action_callback(self._change_music_vol(0))
+        self._right_music.set_action_callback(self._change_vol(1, "music"))
         self.add_child(self._right_music)
 
-        self._comingsoon_text = self._shared_data.get_font(50).render("Coming soon", True, self.TEXT_COLOR)
+        self._left_sound = ViewButton(35, "<")
+        self._left_sound .set_size(50, 50)
+        self._left_sound .set_action_callback(self._change_vol(-1, "sound"))
+        self.add_child(self._left_sound)
+
+        self._right_sound = ViewButton(35, ">")
+        self._right_sound.set_size(50, 50)
+        self._right_sound.set_action_callback(self._change_vol(1, "sound"))
+        self.add_child(self._right_sound)
 
         self._music_text = self._shared_data.get_font(50).render("Music", True, self.TEXT_COLOR)
         self._sound_text = self._shared_data.get_font(50).render("Sound", True, self.TEXT_COLOR)
 
-        self._music_percent_text = self._shared_data.get_font(50).render(str(int(self._music_vol*100)) + "%", True, self.TEXT_COLOR)
-
-    def _change_music_vol(self, way: int):
-        def _cb(_i) :
-            if way == 1 :
-                if pygame.mixer.music.get_volume() < 0.1:
-                    pygame.mixer.music.set_volume(0.0)
-                else :
-                    pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()  - 0.1)
-            else :
-                pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()  + 0.1)
-            self._shared_data.get_game().show_view("settings")
+    def _change_vol(self, way: int, typ: str):
+        def _cb(_i):
+            if typ == "music":
+                self._shared_data.music_volume = max(0.0, min(1.0, self._shared_data.music_volume + way * 0.01))
+            elif typ == "sound":
+                self._shared_data.sound_volume = max(0.0, min(1.0, self._shared_data.sound_volume + way * 0.01))
+            self._redraw()
         return _cb
 
     def _inner_pre_draw(self, surface: Surface):
+
         surface_width, surface_height = surface.get_size()
         x_mid = surface_width / 2
 
@@ -94,11 +98,21 @@ class SettingsView(View):
 
         self._right_music.set_position_centered(750, 300)
         self._left_music.set_position_centered(450, 300)
+        self._right_sound.set_position_centered(750, 410)
+        self._left_sound.set_position_centered(450, 410)
 
-        surface.blit(self._comingsoon_text, (500, 385))
         surface.blit(self._music_text, (255, 290))
         surface.blit(self._sound_text, (250, 385))
-        surface.blit(self._music_percent_text, (570, 290))
+
+        if self._music_percent_text is not None:
+            surface.blit(self._music_percent_text, (570, 290))
+
+        if self._sound_percent_text is not None:
+            surface.blit(self._sound_percent_text, (570, 385))
+
+    def _redraw(self):
+        self._music_percent_text = self._shared_data.get_font(50).render("{:.2f}%".format(self._shared_data.music_volume * 100.0), True, self.TEXT_COLOR)
+        self._sound_percent_text = self._shared_data.get_font(50).render("{:.2f}%".format(self._shared_data.sound_volume * 100.0), True, self.TEXT_COLOR)
 
     def on_enter(self):
-        self._music_percent_text = self._shared_data.get_font(50).render(str(int(pygame.mixer.music.get_volume()*100)) + "%", True, self.TEXT_COLOR)
+        self._redraw()

@@ -62,6 +62,7 @@ class Player(MotionEntity):
 
         self._incarnation_type: Optional[IncarnationType] = None
         self._incarnation: Incarnation = Farmer(self)
+        self._incarnation_duration: float = 1.0  # = 1.0 pour éviter les div par 0
         self._incarnation_until: float = 0.0
 
         self._block_moves_until: float = 0.0
@@ -107,8 +108,8 @@ class Player(MotionEntity):
     def has_incarnation(self) -> bool:
         return self._incarnation_type is not None
 
-    def get_incarnation_remaining_duration(self) -> float:
-        return self._incarnation_until - time.monotonic()
+    def get_incarnation_duration_ratio(self) -> float:
+        return max(0.0, (self._incarnation_until - (0 if self._sleeping else time.monotonic())) / self._incarnation_duration)
 
     def get_sleeping(self) -> bool:
         return self._sleeping
@@ -182,16 +183,20 @@ class Player(MotionEntity):
 
     # ADDERS
 
-    def add_to_hp(self, number) -> None:
+    def add_to_hp(self, number) -> bool:
         self._hp += number
         if self._hp < 0:
             self.set_dead()
+            return True
+        else:
+            return False
 
     def remove_hp_to_other(self, target: 'Player', hp: float):
         hp /= target.get_incarnation().get_defense()
         self._statistics.add_damage_dealt(int(hp))
         target._statistics.add_damage_taken(int(hp))
-        target.add_to_hp(-hp)
+        if target.add_to_hp(-hp):
+            self._statistics.add_kos(1)
 
     def _setup_box_pos(self, x: float, y: float):
         self._hitbox.set_positions(x - 0.5, y, x + 0.5, y + 2)
@@ -210,9 +215,11 @@ class Player(MotionEntity):
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 
-        if self._incarnation_type is not None and self.can_move() and time.monotonic() >= self._incarnation_until:
+        if self._incarnation_type is not None and not self._sleeping and time.monotonic() >= self._incarnation_until:
             self._incarnation = Farmer(self)
             self._incarnation_type = None
+            self._incarnation_duration = 1
+            self.set_special_action(False)
             self.complete_stun_for(1)
             self.push_animation("player:unmutation")
             self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
@@ -301,7 +308,7 @@ class Player(MotionEntity):
         if can_sleep:
             self._sleeping = True
             # Quand on dors, on défini le "until" au temps restant, afin de le restaurer au reveil
-            self._incarnation_until = self.get_incarnation_remaining_duration()
+            self._incarnation_until -= time.monotonic()
             self.set_invincible_for(2)
 
     # ACTIONS FOR INCARNATIONS
@@ -376,7 +383,8 @@ class Player(MotionEntity):
             try:
                 self._incarnation = constructor(self)
                 self._incarnation_type = typ
-                self._incarnation_until = time.monotonic() + self._incarnation.get_duration()
+                self._incarnation_duration = self._incarnation.get_duration()
+                self._incarnation_until = time.monotonic() + self._incarnation_duration
                 self.set_special_action(False)
                 self.complete_stun_for(1)
                 self.push_animation("player:mutation")
