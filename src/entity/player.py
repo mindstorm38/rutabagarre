@@ -183,6 +183,7 @@ class Player(MotionEntity):
     def add_to_hp(self, number) -> bool:
         self._hp += number
         if self._hp < 0:
+            self._stage.add_effect(EffectType.SMOKE, 2, self._x, self._y)
             self.set_dead()
             return True
         else:
@@ -297,9 +298,9 @@ class Player(MotionEntity):
             if not target.is_purely_invincible():
                 now = time.monotonic()
                 self._grabing = (target, now + 0.5, now + 1)
-                self.complete_stun_for(2)
+                self.complete_stun_for(1)
                 target.set_sleeping(False)
-                target.complete_stun_for(2)
+                target.complete_stun_for(1)
                 # target._sleeping = False
                 self.push_animation("grabing")
                 return

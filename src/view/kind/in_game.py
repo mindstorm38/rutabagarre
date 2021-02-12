@@ -629,7 +629,7 @@ class InGameView(View):
         # Stop running
         if self._stop_running_at is None:
             if self._stage.is_finished():
-                self._shared_data.play_sound("sounds/victory.ogg")
+                self._shared_data.play_music("sounds/victory.ogg", 0, 0, 0)
                 self._stop_running_at = time.monotonic() + 5
         elif time.monotonic() >= self._stop_running_at:
             self._shared_data.get_game().show_view("end")
