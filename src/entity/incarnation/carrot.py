@@ -1,6 +1,7 @@
 from entity.incarnation import Incarnation
 from entity import player
 from time import monotonic
+from entity.effect import EffectType
 
 
 class Carrot(Incarnation):
@@ -46,9 +47,14 @@ class Carrot(Incarnation):
     def special_action(self):
         if self._remaining_thrusts > 0 and self._next_thrust_time <= monotonic():
             if self._remaining_thrusts == 1:
-                self._owner.front_attack(0.5, (15, 17), 2, 2)
+                self._owner.front_attack(0.5, (13, 15), 2, 2)
+                self._owner.get_stage().add_effect(
+                    EffectType.SMOKE,
+                    1,
+                    self._owner.get_x(), self._owner.get_y()
+                )
             else:
-                self._owner.front_attack(0.5, (10, 12), 0, 0)
+                self._owner.front_attack(0.5, (6, 8), 0, 0)
                 self._next_thrust_time = monotonic() + Carrot.COOLDOWN_THRUST
             self._remaining_thrusts -= 1
 
