@@ -56,7 +56,7 @@ class HowToPlayView(View):
         self._add_charact("howtoplay/potato.png", "Potato", "Hand-to-Hand attack", "ctrl / space / : / 0", "Why does everyone love cooking whit potatoes?", "They're very a-peeling!")
         self._add_charact("howtoplay/corn.png", "Corn", "Ranged attack", "ctrl / space / : / 0", "Why do farmers make terrible comedians?", "Their jokes are corny!")
         self._add_charact("howtoplay/mushroom.png", "Mushroom", "Smock attack", "ctrl / space / : / 0", "COMING SOON", " ")
-        self._add_charact("howtoplay/carrot.png", "Carrot", "Sword attack", "ctrl / space / : / 0", "COMING SOON", " ")
+        self._add_charact("howtoplay/carrot.png", "Carrot", "Sword attack", "ctrl / space / : / 0", "What’s clear and smells like carrots?", "Rabbit farts")
         self._add_charact("howtoplay/chilli.png", "Chilli", "Fire attack", "ctrl / space / : / 0", "COMING SOON", " ")
 
     def _add_charact(self, res_path: str, name: str, type: str, specialhit: str, joke: str, respons: str):
