@@ -111,9 +111,6 @@ class Player(MotionEntity):
     def get_incarnation_duration_ratio(self) -> float:
         return max(0.0, (self._incarnation_until - (0 if self._sleeping else time.monotonic())) / self._incarnation_duration)
 
-    def get_sleeping(self) -> bool:
-        return self._sleeping
-
     def can_move(self) -> bool:
         return time.monotonic() >= self._block_moves_until and not self._sleeping
 
@@ -267,10 +264,11 @@ class Player(MotionEntity):
 
     def move_jump(self) -> None:
         if self._sleeping:
-            self._sleeping = False
-            self.complete_stun_for(0.7)
+            self.set_sleeping(False)
+            """self._sleeping = False
+            self.complete_stun_for(0.6)
             # On restaure le temps restant
-            self._incarnation_until += time.monotonic()
+            self._incarnation_until += time.monotonic()"""
         elif self._on_ground and self.can_jump():
             self.add_velocity(0, self.JUMP_VELOCITY)
             self._stage.add_effect(EffectType.BIG_GROUND_DUST, 1, self._x, self._y)
@@ -300,16 +298,18 @@ class Player(MotionEntity):
                 now = time.monotonic()
                 self._grabing = (target, now + 0.5, now + 1)
                 self.complete_stun_for(2)
+                target.set_sleeping(False)
                 target.complete_stun_for(2)
-                target._sleeping = False
+                # target._sleeping = False
                 self.push_animation("grabing")
                 return
 
         if can_sleep:
-            self._sleeping = True
+            self.set_sleeping(True)
+            """self._sleeping = True
             # Quand on dors, on défini le "until" au temps restant, afin de le restaurer au reveil
             self._incarnation_until -= time.monotonic()
-            self.set_invincible_for(2)
+            self.set_invincible_for(2)"""
 
     # ACTIONS FOR INCARNATIONS
 
@@ -366,6 +366,18 @@ class Player(MotionEntity):
 
         for target in self._stage.foreach_colliding_entity(self._cached_hitbox, predicate=Player.is_sleeping_player):
             yield target
+
+    def set_sleeping(self, sleeping: bool):
+        if sleeping:
+            self._sleeping = True
+            # Quand on dors, on défini le "until" au temps restant, afin de le restaurer au reveil
+            self._incarnation_until -= time.monotonic()
+            self.set_invincible_for(1)
+        else:
+            self._sleeping = False
+            # On restaure le temps restant
+            self._incarnation_until += time.monotonic()
+            self.complete_stun_for(0.6)
 
     @staticmethod
     def is_player(entity: Entity) -> bool:
