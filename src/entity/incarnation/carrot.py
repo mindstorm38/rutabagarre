@@ -1,7 +1,6 @@
 from entity.incarnation import Incarnation
 from entity import player
 from time import monotonic
-from entity.effect import EffectType
 
 
 class Carrot(Incarnation):
@@ -42,18 +41,15 @@ class Carrot(Incarnation):
         self._remaining_thrusts = Carrot.NUMBER_THRUST
         self._next_thrust_time = monotonic() + 0.4
         self._owner.set_special_action(True, False)
-        self._owner.block_moves_for(Carrot.COOLDOWN_THRUST * Carrot.NUMBER_THRUST)
+        self._owner.block_jump_for(Carrot.COOLDOWN_THRUST * Carrot.NUMBER_THRUST)
+        # self._owner.block_moves_for(Carrot.COOLDOWN_THRUST * Carrot.NUMBER_THRUST)
         self._owner.push_animation("carrot:thrust")
 
     def special_action(self):
         if self._remaining_thrusts > 0 and self._next_thrust_time <= monotonic():
             if self._remaining_thrusts == 1:
-                self._owner.front_attack(1.7, (13, 15), 3, 3, given_imune=0.0)
-                self._owner.get_stage().add_effect(
-                    EffectType.SMOKE,
-                    1,
-                    self._owner.get_x(), self._owner.get_y(),
-                )
+                self._owner.front_attack(1.7, (13, 15), 3, 3)
+                # self._owner.get_stage().add_effect(EffectType.SMOKE, 1, self._owner.get_x(), self._owner.get_y())
             else:
                 self._owner.front_attack(1.7, (8, 10), 0, 0, given_imune=0.0)
                 self._next_thrust_time = monotonic() + Carrot.COOLDOWN_THRUST
