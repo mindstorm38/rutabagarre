@@ -6,11 +6,7 @@ import pygame
 from stage import Stage
 from view import View, SharedViewData
 from view.kind import *
-from view.kind.scenario import ScenarioView
-
-
-# TODO: Ajouter dans le `enter` de la vue `end` :
-#  self._shared_data.play_music("music/menumusic.ogg")
+import res
 
 
 class Game:
@@ -59,8 +55,8 @@ class Game:
         pygame.init()
         pygame.mixer.init()
         pygame.display.set_caption("Rutabagarre")
-        self._logo = pygame.image.load("../res/menusmisc/favicon32.png")
-        pygame.display.set_icon(self._logo)
+        pygame.display.set_icon(pygame.image.load(res.get_res("menusmisc/favicon32.png")))
+
         self._surface = pygame.display.set_mode((1024, 768))
         self._running = True
 

@@ -210,6 +210,8 @@ class EndView(View):
 
     def on_enter(self):
 
+        self._shared_data.play_music("music/menumusic.ogg")
+
         self._winner_button.set_text("P" + str(self._shared_data.get_game().get_stage().get_winner().get_player_index() + 1) + " Win!")
 
         stage = self._shared_data.get_game().get_stage()

@@ -5,5 +5,6 @@ from .title import TitleView
 from .how_to_play import HowToPlayView
 from .settings import SettingsView
 from .end import EndView
+from .scenario import ScenarioView
 
-__all__ = ["TitleView", "ColorSelectView", "InGameView", "CreditsView", "EndView", "HowToPlayView", "SettingsView"]
+__all__ = ["TitleView", "ColorSelectView", "InGameView", "CreditsView", "EndView", "HowToPlayView", "SettingsView", "ScenarioView"]
