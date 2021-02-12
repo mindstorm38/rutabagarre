@@ -66,6 +66,8 @@ class Tile:
     TILE_STONE_7 = ord("m")
     TILE_STONE_8 = ord("n")
     TILE_STONE_9 = ord("o")
+    TILE_STONE_10 = ord("8")
+    TILE_STONE_11 = ord("9")
 
     TILE_DIRT_STONE_1 = ord("p")
     TILE_DIRT_STONE_2 = ord("q")
@@ -76,6 +78,8 @@ class Tile:
     TILE_DIRT_STONE_7 = ord("v")
     TILE_DIRT_STONE_8 = ord("w")
     TILE_DIRT_STONE_9 = ord("x")
+    TILE_DIRT_STONE_10 = ord("0")
+    TILE_DIRT_STONE_11 = ord("&")
 
     TILE_GRASS_DIRT_STONE_1 = ord("y")
     TILE_GRASS_DIRT_STONE_2 = ord("z")
@@ -135,6 +139,8 @@ class Tile:
         TILE_STONE_7,
         TILE_STONE_8,
         TILE_STONE_9,
+        TILE_STONE_10,
+        TILE_STONE_11,
 
         TILE_DIRT_STONE_1,
         TILE_DIRT_STONE_2,
@@ -145,6 +151,8 @@ class Tile:
         TILE_DIRT_STONE_7,
         TILE_DIRT_STONE_8,
         TILE_DIRT_STONE_9,
+        TILE_DIRT_STONE_10,
+        TILE_DIRT_STONE_11,
 
         TILE_GRASS_DIRT_STONE_1,
         TILE_GRASS_DIRT_STONE_2,
@@ -364,11 +372,13 @@ class Stage:
         stage = cls(50, 15)
 
         stage.set_terrain(
-            15, 2,
+            15, 0,
             b" b    b         b  b",
             b"JSSKSKSKKSKKKKSKSKKSKT",
-            b"qqqqqqqqqqqqqqqqqqqqqq",
-            b" mnnnnnnnnnnnnnnnnnno"
+            b"0qqqqqrVpqqqqqqqqqqqq&",
+            b" mnnnkkkkkknknnnkkkno",
+            b"     mnkkko 8   mno",
+            b"       mno  9"
         )
         floor = stage.add_entity(Floor)
         floor.get_hitbox().set_positions(15, 2, 37, 4)
@@ -400,9 +410,5 @@ class Stage:
         stage.add_spawn_point(29, 5)
         stage.add_spawn_point(17, 5)
         stage.add_spawn_point(35, 5)
-
-        #stage.add_entity(Item, IncarnationType.CORN).set_position(26, 5)
-        #stage.add_entity(Item, IncarnationType.POTATO).set_position(20, 9)
-        #stage.add_entity(Item, IncarnationType.POTATO).set_position(32, 9)
 
         return stage
