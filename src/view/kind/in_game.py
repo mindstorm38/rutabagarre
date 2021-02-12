@@ -79,10 +79,10 @@ class PlayerDrawer(EntityDrawer):
     STATE_IDLE = 1
     STATE_RUNNING = 2
     STATE_MUTATING = 3
-    STATE_ROLLING = 4
+    # STATE_ROLLING = 4
     STATE_MISC_ANIM = 5
     STATE_SLEEPING = 6
-    STATE_SHOOTING = 7
+    # STATE_SHOOTING = 7
     STATE_SPECIAL = 8
 
     NO_COLOR = 255, 255, 255

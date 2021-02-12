@@ -278,6 +278,8 @@ class AnimSurface:
                         else:
                             sub_surface = sub_surfaces[frame % sub_surfaces_count]
                         surface.blit(sub_surface, pos)
+                else:
+                    tracker.pop_anim()
 
 
 class _AnimLayerColored(_AnimLayer):
