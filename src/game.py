@@ -66,7 +66,7 @@ class Game:
         for view in self._views.values():
             view.init(self._view_data)
 
-        self.show_view("title")
+        self.show_view("scenario")
 
         print("Start loop...")
 
