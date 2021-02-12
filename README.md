@@ -10,9 +10,9 @@ An awesome ~~realistic, SSBU-killer~~ local-multiplayer fighting game where the 
 
 
 ## Playable incarnations
-- A potato that punch hard and rolls on the enemies
-- A corn that fires his kernels on the enemies
-- A swordsman carrot 
+- A potato that punch hard and rolls on the enemies![Potato](res/readme/small_potato_running.gif)
+- A corn that fires his kernels on the enemies ![Corn](res/readme/small_corn_running.gif)
+- A swordsman carrot ![Carrot](res/readme/small_carrot_running.gif)
 
 
 ## HOW TO USE IT ?
