@@ -18,51 +18,51 @@ RemoveEntityCallback = Optional[Callable[[int], None]]
 class Tile:
 
     TILE_AIR = ord(" ")
-
-    TILE_DIRT_1 = ord("A")
-    TILE_DIRT_2 = ord("B")
-    TILE_DIRT_3 = ord("C")
-    TILE_DIRT_4 = ord("D")
-    TILE_DIRT_5 = ord("E")
-    TILE_DIRT_6 = ord("F")
-    TILE_DIRT_7 = ord("G")
-    TILE_DIRT_8 = ord("H")
-    TILE_DIRT_9 = ord("I")
+    # Unused tiles are commented
+    # TILE_DIRT_1 = ord("A")
+    # TILE_DIRT_2 = ord("B")
+    # TILE_DIRT_3 = ord("C")
+    # TILE_DIRT_4 = ord("D")
+    # TILE_DIRT_5 = ord("E")
+    # TILE_DIRT_6 = ord("F")
+    # TILE_DIRT_7 = ord("G")
+    # TILE_DIRT_8 = ord("H")
+    # TILE_DIRT_9 = ord("I")
 
     TILE_GRASS_HOLED_1 = ord("J")
     TILE_GRASS_HOLED_2 = ord("K")
-    TILE_GRASS_HOLED_3 = ord("L")
-    TILE_GRASS_HOLED_4 = ord("M")
-    TILE_GRASS_HOLED_6 = ord("N")
-    TILE_GRASS_HOLED_7 = ord("O")
-    TILE_GRASS_HOLED_8 = ord("P")
-    TILE_GRASS_HOLED_9 = ord("Q")
+    # TILE_GRASS_HOLED_3 = ord("L")
+    # TILE_GRASS_HOLED_4 = ord("M")
+    # TILE_GRASS_HOLED_6 = ord("N")
+    # TILE_GRASS_HOLED_7 = ord("O")
+    # TILE_GRASS_HOLED_8 = ord("P")
+    # TILE_GRASS_HOLED_9 = ord("Q")
 
-    TILE_GRASS_1 = ord("R")
+    # TILE_GRASS_1 = ord("R")
     TILE_GRASS_2 = ord("S")
     TILE_GRASS_3 = ord("T")
-    TILE_GRASS_4 = ord("U")
+    # TILE_GRASS_4 = ord("U")
     TILE_GRASS_5 = ord("V")
-    TILE_GRASS_6 = ord("W")
-    TILE_GRASS_7 = ord("X")
-    TILE_GRASS_8 = ord("Y")
-    TILE_GRASS_9 = ord("Z")
+    # TILE_GRASS_6 = ord("W")
+    # TILE_GRASS_7 = ord("X")
+    # TILE_GRASS_8 = ord("Y")
+    # TILE_GRASS_9 = ord("Z")
 
-    TILE_FARMLAND = ord("a")
+    # TILE_FARMLAND = ord("a")
 
     TILE_WHEAT = ord("b")
 
-    TILE_PUDDLE_1 = ord("c")
-    TILE_PUDDLE_2 = ord("d")
-    TILE_PUDDLE_3 = ord("e")
-    TILE_PUDDLE_4 = ord("f")
+    # TILE_PUDDLE_1 = ord("c")
+    # TILE_PUDDLE_2 = ord("d")
+    # TILE_PUDDLE_3 = ord("e")
+    # TILE_PUDDLE_4 = ord("f")
 
-    TILE_STONE_1 = ord("g")
-    TILE_STONE_2 = ord("h")
-    TILE_STONE_3 = ord("i")
-    TILE_STONE_4 = ord("j")
+    # TILE_STONE_1 = ord("g")
+    # TILE_STONE_2 = ord("h")
+    # TILE_STONE_3 = ord("i")
+    # TILE_STONE_4 = ord("j")
     TILE_STONE_5 = ord("k")
-    TILE_STONE_6 = ord("l")
+    # TILE_STONE_6 = ord("l")
     TILE_STONE_7 = ord("m")
     TILE_STONE_8 = ord("n")
     TILE_STONE_9 = ord("o")
@@ -72,70 +72,70 @@ class Tile:
     TILE_DIRT_STONE_1 = ord("p")
     TILE_DIRT_STONE_2 = ord("q")
     TILE_DIRT_STONE_3 = ord("r")
-    TILE_DIRT_STONE_4 = ord("s")
-    TILE_DIRT_STONE_5 = ord("t")
-    TILE_DIRT_STONE_6 = ord("u")
-    TILE_DIRT_STONE_7 = ord("v")
-    TILE_DIRT_STONE_8 = ord("w")
-    TILE_DIRT_STONE_9 = ord("x")
+    # TILE_DIRT_STONE_4 = ord("s")
+    # TILE_DIRT_STONE_5 = ord("t")
+    # TILE_DIRT_STONE_6 = ord("u")
+    # TILE_DIRT_STONE_7 = ord("v")
+    # TILE_DIRT_STONE_8 = ord("w")
+    # TILE_DIRT_STONE_9 = ord("x")
     TILE_DIRT_STONE_10 = ord("0")
     TILE_DIRT_STONE_11 = ord("&")
 
     TILE_GRASS_DIRT_STONE_1 = ord("y")
     TILE_GRASS_DIRT_STONE_2 = ord("z")
     TILE_GRASS_DIRT_STONE_3 = ord("1")
-    TILE_GRASS_DIRT_STONE_4 = ord("2")
-    TILE_GRASS_DIRT_STONE_5 = ord("3")
-    TILE_GRASS_DIRT_STONE_6 = ord("4")
-    TILE_GRASS_DIRT_STONE_7 = ord("5")
-    TILE_GRASS_DIRT_STONE_8 = ord("6")
-    TILE_GRASS_DIRT_STONE_9 = ord("7")
+    # TILE_GRASS_DIRT_STONE_4 = ord("2")
+    # TILE_GRASS_DIRT_STONE_5 = ord("3")
+    # TILE_GRASS_DIRT_STONE_6 = ord("4")
+    # TILE_GRASS_DIRT_STONE_7 = ord("5")
+    # TILE_GRASS_DIRT_STONE_8 = ord("6")
+    # TILE_GRASS_DIRT_STONE_9 = ord("7")
 
     VALID_TILES_IDS = {
-        TILE_DIRT_1,
-        TILE_DIRT_2,
-        TILE_DIRT_3,
-        TILE_DIRT_4,
-        TILE_DIRT_5,
-        TILE_DIRT_6,
-        TILE_DIRT_7,
-        TILE_DIRT_8,
-        TILE_DIRT_9,
+        # TILE_DIRT_1,
+        # TILE_DIRT_2,
+        # TILE_DIRT_3,
+        # TILE_DIRT_4,
+        # TILE_DIRT_5,
+        # TILE_DIRT_6,
+        # TILE_DIRT_7,
+        # TILE_DIRT_8,
+        # TILE_DIRT_9,
 
         TILE_GRASS_HOLED_1,
         TILE_GRASS_HOLED_2,
-        TILE_GRASS_HOLED_3,
-        TILE_GRASS_HOLED_4,
-        TILE_GRASS_HOLED_6,
-        TILE_GRASS_HOLED_7,
-        TILE_GRASS_HOLED_8,
-        TILE_GRASS_HOLED_9,
+        # TILE_GRASS_HOLED_3,
+        # TILE_GRASS_HOLED_4,
+        # TILE_GRASS_HOLED_6,
+        # TILE_GRASS_HOLED_7,
+        # TILE_GRASS_HOLED_8,
+        # TILE_GRASS_HOLED_9,
 
-        TILE_GRASS_1,
+        # TILE_GRASS_1,
         TILE_GRASS_2,
         TILE_GRASS_3,
-        TILE_GRASS_4,
+        # TILE_GRASS_4,
         TILE_GRASS_5,
-        TILE_GRASS_6,
-        TILE_GRASS_7,
-        TILE_GRASS_8,
-        TILE_GRASS_9,
+        # TILE_GRASS_6,
+        # TILE_GRASS_7,
+        # TILE_GRASS_8,
+        # TILE_GRASS_9,
 
-        TILE_FARMLAND,
+        # TILE_FARMLAND,
 
         TILE_WHEAT,
 
-        TILE_PUDDLE_1,
-        TILE_PUDDLE_2,
-        TILE_PUDDLE_3,
-        TILE_PUDDLE_4,
+        # TILE_PUDDLE_1,
+        # TILE_PUDDLE_2,
+        # TILE_PUDDLE_3,
+        # TILE_PUDDLE_4,
 
-        TILE_STONE_1,
-        TILE_STONE_2,
-        TILE_STONE_3,
-        TILE_STONE_4,
+        # TILE_STONE_1,
+        # TILE_STONE_2,
+        # TILE_STONE_3,
+        # TILE_STONE_4,
         TILE_STONE_5,
-        TILE_STONE_6,
+        # TILE_STONE_6,
         TILE_STONE_7,
         TILE_STONE_8,
         TILE_STONE_9,
@@ -145,24 +145,24 @@ class Tile:
         TILE_DIRT_STONE_1,
         TILE_DIRT_STONE_2,
         TILE_DIRT_STONE_3,
-        TILE_DIRT_STONE_4,
-        TILE_DIRT_STONE_5,
-        TILE_DIRT_STONE_6,
-        TILE_DIRT_STONE_7,
-        TILE_DIRT_STONE_8,
-        TILE_DIRT_STONE_9,
+        # TILE_DIRT_STONE_4,
+        # TILE_DIRT_STONE_5,
+        # TILE_DIRT_STONE_6,
+        # TILE_DIRT_STONE_7,
+        # TILE_DIRT_STONE_8,
+        # TILE_DIRT_STONE_9,
         TILE_DIRT_STONE_10,
         TILE_DIRT_STONE_11,
 
         TILE_GRASS_DIRT_STONE_1,
         TILE_GRASS_DIRT_STONE_2,
-        TILE_GRASS_DIRT_STONE_3,
-        TILE_GRASS_DIRT_STONE_4,
-        TILE_GRASS_DIRT_STONE_5,
-        TILE_GRASS_DIRT_STONE_6,
-        TILE_GRASS_DIRT_STONE_7,
-        TILE_GRASS_DIRT_STONE_8,
-        TILE_GRASS_DIRT_STONE_9
+        TILE_GRASS_DIRT_STONE_3
+        # TILE_GRASS_DIRT_STONE_4,
+        # TILE_GRASS_DIRT_STONE_5,
+        # TILE_GRASS_DIRT_STONE_6,
+        # TILE_GRASS_DIRT_STONE_7,
+        # TILE_GRASS_DIRT_STONE_8,
+        # TILE_GRASS_DIRT_STONE_9
 
     }
 
@@ -369,10 +369,10 @@ class Stage:
     @classmethod
     def new_example_stage(cls) -> 'Stage':
 
-        stage = cls(50, 15)
+        stage = cls(30, 13)
 
         stage.set_terrain(
-            15, 0,
+            4, 0,
             b" b    b         b  b",
             b"JSSKSKSKKSKKKKSKSKKSKT",
             b"0qqqqqrVpqqqqqqqqqqqq&",
@@ -381,34 +381,34 @@ class Stage:
             b"       mno  9"
         )
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(15, 2, 37, 4)
+        floor.get_hitbox().set_positions(4, 2, 26, 4)
 
         stage.set_terrain(
-            18, 8,
+            7, 8,
             b"b",
             b"yzzz",
         )
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(18, 7, 22, 8)
+        floor.get_hitbox().set_positions(7, 7, 11, 8)
 
         stage.set_terrain(
-            24, 12,
+            13, 12,
             b"yzz1",
         )
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(24, 11, 28, 12)
+        floor.get_hitbox().set_positions(13, 11, 17, 12)
 
         stage.set_terrain(
-            30, 8,
+            19, 8,
             b"  b",
             b"yzz1",
         )
         floor = stage.add_entity(Floor)
-        floor.get_hitbox().set_positions(30, 7, 34, 8)
+        floor.get_hitbox().set_positions(19, 7, 23, 8)
 
-        stage.add_spawn_point(23, 5)
-        stage.add_spawn_point(29, 5)
-        stage.add_spawn_point(17, 5)
-        stage.add_spawn_point(35, 5)
+        stage.add_spawn_point(12, 5)
+        stage.add_spawn_point(18, 5)
+        stage.add_spawn_point(6, 5)
+        stage.add_spawn_point(24, 5)
 
         return stage

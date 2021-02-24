@@ -210,6 +210,13 @@ class Player(MotionEntity):
             self.set_dead()
             return
 
+        elif self._x < 1 or self._x > 29:
+            self._stage.add_effect(EffectType.SMOKE, 1, self._x, self._y)
+            self.set_hp(0)
+            self.set_dead()
+
+            return
+
         if self._on_ground and self._vel_x != 0 and random.random() < 0.05:
             self._stage.add_effect(EffectType.SMALL_GROUND_DUST, 1, self._x, self._y)
 

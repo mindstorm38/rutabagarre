@@ -278,50 +278,50 @@ class InGameView(View):
     BACKGROUND_COLOR = None
 
     TILES_NAMES = {
-        Tile.TILE_DIRT_1: "TILE_DIRT_1",
-        Tile.TILE_DIRT_2: "TILE_DIRT_2",
-        Tile.TILE_DIRT_3: "TILE_DIRT_3",
-        Tile.TILE_DIRT_4: "TILE_DIRT_4",
-        Tile.TILE_DIRT_5: "TILE_DIRT_5",
-        Tile.TILE_DIRT_6: "TILE_DIRT_6",
-        Tile.TILE_DIRT_7: "TILE_DIRT_7",
-        Tile.TILE_DIRT_8: "TILE_DIRT_8",
-        Tile.TILE_DIRT_9: "TILE_DIRT_9",
+        # Tile.TILE_DIRT_1: "TILE_DIRT_1",
+        # Tile.TILE_DIRT_2: "TILE_DIRT_2",
+        # Tile.TILE_DIRT_3: "TILE_DIRT_3",
+        # Tile.TILE_DIRT_4: "TILE_DIRT_4",
+        # Tile.TILE_DIRT_5: "TILE_DIRT_5",
+        # Tile.TILE_DIRT_6: "TILE_DIRT_6",
+        # Tile.TILE_DIRT_7: "TILE_DIRT_7",
+        # Tile.TILE_DIRT_8: "TILE_DIRT_8",
+        # Tile.TILE_DIRT_9: "TILE_DIRT_9",
 
         Tile.TILE_GRASS_HOLED_1: "TILE_GRASS_HOLED_1",
         Tile.TILE_GRASS_HOLED_2: "TILE_GRASS_HOLED_2",
-        Tile.TILE_GRASS_HOLED_3: "TILE_GRASS_HOLED_3",
-        Tile.TILE_GRASS_HOLED_4: "TILE_GRASS_HOLED_4",
-        Tile.TILE_GRASS_HOLED_6: "TILE_GRASS_HOLED_6",
-        Tile.TILE_GRASS_HOLED_7: "TILE_GRASS_HOLED_7",
-        Tile.TILE_GRASS_HOLED_8: "TILE_GRASS_HOLED_8",
-        Tile.TILE_GRASS_HOLED_9: "TILE_GRASS_HOLED_9",
+        # Tile.TILE_GRASS_HOLED_3: "TILE_GRASS_HOLED_3",
+        # Tile.TILE_GRASS_HOLED_4: "TILE_GRASS_HOLED_4",
+        # Tile.TILE_GRASS_HOLED_6: "TILE_GRASS_HOLED_6",
+        # Tile.TILE_GRASS_HOLED_7: "TILE_GRASS_HOLED_7",
+        # Tile.TILE_GRASS_HOLED_8: "TILE_GRASS_HOLED_8",
+        # Tile.TILE_GRASS_HOLED_9: "TILE_GRASS_HOLED_9",
 
-        Tile.TILE_GRASS_1: "TILE_GRASS_1",
+        # Tile.TILE_GRASS_1: "TILE_GRASS_1",
         Tile.TILE_GRASS_2: "TILE_GRASS_2",
         Tile.TILE_GRASS_3: "TILE_GRASS_3",
-        Tile.TILE_GRASS_4: "TILE_GRASS_4",
+        # Tile.TILE_GRASS_4: "TILE_GRASS_4",
         Tile.TILE_GRASS_5: "TILE_GRASS_5",
-        Tile.TILE_GRASS_6: "TILE_GRASS_6",
-        Tile.TILE_GRASS_7: "TILE_GRASS_7",
-        Tile.TILE_GRASS_8: "TILE_GRASS_8",
-        Tile.TILE_GRASS_9: "TILE_GRASS_9",
+        # Tile.TILE_GRASS_6: "TILE_GRASS_6",
+        # Tile.TILE_GRASS_7: "TILE_GRASS_7",
+        # Tile.TILE_GRASS_8: "TILE_GRASS_8",
+        # Tile.TILE_GRASS_9: "TILE_GRASS_9",
 
         Tile.TILE_WHEAT: "TILE_WHEAT",
 
-        Tile.TILE_FARMLAND: "TILE_FARMLAND",
+        # Tile.TILE_FARMLAND: "TILE_FARMLAND",
 
-        Tile.TILE_PUDDLE_1: "TILE_PUDDLE_1",
-        Tile.TILE_PUDDLE_2: "TILE_PUDDLE_2",
-        Tile.TILE_PUDDLE_3: "TILE_PUDDLE_3",
-        Tile.TILE_PUDDLE_4: "TILE_PUDDLE_4",
+        # Tile.TILE_PUDDLE_1: "TILE_PUDDLE_1",
+        # Tile.TILE_PUDDLE_2: "TILE_PUDDLE_2",
+        # Tile.TILE_PUDDLE_3: "TILE_PUDDLE_3",
+        # Tile.TILE_PUDDLE_4: "TILE_PUDDLE_4",
 
-        Tile.TILE_STONE_1: "TILE_STONE_1",
-        Tile.TILE_STONE_2: "TILE_STONE_2",
-        Tile.TILE_STONE_3: "TILE_STONE_3",
-        Tile.TILE_STONE_4: "TILE_STONE_4",
+        # Tile.TILE_STONE_1: "TILE_STONE_1",
+        # Tile.TILE_STONE_2: "TILE_STONE_2",
+        # Tile.TILE_STONE_3: "TILE_STONE_3",
+        # Tile.TILE_STONE_4: "TILE_STONE_4",
         Tile.TILE_STONE_5: "TILE_STONE_5",
-        Tile.TILE_STONE_6: "TILE_STONE_6",
+        # Tile.TILE_STONE_6: "TILE_STONE_6",
         Tile.TILE_STONE_7: "TILE_STONE_7",
         Tile.TILE_STONE_8: "TILE_STONE_8",
         Tile.TILE_STONE_9: "TILE_STONE_9",
@@ -331,24 +331,24 @@ class InGameView(View):
         Tile.TILE_DIRT_STONE_1: "TILE_DIRT_STONE_1",
         Tile.TILE_DIRT_STONE_2: "TILE_DIRT_STONE_2",
         Tile.TILE_DIRT_STONE_3: "TILE_DIRT_STONE_3",
-        Tile.TILE_DIRT_STONE_4: "TILE_DIRT_STONE_4",
-        Tile.TILE_DIRT_STONE_5: "TILE_DIRT_STONE_5",
-        Tile.TILE_DIRT_STONE_6: "TILE_DIRT_STONE_6",
-        Tile.TILE_DIRT_STONE_7: "TILE_DIRT_STONE_7",
-        Tile.TILE_DIRT_STONE_8: "TILE_DIRT_STONE_8",
-        Tile.TILE_DIRT_STONE_9: "TILE_DIRT_STONE_9",
+        # Tile.TILE_DIRT_STONE_4: "TILE_DIRT_STONE_4",
+        # Tile.TILE_DIRT_STONE_5: "TILE_DIRT_STONE_5",
+        # Tile.TILE_DIRT_STONE_6: "TILE_DIRT_STONE_6",
+        # Tile.TILE_DIRT_STONE_7: "TILE_DIRT_STONE_7",
+        # Tile.TILE_DIRT_STONE_8: "TILE_DIRT_STONE_8",
+        # Tile.TILE_DIRT_STONE_9: "TILE_DIRT_STONE_9",
         Tile.TILE_DIRT_STONE_10: "TILE_DIRT_STONE_10",
         Tile.TILE_DIRT_STONE_11: "TILE_DIRT_STONE_11",
 
         Tile.TILE_GRASS_DIRT_STONE_1: "TILE_GRASS_DIRT_STONE_1",
         Tile.TILE_GRASS_DIRT_STONE_2: "TILE_GRASS_DIRT_STONE_2",
-        Tile.TILE_GRASS_DIRT_STONE_3: "TILE_GRASS_DIRT_STONE_3",
-        Tile.TILE_GRASS_DIRT_STONE_4: "TILE_GRASS_DIRT_STONE_4",
-        Tile.TILE_GRASS_DIRT_STONE_5: "TILE_GRASS_DIRT_STONE_5",
-        Tile.TILE_GRASS_DIRT_STONE_6: "TILE_GRASS_DIRT_STONE_6",
-        Tile.TILE_GRASS_DIRT_STONE_7: "TILE_GRASS_DIRT_STONE_7",
-        Tile.TILE_GRASS_DIRT_STONE_8: "TILE_GRASS_DIRT_STONE_8",
-        Tile.TILE_GRASS_DIRT_STONE_9: "TILE_GRASS_DIRT_STONE_9"
+        Tile.TILE_GRASS_DIRT_STONE_3: "TILE_GRASS_DIRT_STONE_3"
+        # Tile.TILE_GRASS_DIRT_STONE_4: "TILE_GRASS_DIRT_STONE_4",
+        # Tile.TILE_GRASS_DIRT_STONE_5: "TILE_GRASS_DIRT_STONE_5",
+        # Tile.TILE_GRASS_DIRT_STONE_6: "TILE_GRASS_DIRT_STONE_6",
+        # Tile.TILE_GRASS_DIRT_STONE_7: "TILE_GRASS_DIRT_STONE_7",
+        # Tile.TILE_GRASS_DIRT_STONE_8: "TILE_GRASS_DIRT_STONE_8",
+        # Tile.TILE_GRASS_DIRT_STONE_9: "TILE_GRASS_DIRT_STONE_9"
     }
 
     ENTITY_DRAWERS: Dict[Type[Entity], Callable[[Entity, 'InGameView'], EntityDrawer]] = {
@@ -630,7 +630,7 @@ class InGameView(View):
         if self._stop_running_at is None:
             if self._stage.is_finished():
                 self._shared_data.play_music("sounds/victory.ogg", 0, 0, 0)
-                self._stop_running_at = time.monotonic() + 5
+                self._stop_running_at = time.monotonic()  # + 5
         elif time.monotonic() >= self._stop_running_at:
             self._shared_data.get_game().show_view("end")
 

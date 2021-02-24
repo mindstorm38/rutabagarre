@@ -208,8 +208,8 @@ class EndView(View):
                 pass
 
     def on_enter(self):
-
-        self._shared_data.play_music("musics/menumusic.ogg")
+        self._shared_data.play_music("sounds/victory.ogg", 0, 0, 0)
+        # self._shared_data.play_music("musics/menumusic.ogg")
 
         self._winner_button.set_text("P" + str(self._shared_data.get_game().get_stage().get_winner().get_player_index() + 1) + " Win!")
 
