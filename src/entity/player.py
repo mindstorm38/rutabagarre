@@ -115,10 +115,10 @@ class Player(MotionEntity):
         return time.monotonic() >= self._block_moves_until and not self._sleeping
 
     def can_act(self) -> bool:
-        return time.monotonic() >= self._block_action_until and not self._special_action
+        return time.monotonic() >= self._block_action_until and not self._special_action and not self._sleeping
 
     def can_act_heavy(self) -> bool:
-        return time.monotonic() >= self._block_heavy_action_until and not self._special_action
+        return time.monotonic() >= self._block_heavy_action_until and not self._special_action and not self._sleeping
 
     def can_jump(self) -> bool:
         return time.monotonic() >= self._block_jump_until and not self._sleeping
