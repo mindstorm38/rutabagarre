@@ -282,7 +282,7 @@ class InGameView(View):
         # Tile.TILE_DIRT_2: "TILE_DIRT_2",
         # Tile.TILE_DIRT_3: "TILE_DIRT_3",
         # Tile.TILE_DIRT_4: "TILE_DIRT_4",
-        # Tile.TILE_DIRT_5: "TILE_DIRT_5",
+        Tile.TILE_DIRT_5: "TILE_DIRT_5",
         # Tile.TILE_DIRT_6: "TILE_DIRT_6",
         # Tile.TILE_DIRT_7: "TILE_DIRT_7",
         # Tile.TILE_DIRT_8: "TILE_DIRT_8",
@@ -339,6 +339,9 @@ class InGameView(View):
         # Tile.TILE_DIRT_STONE_9: "TILE_DIRT_STONE_9",
         Tile.TILE_DIRT_STONE_10: "TILE_DIRT_STONE_10",
         Tile.TILE_DIRT_STONE_11: "TILE_DIRT_STONE_11",
+        Tile.TILE_DIRT_STONE_12: "TILE_DIRT_STONE_12",
+        Tile.TILE_DIRT_STONE_13: "TILE_DIRT_STONE_13",
+        Tile.TILE_DIRT_STONE_14: "TILE_DIRT_STONE_14",
 
         Tile.TILE_GRASS_DIRT_STONE_1: "TILE_GRASS_DIRT_STONE_1",
         Tile.TILE_GRASS_DIRT_STONE_2: "TILE_GRASS_DIRT_STONE_2",

@@ -69,7 +69,6 @@ class TileMap:
 .tile("TILE_DIRT_2", 3, 0)\
 .tile("TILE_DIRT_3", 4, 0)\
 .tile("TILE_DIRT_4", 2, 1)\
-.tile("TILE_DIRT_5", 3, 1)\
 .tile("TILE_DIRT_6", 4, 1)\
 .tile("TILE_DIRT_7", 2, 2)\
 .tile("TILE_DIRT_8", 3, 2)\
@@ -108,6 +107,7 @@ class TileMap:
 .tile("TILE_GRASS_DIRT_STONE_9", 10, 5)
 """
 TERRAIN_TILEMAP = TileMapDefinition(0, 0, 1, 1, 16, 16)\
+    .tile("TILE_DIRT_5", 3, 1)\
     .tile("TILE_GRASS_HOLED_1", 5, 0)\
     .tile("TILE_GRASS_HOLED_2", 6, 0)\
     .tile("TILE_GRASS_2", 9, 0)\
@@ -125,6 +125,9 @@ TERRAIN_TILEMAP = TileMapDefinition(0, 0, 1, 1, 16, 16)\
     .tile("TILE_DIRT_STONE_3", 10, 6)\
     .tile("TILE_DIRT_STONE_10", 11, 6)\
     .tile("TILE_DIRT_STONE_11", 12, 6)\
+    .tile("TILE_DIRT_STONE_12", 11, 7)\
+    .tile("TILE_DIRT_STONE_13", 12, 7)\
+    .tile("TILE_DIRT_STONE_14", 11, 8)\
     .tile("TILE_GRASS_DIRT_STONE_1", 8, 3)\
     .tile("TILE_GRASS_DIRT_STONE_2", 9, 3)\
     .tile("TILE_GRASS_DIRT_STONE_3", 10, 3)

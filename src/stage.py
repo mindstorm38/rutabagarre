@@ -23,7 +23,7 @@ class Tile:
     # TILE_DIRT_2 = ord("B")
     # TILE_DIRT_3 = ord("C")
     # TILE_DIRT_4 = ord("D")
-    # TILE_DIRT_5 = ord("E")
+    TILE_DIRT_5 = ord("E")
     # TILE_DIRT_6 = ord("F")
     # TILE_DIRT_7 = ord("G")
     # TILE_DIRT_8 = ord("H")
@@ -80,6 +80,9 @@ class Tile:
     # TILE_DIRT_STONE_9 = ord("x")
     TILE_DIRT_STONE_10 = ord("0")
     TILE_DIRT_STONE_11 = ord("&")
+    TILE_DIRT_STONE_12 = ord("~")
+    TILE_DIRT_STONE_13 = ord("#")
+    TILE_DIRT_STONE_14 = ord("{")
 
     TILE_GRASS_DIRT_STONE_1 = ord("y")
     TILE_GRASS_DIRT_STONE_2 = ord("z")
@@ -96,7 +99,7 @@ class Tile:
         # TILE_DIRT_2,
         # TILE_DIRT_3,
         # TILE_DIRT_4,
-        # TILE_DIRT_5,
+        TILE_DIRT_5,
         # TILE_DIRT_6,
         # TILE_DIRT_7,
         # TILE_DIRT_8,
@@ -153,6 +156,9 @@ class Tile:
         # TILE_DIRT_STONE_9,
         TILE_DIRT_STONE_10,
         TILE_DIRT_STONE_11,
+        TILE_DIRT_STONE_12,
+        TILE_DIRT_STONE_13,
+        TILE_DIRT_STONE_14,
 
         TILE_GRASS_DIRT_STONE_1,
         TILE_GRASS_DIRT_STONE_2,
@@ -375,7 +381,7 @@ class Stage:
             4, 0,
             b" b    b         b  b",
             b"JSSKSKSKKSKKKKSKSKKSKT",
-            b"0qqqqqrVpqqqqqqqqqqqq&",
+            b"0q#~qq#{{{~#~qqqqq#~q&",
             b" mnnnkkkkkknknnnkkkno",
             b"     mnkkko 8   mno",
             b"       mno  9"
