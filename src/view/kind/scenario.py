@@ -27,7 +27,7 @@ class ScenarioView(View):
         self._line_one_text = self._shared_data.get_font(40).render("A few farmers were sharing the same field.", True, self.TEXT_COLOR)
         self._line_two_text = self._shared_data.get_font(40).render("But one day...", True, self.TEXT_COLOR)
         self._line_three_text = self._shared_data.get_font(40).render("One of them didn't pay his rent.", True, self.TEXT_COLOR)
-        self._line_four_text = self._shared_data.get_font(40).render("Because they are warn-blooded", True, self.TEXT_COLOR)
+        self._line_four_text = self._shared_data.get_font(40).render("Because they are warm-blooded", True, self.TEXT_COLOR)
         self._line_five_text = self._shared_data.get_font(40).render("a fight begins.", True, self.TEXT_COLOR)
         self._line_six_text = self._shared_data.get_font(40).render("With the help of their plants,", True, self.TEXT_COLOR)
         self._line_seven_text = self._shared_data.get_font(40).render("they can gain special power to win the battle.", True, self.TEXT_COLOR)
